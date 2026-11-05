@@ -2,6 +2,17 @@
 
 Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 
+## v0.1.0-alpha.9 (2026-11-05) — contabilità filesystem e filtri scansione
+
+- Nuovi preset **dimensione minima 50/250/500/1024 MiB** e **anzianità 30/90/180/365 giorni**, applicati alla singola scansione. Il report mostra e conserva le soglie effettive.
+- Lettura di metadati POSIX con `lstat` senza aprire i contenuti; la scansione salta elementi su **device diverso** dalla radice selezionata.
+- Riconoscimento dei file con più hard link: conteggi di percorsi, inode distinti e riferimenti ripetuti, senza confonderli con duplicati eliminabili.
+- Nuova misurazione dei **blocchi allocati osservati** per inode distinto, separata dalla somma delle dimensioni logiche per percorso. Le statistiche **non** sono una stima di spazio recuperabile, per limiti APFS/cloni/snapshot/file sparse.
+- La schermata Risultati segnala gli hard link e la dimensione allocata osservata per i candidati, oltre ai totali di analisi; l'export JSON privato include soltanto aggregati e soglie, senza nomi, percorsi o identità inode.
+- **23 test XCTest superati** su macOS ARM64, compresi hard link reali, file sparse, regola dei volumi e soglie invalide: [CI](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42100723365).
+- Aggiornati roadmap, documentazione tecnica, test, sicurezza, privacy e ADR-0006.
+- Rimangono aperti test manuali di volume montato, permessi/revoca, prestazioni su 10k–100k file, cloni APFS e snapshot. Nessuna API di cancellazione o operazione di pulizia disponibile.
+
 ## v0.1.0-alpha.8 (2026-11-05) — esploratore dei risultati e report privato
 
 - Esploratore risultati con ricerca locale per nome e percorso, filtri per file grandi/datati e tipo, quattro ordinamenti (dimensione, anzianità, modifica più recente, nome).
