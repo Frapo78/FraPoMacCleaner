@@ -194,7 +194,9 @@ struct ReadOnlyScanEngine: ScanEngine {
             "app", "bundle", "framework", "photoslibrary", "aplibrary",
             "sparsebundle", "sparseimage", "dmg", "pkg",
             "xcodeproj", "xcworkspace", "xcarchive", "vmwarevm",
-            "utm", "vbox", "mailbundle"
+            "utm", "vbox", "mailbundle", "p12", "p8", "pem",
+            "key", "keychain", "keychain-db", "mobileprovision",
+            "provisionprofile"
         ]
         return url.standardizedFileURL.pathComponents.contains {
             let name = $0.lowercased()

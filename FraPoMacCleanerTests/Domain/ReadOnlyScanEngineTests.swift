@@ -60,17 +60,17 @@ final class ReadOnlyScanEngineTests: XCTestCase {
     }
 
     func testNeverTraversesSymbolicLinksAndPackages() async throws {
-        try makeFile("secret.bin", in: outside)
+        _ = try makeFile("secret.bin", in: outside)
         try FileManager.default.createSymbolicLink(
             at: folder.appendingPathComponent("shortcut"),
             withDestinationURL: outside
         )
         let package = folder.appendingPathComponent("Demo.app", isDirectory: true)
         try FileManager.default.createDirectory(at: package, withIntermediateDirectories: true)
-        try makeFile("nested.bin", in: package)
+        _ = try makeFile("nested.bin", in: package)
         let git = folder.appendingPathComponent(".git", isDirectory: true)
         try FileManager.default.createDirectory(at: git, withIntermediateDirectories: true)
-        try makeFile("hidden.bin", in: git)
+        _ = try makeFile("hidden.bin", in: git)
         let ordinary = try makeFile("ordinary.bin")
 
         let report = try await scanner().scan(in: ScanScope(folderURL: folder))
@@ -97,7 +97,7 @@ final class ReadOnlyScanEngineTests: XCTestCase {
 
     func testLimitAndCancellation() async throws {
         for index in 0..<15 {
-            try makeFile("file-\(index).bin")
+            _ = try makeFile("file-\(index).bin")
         }
         let partial = try await scanner(maximumEntries: 5).scan(
             in: ScanScope(folderURL: folder)
@@ -121,6 +121,9 @@ final class ReadOnlyScanEngineTests: XCTestCase {
         ))
         XCTAssertTrue(ReadOnlyScanEngine.isExcluded(
             URL(fileURLWithPath: "/Users/sample/Documents/Backup.photoslibrary")
+        ))
+        XCTAssertTrue(ReadOnlyScanEngine.isExcluded(
+            URL(fileURLWithPath: "/Users/sample/Documents/PrivateCerts/FraPoDevelopment.p12")
         ))
         XCTAssertFalse(ReadOnlyScanEngine.isExcluded(
             URL(fileURLWithPath: "/Users/sample/Documents/ordinary.txt")
