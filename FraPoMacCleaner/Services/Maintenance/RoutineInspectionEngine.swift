@@ -77,13 +77,20 @@ struct RoutineInspectionEngine: Sendable {
     let maximumDisplayed: Int
     let minimumLogAgeDays: Int
 
+    // Sandboxed apps may see the container as their "home"; the account home
+    // is derived from the current user record. This does not grant file access.
+    private static var productionRoots: [RoutineArea: URL] {
+        guard let account = getpwuid(getuid()), let directory = account.pointee.pw_dir else {
+            return [:] // Fail closed if the account home cannot be resolved.
+        }
+        let home = URL(fileURLWithPath: String(cString: directory), isDirectory: true)
+        return Dictionary(uniqueKeysWithValues: RoutineArea.allCases.map { area in
+            (area, home.appendingPathComponent(area.relativePath, isDirectory: true))
+        })
+    }
+
     init(
-        allowedRoots: [RoutineArea: URL] = Dictionary(
-            uniqueKeysWithValues: RoutineArea.allCases.map { area in
-                (area, FileManager.default.homeDirectoryForCurrentUser
-                    .appendingPathComponent(area.relativePath, isDirectory: true))
-            }
-        ),
+        allowedRoots: [RoutineArea: URL] = RoutineInspectionEngine.productionRoots,
         referenceDate: Date = Date(),
         maximumVisited: Int = 20_000,
         maximumDisplayed: Int = 200,
