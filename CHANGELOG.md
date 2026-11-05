@@ -2,6 +2,18 @@
 
 Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 
+## v0.1.0-alpha.10 (2026-11-05) — diagnosi ordinaria e avvii utente
+
+- Nuove sezioni **Manutenzione** e **Avvii automatici** nella navigazione SwiftUI.
+- **Log utente:** ispezione solo dopo selezione esplicita di `~/Library/Logs`; individuazione metadati di `.log`, log ruotati e rapporti `.ips/.crash/.hang/.spin/.diag` non modificati da almeno 30 giorni. Nessuna lettura del contenuto.
+- **Residui Xcode:** ispezione opt-in di `~/Library/Developer/Xcode/DerivedData`, raggruppata per cartella progetto. Nessuna inferenza che una build sia inutilizzata.
+- **Avvii in background:** inventario dei file `.plist` di `~/Library/LaunchAgents` selezionata dall'utente; lo stato attivo/non attivo non è deducibile dal file. Collegamento ufficiale `SMAppService.openSystemSettingsLoginItems()` alle Impostazioni macOS.
+- Policy di cartelle strettamente consentite, validazione di directory reali, divieto di attraversare symlink o device diversi, esclusione di file con hard link e di file non appartenenti all'utente. Limite di 20.000 elementi e 200 risultati visualizzabili; scansioni annullabili.
+- Attivazione dell'accesso security-scoped soltanto durante il lavoro. Il percorso home è ricavato dall'account dell'utente, non dalla home del container sandbox.
+- Tutti i risultati restano **protetti**: nessun Cestino, cancellazione, comando privilegiato, modifica di `.plist`, terminazione processi o gestione diretta di servizi.
+- **30 test XCTest superati** su macOS ARM64 / Xcode 16.4, incluso il nuovo inventario sintetico: [CI](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42105807359).
+- Da verificare manualmente selezione delle cartelle reali in App Sandbox, permessi/revoca e prestazioni. Questa versione non dichiara spazio recuperabile né miglioramento automatico delle prestazioni.
+
 ## v0.1.0-alpha.9 (2026-11-05) — contabilità filesystem e filtri scansione
 
 - Nuovi preset **dimensione minima 50/250/500/1024 MiB** e **anzianità 30/90/180/365 giorni**, applicati alla singola scansione. Il report mostra e conserva le soglie effettive.

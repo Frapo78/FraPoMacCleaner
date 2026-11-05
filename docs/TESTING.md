@@ -68,3 +68,9 @@ La compilazione UI su macOS ARM64 è stata completata; la verifica manuale dell'
 [CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42100723365): **23 XCTest superati, zero errori**. Nuovi test con hard link creati su file temporanei verificano che due percorsi rimangano due finding ma contino una sola volta nei totali per inode; il caso sparse controlla che i byte allocati osservati non siano presentati come dimensione logica recuperabile. Test dedicati controllano anche le soglie opzionali e il rifiuto di soglie invalide, oltre al confronto di device.
 
 **Non sono ancora verificati** su hardware reale: attraversamento di un volume montato dentro una cartella, permessi revocati durante scansione, cloni APFS e snapshot, benchmark con 10k/100k elementi e il comportamento UI dei preset. La classificazione del rischio resta fail-closed e la pulizia assente.
+
+## Diagnostica ordinaria (alpha.10)
+
+[CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42105807359): **30 test, 0 errori**. I 7 casi del nuovo modulo creano directory di prova dedicate e controllano: whitelist di suffissi e anzianità, rifiuto di cartelle non previste, esclusione di symlink/hard link e directory sensibili, aggregazione di build Xcode, presenza non equivalente all'attività degli agenti, annullamento e limiti, assenza di autorizzazione alla rimozione.
+
+**Test manuali aperti:** selezione reale delle tre posizioni su Mac con App Sandbox e read-only entitlement; cartelle assenti/negate, volumi diversi, revoca dei permessi, log in rotazione, grandi directory; verifica della UI e del collegamento ufficiale alle Impostazioni. La prima versione non abilita alcuna pulizia.

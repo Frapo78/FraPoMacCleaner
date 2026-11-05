@@ -29,3 +29,7 @@ La parola *anonimo* descrive l'assenza di identificativi diretti nel documento, 
 ## Contabilità per inode (alpha.9)
 
 Durante la scansione viene mantenuto in memoria un insieme limitato di coppie device/inode per evitare il doppio conteggio degli hard link. L'esportazione JSON aggiornata include esclusivamente i **totali numerici** e le soglie utilizzate: **non include inode, ID del volume, percorsi, nomi file o elenchi individuali**. I dati sono elaborati solo in locale nella sessione e non persistono automaticamente.
+
+## Diagnosi dei residui utente (alpha.10)
+
+L'app usa l'accesso scelto dall'utente limitato alla durata del job, senza bookmark persistente. Mantiene solo in memoria nomi di log, cartelle DerivedData e identificativi nominali di LaunchAgents per mostrare le voci nel Finder; non legge contenuti, non esporta inventari e non li trasmette. I percorsi delle tre aree sono descrizioni pubbliche dei casi d'uso, non privilegi di accesso.

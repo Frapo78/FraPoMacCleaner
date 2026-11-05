@@ -77,3 +77,9 @@ Non pubblicare file personali, percorsi completi o dati di terzi in Issue. Le vu
 ## Vincoli di lettura rafforzati (alpha.9)
 
 La scansione prova a identificare i file tramite `lstat` senza seguire il collegamento finale, scarta device diversi dalla radice autorizzata e aggrega gli hard link per inode. Il confronto dei device non equivale a validare ogni mount point, e una verifica `lstat` non elimina tutte le race tra controllo ed enumerazione. Queste mitigazioni sono **solo per letture esplorative**, non autorizzano spostamento nel Cestino né altre mutazioni. Anche le misure dei blocchi `st_blocks` sono indicative e non devono essere presentate come spazio recuperabile.
+
+## Diagnosi P0-A implementata (alpha.10)
+
+L'implementazione iniziale elenca solo metadati di log utente datati, file nelle directory di compilazione Xcode e nomi `.plist` di `~/Library/LaunchAgents`, dopo autorizzazione esplicita e match con la posizione attesa. Non apre contenuti, non usa `launchctl`, non disabilita agenti, non richiede Full Disk Access, non legge `/private/var/log` né directory di sistema.
+
+Il file `.plist` resta protetto, indipendentemente dalla data o dimensione. Il modulo di scansione non possiede alcuna API di cancellazione, non prova se i log siano in uso e non distingue con certezza le build ancora utili: **queste informazioni non sono sufficienti per avviare una pulizia**. La futura fase P0-B richiederà prove dedicate e una policy di ammissibilità separata, con conferme e revalidazione dell'identità.

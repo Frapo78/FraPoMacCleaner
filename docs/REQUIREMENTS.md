@@ -87,3 +87,11 @@ La funzione *Pulizia ordinaria sicura* è una priorità del prodotto, **non anco
 - La visualizzazione distingue **segnalazione informativa** e **ammissibilità alla pulizia**, che rimane sempre `protected`.
 - Export manuale JSON con soli aggregati esplicitamente autorizzati: escludere filename, percorso, timestamp per-file, elenco findings e titoli delle sottocartelle.
 - Non generare report in background e non trasmetterli automaticamente.
+
+## Primo incremento della priorità P0 (alpha.10)
+
+- Diagnosi read-only opt-in di `~/Library/Logs`: solo file con estensioni di log/diagnostica esplicitamente riconosciute e ultima modifica di almeno 30 giorni fa. Nessun file viene considerato automaticamente eliminabile.
+- Analisi per cartella di progetto di `~/Library/Developer/Xcode/DerivedData`; serve a capire l'entità delle build, non a dichiararne l'inattività.
+- Elenco informativo dei soli `.plist` direttamente sotto `~/Library/LaunchAgents` e pulsante di accesso alle Impostazioni di sistema via `SMAppService`. Non equivale all'inventario di tutti i login item o processi.
+- Il selettore cartelle deve autorizzare espressamente la **posizione esatta** prevista per la categoria; differenze, symlink, altri device e permessi negati bloccano o escludono l'ispezione.
+- Massimo 20.000 voci visitate e 200 risultati, nessuna lettura contenuto, nessuna azione che modifichi file, agenti o impostazioni.

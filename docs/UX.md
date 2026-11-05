@@ -66,3 +66,9 @@ Tutti i file sono identificati come **protetti dalla rimozione**: una segnalazio
 Prima di ogni analisi si possono scegliere soglie predefinite di **50/250/500/1024 MiB** e **30/90/180/365 giorni**. Un candidato deve soddisfare almeno una condizione. Nel report e nell'export appaiono i valori applicati realmente, anche dopo una nuova selezione della cartella.
 
 I riepiloghi mostrano separatamente somma per percorsi, somma logica per inode distinti e blocchi allocati osservati. Le voci con più hard link vengono etichettate. Nessuno di questi numeri deve essere chiamato «spazio liberabile»: cloni APFS e snapshot possono condividere blocchi, e i file possono essere ancora necessari.
+
+## Manutenzione e Avvii (alpha.10)
+
+Le nuove sezioni indicano subito la natura **read-only** della diagnosi. La prima contiene due azioni separate: log utente datati e build Xcode. La seconda elenca i soli agenti dell'utente rappresentati da file `.plist` e offre il pulsante per aprire le impostazioni di login macOS. Ogni azione richiede selezione e accesso espliciti alla cartella prevista; in assenza di corrispondenza viene mostrato un errore leggibile.
+
+La lista mostra al massimo 200 risultati, segnala analisi parziali e marca tutte le voci come protette. La presenza di un elemento LaunchAgents non equivale all'avvio attivo; la dimensione osservata dei residui non è automaticamente recuperabile.

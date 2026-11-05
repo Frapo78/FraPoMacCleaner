@@ -154,3 +154,13 @@ Il motore conserva soltanto metadati ottenuti da URLResourceValues e `Darwin.lst
 L'insieme delle identità è limitato dai **100.000 elementi massimi** già previsti dalla scansione. I device diversi da quello della radice selezionata sono saltati senza attraversarli. `lstat` su ogni directory prima dell'enumerazione limita l'attraversamento di symlink sostituiti; **non è una difesa completa da race TOCTOU**, né identifica mount alias sullo stesso device. Ogni futura mutazione richiederà un controllo file-descriptor-based separato.
 
 `ScanScope` registra le soglie facoltative per la singola esecuzione; `ScanReport` conserva le soglie realmente applicate. La UI offre preset da 50 MiB a 1 GiB e 30–365 giorni. L'assenza di valori usa il default del motore, mentre zero o valori negativi sono respinti. Non vengono introdotti privilegi o accessi in background.
+
+## Modulo Manutenzione P0-A (alpha.10)
+
+`RoutineInspectionEngine` è un enumeratore nativo dedicato e **separato dal motore generalista**. Per ciascuna area ammette esclusivamente la cartella precisa sotto la home dell'account corrente: `Library/Logs`, `Library/Developer/Xcode/DerivedData`, `Library/LaunchAgents`. Una selezione di directory differente è respinta, non interpretata come nuova radice generica. L'utente deve comunque scegliere la cartella con il file importer; una allowlist **non conferisce permessi**.
+
+Per evitare di risolvere accidentalmente la home del container App Sandbox, la posizione dell'account è ricavata tramite `getpwuid(getuid())`, ma i file sono accessibili soltanto con i permessi concessi dalla selezione e quelli POSIX/TCC. `lstat` consente di escludere symlink, hard link e device diversi; i dati sono metadati, senza lettura dei log o del contenuto dei plist. Come per lo scanner generale, il controllo non è una soluzione contro tutte le race TOCTOU. Le ispezioni hanno limite 20k elementi, 200 risultati, profondità limitata e supporto all'annullamento.
+
+La UI `RoutineMaintenanceView` è riusata in due sezioni, mentre `RoutineInspectionModel` esegue l'enumerazione in un task `detached` a priorità ridotta, mantenendo lo stato aggiornato sul `MainActor`. Le sessioni annullate non possono sostituire il risultato della nuova sessione. Il modulo Avvii legge **solo i nomi** dei plist in `LaunchAgents`; gli elementi moderni non rappresentati da file sono consultabili nelle Impostazioni con `SMAppService.openSystemSettingsLoginItems()`.
+
+Non esistono componenti di pulizia per queste aree; ogni voce rimane `protected`. Il rapporto conserva URL solo in memoria per la navigazione manuale nel Finder. La nuova funzione non cambia le condizioni di firma o i permessi dell'app.

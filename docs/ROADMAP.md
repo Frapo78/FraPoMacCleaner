@@ -33,14 +33,16 @@
 
 ## Priorità P0 — Pulizia ordinaria sicura e avvii indesiderati
 
-**Nuova priorità di prodotto, da sviluppare prima di duplicati, monitor e manutenzione avanzata.** Obiettivo: recuperare spazio da residui *effettivamente verificati* dell'utente e identificare avvii in background non desiderati. Nessuna promessa generica di accelerazione; eliminare log non riduce automaticamente i processi attivi. **Stato: pianificata, non implementata.**
+**Nuova priorità di prodotto, da sviluppare prima di duplicati, monitor e manutenzione avanzata.** Obiettivo: recuperare spazio da residui *effettivamente verificati* dell'utente e identificare avvii in background non desiderati. Nessuna promessa generica di accelerazione; eliminare log non riduce automaticamente i processi attivi. **Stato: prima versione diagnostica implementata in alpha.10 e verificata in CI; pulizia controllata ancora non implementata.**
 
-### P0-A — Diagnosi read-only (prossima milestone)
+### P0-A — Diagnosi read-only (alpha.10: prima implementazione)
 
-- [ ] Inventario mirato, con regole a whitelist versionate e testate, di **vecchi log e rapporti diagnostici utente** (es. sotto `~/Library/Logs` e `~/Library/Logs/DiagnosticReports` quando effettivamente accessibili); classificazione per app, data, dimensione, motivo e rischio, senza leggere i contenuti.
-- [ ] Rilevamento di **cache utente non attive e residui temporanei** soltanto per directory e formati esplicitamente approvati per caso d'uso; niente ricerca globale per estensioni o cancellazione indiscriminata di `~/Library/Caches`.
-- [ ] Vista separata **Avvio e attività in background**, in sola lettura: mostrare elementi di login, agenti utente e loro origine quando identificabile; distinguere stato verificato da stato sconosciuto, senza dichiarare che ogni agente sia superfluo.
-- [ ] Anteprima per ciascuna categoria con titolarità, ragioni della segnalazione, esclusioni, dimensioni logiche/allocate *osservate* e avviso su incertezza APFS; nessun file preselezionato.
+- [ ] Inventario mirato di log e rapporti dell'utente: **alpha.10** analizza in sola lettura, con allowlist limitata di estensioni e almeno 30 giorni di anzianità, la cartella `~/Library/Logs` autorizzata; restano da sviluppare classificazione per app e stima affidabile del rischio.
+- [ ] Rilevamento di cache e residui temporanei: **alpha.10** aggrega il contenuto visibile di `~/Library/Developer/Xcode/DerivedData` per progetto, senza dedurre inattività; restano da approvare altre categorie ed escludere le build in uso.
+- [ ] Vista Avvio in background: **alpha.10** elenca i soli `.plist` dell'utente in `~/Library/LaunchAgents` e apre le Impostazioni macOS tramite API Apple; manca l'inventario completo dei login item moderni e dei relativi stati.
+- [ ] Anteprima di ogni categoria: **alpha.10** mostra ragioni, età e dimensioni logiche osservate; restano misure allocate per il modulo di manutenzione, ownership in UI, controllo uso attivo e risk scoring verificabile.
+
+- [x] **Alpha.10:** moduli separati e testati per diagnosi log utente datati, DerivedData e file LaunchAgents, tutti read-only, senza selezione o mutazione.
 
 ### P0-B — Pulizia controllata (primo incremento della Fase 2, solo dopo gate di sicurezza)
 

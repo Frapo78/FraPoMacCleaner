@@ -103,3 +103,16 @@ Se i file esistono già, **non eseguire nuovamente questi comandi** sulla stessa
 Scegliere la cartella dalla sezione **Scansione**, selezionare le soglie desiderate e avviare. In **Risultati** i due `.mov` devono risultare percorsi distinti con indicazione *Hard link*, ma con un solo inode nel conteggio univoco. La somma logica per percorsi può essere più alta del totale per inode; i blocchi allocati osservati possono essere molto inferiori per il file sparse. Cambiare le soglie e ripetere la scansione. Verificare che il riepilogo JSON contenga solo aggregati e soglie, senza nomi o identificatori inode.
 
 I valori non costituiscono spazio recuperabile. Non testare su cartelle di lavoro o dati personali.
+
+## Prima diagnosi ordinaria (alpha.10)
+
+Aprire **Manutenzione** per analizzare, solo su richiesta:
+
+- `~/Library/Logs` — file di log e diagnostica non modificati da almeno 30 giorni;
+- `~/Library/Developer/Xcode/DerivedData` — riepilogo dei file di build osservati per progetto.
+
+Aprire **Avvii automatici** per scegliere `~/Library/LaunchAgents` (solo nomi `.plist`) oppure aprire **Elementi login** nelle Impostazioni di sistema.
+
+In ciascun caso usare il selettore cartelle per concedere accesso in lettura. Per raggiungere `~/Library` nel dialogo, premere **⌘⇧G** e digitare il percorso indicato, usando `~` come home dell'utente. Se la directory manca, non crearla con privilegi elevati: quella categoria non ha dati disponibili. La selezione di una directory diversa viene rifiutata.
+
+Tutte le voci risultano **protette**: nessuna cancellazione di log/cache, rimozione di file plist o terminazione di processi. Un file in LaunchAgents non dimostra che l'agente sia in esecuzione. Il totale Xcode è una somma logica parziale, non spazio liberabile. Testare prima con dati non sensibili; la verifica manuale sulle cartelle reali è ancora aperta.
