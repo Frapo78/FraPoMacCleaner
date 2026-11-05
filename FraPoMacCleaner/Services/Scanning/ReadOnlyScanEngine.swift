@@ -143,8 +143,6 @@ struct ReadOnlyScanEngine: ScanEngine {
                 visitedItemCount: visited,
                 inspectedFileCount: inspected,
                 candidateCount: candidates,
-                appliedLargeThresholdBytes: largeThreshold,
-                appliedAgeThresholdDays: ageThreshold,
                 skippedItemCount: excluded,
                 errorCount: errors
             ))
@@ -180,6 +178,8 @@ struct ReadOnlyScanEngine: ScanEngine {
                 },
                 inspectedFileCount: inspected,
                 candidateCount: candidates,
+                appliedLargeThresholdBytes: largeThreshold,
+                appliedAgeThresholdDays: ageThreshold,
                 skippedItemCount: excluded,
                 errorCount: errors,
                 reachedLimit: limit,
