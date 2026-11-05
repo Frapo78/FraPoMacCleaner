@@ -8,9 +8,9 @@ enum ScanEngineError: LocalizedError {
     }
 }
 
-/// Segnaposto: non legge il filesystem e non avvia alcun job.
+/// Fallback: it never reads files and cannot change them.
 struct UnavailableScanEngine: ScanEngine {
-    func scan(in scope: ScanScope) async throws -> [ScanFinding] {
+    func scan(in scope: ScanScope) async throws -> ScanReport {
         throw ScanEngineError.notImplemented
     }
 }

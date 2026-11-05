@@ -44,7 +44,7 @@ struct DashboardView: View {
 
             GroupBox("Sicurezza") {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("Scanner: non ancora disponibile", systemImage: "clock")
+                    Label("Scanner locale di soli metadati disponibile", systemImage: "checkmark.shield")
                     Label("Pulizia e cancellazione: non implementate", systemImage: "lock.shield")
                     Label("Nessuna telemetria", systemImage: "hand.raised")
                 }

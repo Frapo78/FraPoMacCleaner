@@ -1,4 +1,15 @@
+import Foundation
+
+/// A scan is descriptive only. No finding grants permission to change a file.
 protocol ScanEngine: Sendable {
-    /// Implementazioni future: read-only, cancellabili, no symlink traversal.
-    func scan(in scope: ScanScope) async throws -> [ScanFinding]
+    func scan(in scope: ScanScope) async throws -> ScanReport
+}
+
+struct ScanReport: Sendable {
+    let findings: [ScanFinding]
+    let inspectedFileCount: Int
+    let candidateCount: Int
+    let skippedItemCount: Int
+    let errorCount: Int
+    let reachedLimit: Bool
 }

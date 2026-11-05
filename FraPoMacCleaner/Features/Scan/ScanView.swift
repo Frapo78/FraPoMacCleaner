@@ -1,23 +1,25 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// La scelta di una cartella non innesca una scansione.
 struct ScanView: View {
+    @ObservedObject var model: ScanSessionModel
+    let showResults: () -> Void
     @State private var showingPicker = false
-    @State private var folder: URL?
     @State private var pickerError: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             Text("Scansione").font(.largeTitle.bold())
-            Text("Il motore di analisi è in preparazione: nessun file verrà letto.")
+            Text("Analisi di soli metadati: nessun file viene modificato.")
                 .foregroundStyle(.secondary)
 
-            GroupBox("Cartella") {
+            GroupBox("Cartella autorizzata") {
                 VStack(alignment: .leading, spacing: 12) {
                     Button("Seleziona una cartella…") { showingPicker = true }
-                    if let folder {
+                        .disabled(model.phase == .scanning)
+                    if let folder = model.selectedFolder {
                         Text("Selezionata: \(folder.lastPathComponent)")
+                            .textSelection(.enabled)
                     } else {
                         Text("Nessuna cartella selezionata")
                             .foregroundStyle(.secondary)
@@ -25,9 +27,32 @@ struct ScanView: View {
                     if let pickerError {
                         Text(pickerError).foregroundStyle(.red)
                     }
-                    Button("Avvia scansione") {}
-                        .disabled(true)
-                    Text("Il pulsante sarà abilitato solo dopo i test del motore read-only.")
+
+                    HStack {
+                        Button("Avvia scansione") { model.start() }
+                            .disabled(model.selectedFolder == nil || model.phase == .scanning)
+                        if model.phase == .scanning {
+                            Button("Annulla") { model.cancel() }
+                        }
+                        if model.phase == .finished {
+                            Button("Visualizza risultati") { showResults() }
+                        }
+                    }
+                    if model.phase == .scanning {
+                        ProgressView("Scansione in corso…")
+                    } else if model.phase == .cancelled {
+                        Text("Scansione annullata. Nessuna modifica ai file.")
+                            .foregroundStyle(.secondary)
+                    } else if let error = model.errorMessage {
+                        Text(error).foregroundStyle(.red)
+                    } else if let report = model.report {
+                        Text("\(report.inspectedFileCount) file esaminati · \(report.candidateCount) da verificare · \(report.skippedItemCount) esclusi · \(report.errorCount) errori")
+                        if report.reachedLimit {
+                            Text("Limite di elementi raggiunto: risultati parziali.")
+                                .foregroundStyle(.orange)
+                        }
+                    }
+                    Text("Non segue collegamenti simbolici e ignora cartelle sensibili. I risultati non sono selezionabili per la pulizia.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
@@ -45,7 +70,9 @@ struct ScanView: View {
         ) { result in
             switch result {
             case .success(let urls):
-                folder = urls.first
+                if let folder = urls.first {
+                    model.selectFolder(folder)
+                }
                 pickerError = nil
             case .failure(let error):
                 pickerError = error.localizedDescription

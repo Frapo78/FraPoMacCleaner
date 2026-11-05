@@ -4,6 +4,6 @@ struct AppDependencies {
 
     static let live = AppDependencies(
         disk: SystemDiskSpaceProvider(),
-        scanner: UnavailableScanEngine()
+        scanner: ReadOnlyScanEngine()
     )
 }

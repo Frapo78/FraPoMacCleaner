@@ -101,7 +101,7 @@ docs/
 
 Lo scheletro reale contiene `FraPoMacCleaner/App`, `Features`, `Domain`, `Services`, `Resources`, `Configuration` e `FraPoMacCleanerTests/Domain`. I servizi più rischiosi (TrashAdapter, CleanupCoordinator) **non esistono ancora**, intenzionalmente. La struttura illustrata è un obiettivo di evoluzione; gli altri moduli saranno aggiunti solo quando necessari.
 
-La composizione delle dipendenze si trova in `AppDependencies`; `ScanEngine` è attualmente un adapter che restituisce `notImplemented`, mentre `ConservativeRiskPolicy` classifica tutto come protetto. Il provider del volume legge metadati senza modifiche.
+La composizione delle dipendenze si trova in `AppDependencies`. `ReadOnlyScanEngine` enumera solo metadati delle cartelle esplicitamente scelte, con limiti, annullamento e esclusione di pacchetti e symlink. `ScanSessionModel` mantiene l'accesso security-scoped durante la scansione. `ConservativeRiskPolicy` lascia ogni risultato protetto: non esistono azioni di pulizia. Il provider del volume legge metadati senza modifiche.
 
 ## Errori, osservabilità e performance
 

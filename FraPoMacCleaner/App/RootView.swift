@@ -25,13 +25,21 @@ enum SectionPage: String, CaseIterable, Identifiable {
 
 struct RootView: View {
     let dependencies: AppDependencies
+    @StateObject private var scanSession: ScanSessionModel
     @State private var selection: SectionPage? = .overview
+
+    init(dependencies: AppDependencies) {
+        self.dependencies = dependencies
+        _scanSession = StateObject(
+            wrappedValue: ScanSessionModel(scanner: dependencies.scanner)
+        )
+    }
 
     var body: some View {
         NavigationSplitView {
             VStack(spacing: 0) {
                 Image("BrandLogo")
-                .interpolation(.high)
+                    .interpolation(.high)
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: 182, maxHeight: 46)
@@ -50,10 +58,14 @@ struct RootView: View {
             .frame(minWidth: 200)
         } detail: {
             switch selection ?? .overview {
-            case .overview: DashboardView(provider: dependencies.disk)
-            case .scan: ScanView()
-            case .results: ResultsView()
-            case .settings: SettingsView()
+            case .overview:
+                DashboardView(provider: dependencies.disk)
+            case .scan:
+                ScanView(model: scanSession) { selection = .results }
+            case .results:
+                ResultsView(model: scanSession)
+            case .settings:
+                SettingsView()
             }
         }
         .frame(minWidth: 760, minHeight: 480)
