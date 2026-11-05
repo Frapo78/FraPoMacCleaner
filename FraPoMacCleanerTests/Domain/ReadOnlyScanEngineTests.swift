@@ -7,9 +7,12 @@ final class ReadOnlyScanEngineTests: XCTestCase {
     private var outside: URL!
 
     override func setUpWithError() throws {
-        folder = FileManager.default.temporaryDirectory
+        // A synthetic fixture under the user account, outside protected /private.
+        // The root and the separate target are newly created for this test only.
+        let fixtureHome = FileManager.default.homeDirectoryForCurrentUser
+        folder = fixtureHome
             .appendingPathComponent("FraPoFixture-\(UUID().uuidString)", isDirectory: true)
-        outside = FileManager.default.temporaryDirectory
+        outside = fixtureHome
             .appendingPathComponent("FraPoOutside-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         try FileManager.default.createDirectory(at: outside, withIntermediateDirectories: true)
