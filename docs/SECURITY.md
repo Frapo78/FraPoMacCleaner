@@ -58,6 +58,14 @@ L'elenco è il **punto di partenza conservativo**, non esaustivo. L'esclusione d
 | Cancellazione parziale o crash | Operazione elementare per file, esito durevole e niente retry automatico aggressivo. |
 | Interfaccia che sottostima il rischio | Percorso, descrizione, rischio e conferma sempre visibili. |
 
+## Gate specifico per log utente e avvii in background (priorità P0)
+
+Per il primo caso d'uso di pulizia ordinaria è vietato trattare genericamente i file sotto `/System`, `/Library`, `/private/var/log`, `/var/db` o i log unificati macOS come rifiuti. **Il sistema gestisce autonomamente rotazione e conservazione di molti log**. Il solo criterio «vecchio», «grande», «cache» o «.log» non dimostra che un elemento sia eliminabile.
+
+Una policy specifica deve definire una **allowlist stretta** di file dell'utente e di app con semantica nota, verificare accesso e titolarità, escludere file attivi/in rotazione e considerare i segnali mancanti come rischio `protected`. L'anteprima può essere proposta prima della fase distruttiva; ogni spostamento nel Cestino rimane proibito finché non esistono tutte le validazioni richieste in questo documento.
+
+La diagnosi di login item, agenti e servizi di background è **read-only** per gli elementi di terze parti: non eliminare `.plist`, non terminare processi e non disabilitare servizi modificando direttamente file, database o impostazioni protette. Consentire soltanto il collegamento alle Impostazioni di sistema o l'uso autorizzato delle API pubbliche Apple nel rispettivo ambito. L'eliminazione di un log non disabilita l'avvio del processo che lo produce.
+
 ## Verifica e rilascio
 
 Prima di abilitare la pulizia: test automatici su fixture sintetiche, controlli su symlink/hardlink/rename race, cartelle protette, permessi revocati, filesystem in sola lettura, errori Cestino, volumi esterni e iCloud. Condurre una prova manuale **solo su file di test**. Vedi `TESTING.md`.

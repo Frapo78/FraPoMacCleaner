@@ -19,17 +19,32 @@ Le priorità sono **P0** (necessarie per il primo MVP), **P1** (iterazione succe
 
 **Sequenza P0:** prima consegna solo **R-001–R-006 in modalità read-only**; R-007–R-010 soltanto dopo test di sicurezza.
 
+## P0 prioritario — Residui utente e processi di avvio
+
+La funzione *Pulizia ordinaria sicura* è una priorità del prodotto, **non ancora implementata**. Si sviluppa in due milestone indipendenti:
+
+| ID | Requisito | Criterio di accettazione |
+| --- | --- | --- |
+| R-011 | Diagnosi log e report obsoleti dell'utente | Inventario read-only limitato ad allowlist di directory autorizzate (fra cui `~/Library/Logs` e sottodirectory diagnostiche pertinenti), policy per-app e motivo concreto; zero letture di contenuti. |
+| R-012 | Cache/residui specifici | Solo voci approvate mediante regole versionate; nessun `~/Library/Caches` indiscriminato, nessuna associazione per sola estensione. |
+| R-013 | Diagnosi avvio in background | Origine e stato degli elementi di login/agenti utente solo se verificabili; per modifiche rimando alle impostazioni o API pubbliche consentite. |
+| R-014 | Piano di pulizia prudentissimo | Nessuna preselezione; candidati inizialmente `protected`, promossi solo con policy esplicita, inattività dimostrabile, revisione e conferma. |
+| R-015 | Spostamento nel Cestino | Solo file utente approvati, revalidati immediatamente prima dell'azione; mai cancellazione permanente o privilegi elevati. |
+| R-016 | Report effettivo e limiti | Esiti reali per-file; nessuna promessa di accelerazione o recupero dei byte da stime di scansione. |
+
+**Vincoli:** directory di sistema, log unificati macOS, `/private/var/log`, snapshot, LaunchDaemons, servizi di altri software, log attivi/in rotazione, database, backup e file cloud restano esclusi finché una specifica revisione di sicurezza non stabilisca diversamente. Rimuovere un log *non* equivale a interrompere un processo: sono operazioni distinte.
+
 ## P1 — Ricerca avanzata
 
 - Duplicati: grouping dimensione → hash preliminare → SHA-256 completo + confronto di conferma, quando necessario; verificare symlink e hard link.
-- Cache e log **dell'utente**: analisi con regole specifiche per app, mai cancellazione automatica basata soltanto sull'estensione.
+- Ampliamento delle regole di diagnosi **utente** prioritarie R-011/R-012, sempre specifiche per app e mai basate soltanto sull'estensione.
 - Navigazione avanzata dello spazio: raggruppamento per percorso/tipo/età.
 - Export report locale privo di contenuti file e con percorsi oscurabili.
 
 ## P2 — Moduli da valutare separatamente
 
 - Ispezione delle applicazioni installate e di possibili residui, con mappatura motivata per bundle.
-- Informazioni sui login item e collegamento alle Impostazioni di sistema; gestione limitata alle API consentite.
+- Ampliamento della diagnostica R-013 sugli elementi di login e background, tramite le sole API e impostazioni supportate.
 - Monitor prestazioni CPU/RAM/disco e processi, con overhead misurato.
 - Scansioni programmate e notifiche solo su esplicita attivazione.
 

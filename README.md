@@ -34,10 +34,10 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 | Smart Scan | Esplorazione di cartelle autorizzate con risultati classificati | MVP |
 | Pulizia controllata | Anteprima, selezione e spostamento nel Cestino | MVP |
 | File ingombranti | Ordinamento per dimensione, età e percorso | MVP |
-| Cache e log utente | Identificazione con regole conservative | v0.2 |
+| Log e residui utente | Diagnosi P0 e successiva pulizia selettiva, con regole sicure | Priorità P0 |
 | Duplicati | Confronto a più stadi, verifica crittografica | v0.2 |
 | App e residui | Analisi e disinstallazione guidata | v0.3 |
-| Elementi di avvio | Visibilità e gestione solo tramite API supportate | v0.3 |
+| Elementi di avvio | Diagnosi prioritaria e rimando alle impostazioni macOS | Priorità P0 |
 | Monitor | CPU, memoria, processi e attività disco | v0.3 |
 | Scansioni pianificate | Solo con consenso e impatto limitato | Futuro |
 

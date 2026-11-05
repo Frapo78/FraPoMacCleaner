@@ -29,6 +29,12 @@
 | Clone APFS / sparse file | Non promettere byte fisici liberati uguali alla somma logica. |
 | File duplicati con contenuto differente | Nessun falso positivo dopo verifica finale. |
 
+## Nuova priorità P0: log, residui e agenti utente (da implementare)
+
+**Test necessari prima della modalità read-only:** allowlist/denylist con directory sintetiche, distinzione log utente/log sistema, regressioni sui percorsi di app attive, file di credenziali, volumi esterni, symlink e hard link, directory non accessibili e confini TCC/Sandbox. Verificare che la diagnosi degli avvii automatici non cambi impostazioni e non uccida processi.
+
+**Gate aggiuntivo prima della prima pulizia:** simulare log in scrittura o rotazione, attività concorrente, rinomina/sostituzione TOCTOU, file che cambiano owner o permessi, permessi revocati, hard link, disconnessione disco, errore parziale del Cestino e annullamento; garantire il blocco di tutte le categorie non esplicitamente approvate. Usare esclusivamente fixture di test e provare il flusso su Mac Apple Silicon. Verificare che nessun risultato prometta boost prestazionale né spazio recuperabile identico ai byte logici.
+
 ## Criteri per abilitare la pulizia
 
 - Test automatici per tutte le policy e i casi ad alto rischio applicabili.

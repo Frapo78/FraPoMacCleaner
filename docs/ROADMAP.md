@@ -31,7 +31,31 @@
 
 **Exit gate:** nessuna API di mutazione nel percorso di scansione; test dei casi avversi e prestazioni accettabili.
 
+## Priorità P0 — Pulizia ordinaria sicura e avvii indesiderati
+
+**Nuova priorità di prodotto, da sviluppare prima di duplicati, monitor e manutenzione avanzata.** Obiettivo: recuperare spazio da residui *effettivamente verificati* dell'utente e identificare avvii in background non desiderati. Nessuna promessa generica di accelerazione; eliminare log non riduce automaticamente i processi attivi. **Stato: pianificata, non implementata.**
+
+### P0-A — Diagnosi read-only (prossima milestone)
+
+- [ ] Inventario mirato, con regole a whitelist versionate e testate, di **vecchi log e rapporti diagnostici utente** (es. sotto `~/Library/Logs` e `~/Library/Logs/DiagnosticReports` quando effettivamente accessibili); classificazione per app, data, dimensione, motivo e rischio, senza leggere i contenuti.
+- [ ] Rilevamento di **cache utente non attive e residui temporanei** soltanto per directory e formati esplicitamente approvati per caso d'uso; niente ricerca globale per estensioni o cancellazione indiscriminata di `~/Library/Caches`.
+- [ ] Vista separata **Avvio e attività in background**, in sola lettura: mostrare elementi di login, agenti utente e loro origine quando identificabile; distinguere stato verificato da stato sconosciuto, senza dichiarare che ogni agente sia superfluo.
+- [ ] Anteprima per ciascuna categoria con titolarità, ragioni della segnalazione, esclusioni, dimensioni logiche/allocate *osservate* e avviso su incertezza APFS; nessun file preselezionato.
+
+### P0-B — Pulizia controllata (primo incremento della Fase 2, solo dopo gate di sicurezza)
+
+- [ ] Abilitare **soltanto** categorie allowlist di residui utente dimostrati non necessari, con finestra di inattività e controlli di ownership, permessi, identità e confinamento dell'ambito. I casi ambigui o non verificabili restano `protected`.
+- [ ] Mostrare piano dettagliato per singolo elemento, consenso esplicito e nuova validazione immediatamente prima di un eventuale **spostamento nel Cestino**; nessuna eliminazione permanente, automatica o pianificata.
+- [ ] Per elementi che avviano processi: offrire spiegazione e collegamento alle **Impostazioni di sistema → Elementi login ed estensioni** o alle API Apple supportate, **senza** eliminare `.plist`, terminare processi o alterare servizi di terze parti automaticamente.
+- [ ] Riportare esiti per-file e byte realmente osservabili *dopo* l'azione, senza definire il totale selezionato come spazio recuperato; consentire annullamento e gestione sicura di errori parziali.
+
+**Esclusioni inderogabili per il primo rilascio:** `/System`, `/Library`, `/private/var/log`, log unificati gestiti da macOS, `/var/db`, snapshot, LaunchDaemons di sistema, dati applicativi attivi, backup, credenziali, database, browser, contenuti cloud, applicazioni installate. Non utilizzare `sudo`, privilegi elevati, bypass di SIP/TCC o comandi di svuotamento forzato. Se una categoria richiede questi interventi, resta **solo informativa o fuori ambito**.
+
+**Gate di accettazione:** test su fixture sintetiche per allowlist/denylist, log attivi e in rotazione, symlink/hard link, file cambiati nel frattempo, permessi revocati, elementi di altre app, errori del Cestino, annullamento, volumi diversi e stime APFS; prova manuale su Mac Apple Silicon e revisione della sicurezza. La modalità di diagnosi può essere rilasciata prima della pulizia; nessuna azione distruttiva senza superare il gate.
+
 ## Fase 2 — v0.1b, pulizia controllata
+
+**Primo caso d'uso:** esclusivamente i residui utente approvati in P0-B, non una pulizia generale del sistema.
 
 - [ ] Piano d'azione con preview e consenso.
 - [ ] Revalidazione identità/ambito/permessi prima dell'esecuzione.
@@ -45,13 +69,13 @@
 
 - [ ] Raggruppamento duplicati affidabile con SHA-256 e protezione hard link.
 - [ ] Gestione accurata stime APFS e dati non conteggiabili (alpha.9 misura inode e blocchi allocati; cloni/snapshot, byte esclusivi e spazio recuperabile restano sconosciuti).
-- [ ] Cache/log **utente** attraverso regole revisionate per caso d'uso.
+- [ ] Ampliare i cataloghi di log/cache **utente** oltre l'allowlist prioritaria P0, solo con nuove regole revisionate per singolo caso d'uso.
 - [ ] Miglioramento filtri, export e prestazioni.
 
 ## Fase 4 — v0.3, manutenzione informativa
 
 - [ ] Inventario app/residui con spiegazione delle associazioni.
-- [ ] Login item: visione e collegamento alle impostazioni (per terze parti).
+- [ ] Estendere l'inventario prioritario P0-A di login item e agenti utente con diagnostica più completa, sempre attraverso API e impostazioni supportate.
 - [ ] Monitor CPU/RAM/disco con impatto misurato.
 - [ ] Accessibility audit e localizzazione.
 
