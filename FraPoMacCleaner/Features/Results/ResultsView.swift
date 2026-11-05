@@ -10,6 +10,7 @@ struct ResultsView: View {
     @State private var sortOrder: ScanResultSort = .largest
     @State private var exportError = ""
     @State private var showingExportError = false
+    @State private var showingScanDetails = false
 
     var body: some View {
         Group {
@@ -35,7 +36,11 @@ struct ResultsView: View {
                         Text("\(report.errorCount) elementi non accessibili o con metadati mancanti.")
                             .foregroundStyle(.orange)
                     }
-                    if report.skippedItemCount > 0 || report.errorCount > 0 {
+                    if report.inspectedFileCount > 0 || report.skippedItemCount > 0 || report.errorCount > 0 {
+                        DisclosureGroup(isExpanded: $showingScanDetails) {
+                            ScrollView {
+                                VStack(alignment: .leading, spacing: 10) {
+                                    if report.skippedItemCount > 0 || report.errorCount > 0 {
                         GroupBox("Esclusioni e problemi di lettura") {
                             VStack(alignment: .leading, spacing: 6) {
                                 ForEach(report.exclusionSummary) { entry in
@@ -85,6 +90,14 @@ struct ResultsView: View {
                             .padding(6)
                         }
                     }
+                                }
+                            }
+                            .frame(maxHeight: 225)
+                        } label: {
+                            Label("Riepilogo spazio ed esclusioni", systemImage: "chart.bar.xaxis")
+                                .font(.headline)
+                        }
+                    }
                     if report.findings.isEmpty {
                         ContentUnavailableView(
                             "Nessun file segnalato",
@@ -126,7 +139,7 @@ struct ResultsView: View {
                                 description: Text("Modifica i filtri o la ricerca.")
                             )
                         } else {
-                        List(visibleFindings(report)) { item in
+                            List(visibleFindings(report)) { item in
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(item.fileURL.lastPathComponent)
                                     .font(.headline)
@@ -163,7 +176,7 @@ struct ResultsView: View {
                                 .buttonStyle(.link)
                             }
                             .padding(.vertical, 5)
-                        }
+                            }
                         }
                     }
                 }
