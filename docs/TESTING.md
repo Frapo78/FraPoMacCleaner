@@ -56,3 +56,9 @@ Da validare manualmente: annullamento su scansione lunga, progressi SwiftUI, aut
 [CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42066402117): **18 test XCTest, zero errori**. Cinque test nuovi verificano ricerca per nome/percorso senza distinzione maiuscole, combinazione dei filtri, quattro ordinamenti con date mancanti, esportazione limitata ai soli aggregati con un nome utente fittizio ostile e mantenimento della policy che blocca la rimozione.
 
 La compilazione UI su macOS ARM64 è stata completata; la verifica manuale dell'interfaccia, salvataggio attraverso `NSSavePanel`, accesso App Sandbox/revoca, test di prestazione e accessibilità restano aperti.
+
+## Identità dei file e soglie personalizzabili (alpha.9)
+
+[CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42100723365): **23 XCTest superati, zero errori**. Nuovi test con hard link creati su file temporanei verificano che due percorsi rimangano due finding ma contino una sola volta nei totali per inode; il caso sparse controlla che i byte allocati osservati non siano presentati come dimensione logica recuperabile. Test dedicati controllano anche le soglie opzionali e il rifiuto di soglie invalide, oltre al confronto di device.
+
+**Non sono ancora verificati** su hardware reale: attraversamento di un volume montato dentro una cartella, permessi revocati durante scansione, cloni APFS e snapshot, benchmark con 10k/100k elementi e il comportamento UI dei preset. La classificazione del rischio resta fail-closed e la pulizia assente.

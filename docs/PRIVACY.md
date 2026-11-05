@@ -25,3 +25,7 @@ Formato e ciclo di vita dei report, eventuali bookmark di sicurezza, canale di a
 La funzione `ScanSummaryExporter` richiede un gesto esplicito e una destinazione scelta con il pannello macOS. Il JSON contiene **solo** aggregati numerici e categorie fisse; non include nomi, percorsi, date individuali, etichette delle cartelle o liste dei candidati. Nessun upload o salvataggio automatico. L'utente conserva e gestisce il file esportato.
 
 La parola *anonimo* descrive l'assenza di identificativi diretti nel documento, non garantisce anonimato matematico in tutti gli scenari: anche le statistiche aggregate possono essere private. Il file non deve essere allegato automaticamente a segnalazioni pubbliche.
+
+## Contabilità per inode (alpha.9)
+
+Durante la scansione viene mantenuto in memoria un insieme limitato di coppie device/inode per evitare il doppio conteggio degli hard link. L'esportazione JSON aggiornata include esclusivamente i **totali numerici** e le soglie utilizzate: **non include inode, ID del volume, percorsi, nomi file o elenchi individuali**. I dati sono elaborati solo in locale nella sessione e non persistono automaticamente.

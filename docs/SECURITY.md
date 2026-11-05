@@ -65,3 +65,7 @@ Prima di abilitare la pulizia: test automatici su fixture sintetiche, controlli 
 ## Segnalazioni
 
 Non pubblicare file personali, percorsi completi o dati di terzi in Issue. Le vulnerabilità con rischio perdita dati devono essere segnalate al maintainer in modalità riservata prima di una divulgazione pubblica.
+
+## Vincoli di lettura rafforzati (alpha.9)
+
+La scansione prova a identificare i file tramite `lstat` senza seguire il collegamento finale, scarta device diversi dalla radice autorizzata e aggrega gli hard link per inode. Il confronto dei device non equivale a validare ogni mount point, e una verifica `lstat` non elimina tutte le race tra controllo ed enumerazione. Queste mitigazioni sono **solo per letture esplorative**, non autorizzano spostamento nel Cestino né altre mutazioni. Anche le misure dei blocchi `st_blocks` sono indicative e non devono essere presentate come spazio recuperabile.

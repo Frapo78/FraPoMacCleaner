@@ -86,3 +86,20 @@ Dopo una scansione di fixture, aprire **Risultati**. Usare il campo di ricerca (
 Il pulsante **Esporta riepilogo anonimo…** apre il pannello di salvataggio macOS e genera su richiesta un JSON locale. Il documento contiene solo conteggi complessivi, tipologie note ed esclusioni/errori aggregati: **nessun nome, percorso, elenco dei file o etichetta delle sottocartelle**. Non includere mai il rapporto nei log pubblici senza averlo prima letto: anche i conteggi possono essere considerati informazioni private. L'app non salva il report automaticamente.
 
 Test manuale: creare una cartella sintetica contenente file di almeno due tipologie, sia grandi sia datati. Verificare filtri, ordinamenti, ricerca case-insensitive, azzeramento dei filtri e apertura nel Finder. Esportare il JSON e verificarne l'assenza di nomi e percorsi specifici. Nessuna funzione di cancellazione deve comparire.
+
+## Test manuale inode e soglie (alpha.9)
+
+Per una cartella di prova distinta dai dati reali, su macOS:
+
+```sh
+mkdir -p "$HOME/Downloads/FraPoAlpha9Fixture"
+mkfile -n 600m "$HOME/Downloads/FraPoAlpha9Fixture/sparse.mov"
+ln "$HOME/Downloads/FraPoAlpha9Fixture/sparse.mov" "$HOME/Downloads/FraPoAlpha9Fixture/hardlink.mov"
+touch -t 202001010000 "$HOME/Downloads/FraPoAlpha9Fixture/old.txt"
+```
+
+Se i file esistono già, **non eseguire nuovamente questi comandi** sulla stessa cartella: usare una nuova directory di prova per evitare errori o sovrascritture.
+
+Scegliere la cartella dalla sezione **Scansione**, selezionare le soglie desiderate e avviare. In **Risultati** i due `.mov` devono risultare percorsi distinti con indicazione *Hard link*, ma con un solo inode nel conteggio univoco. La somma logica per percorsi può essere più alta del totale per inode; i blocchi allocati osservati possono essere molto inferiori per il file sparse. Cambiare le soglie e ripetere la scansione. Verificare che il riepilogo JSON contenga solo aggregati e soglie, senza nomi o identificatori inode.
+
+I valori non costituiscono spazio recuperabile. Non testare su cartelle di lavoro o dati personali.

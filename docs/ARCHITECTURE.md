@@ -141,3 +141,16 @@ Non vengono letti contenuti, effettuati hash o trasferiti inventari. I byte aggr
 `ScanSummaryExporter.encode` produce JSON con una **schema whitelist esplicita** (versione, conteggi, categorie note, errori/esclusioni aggregate). Non serializza `ScanFinding`, URL, timestamp, nomi di sottocartella o dettagli errori. La vista mostra un `NSSavePanel` per ogni esportazione: nessun file è scritto senza scelta del percorso e nessun dato viene trasmesso. La diagnostica aggregata resta indicativa, non equivale a spazio recuperabile.
 
 Per mantenere l'elenco accessibile, i riepiloghi sono inizialmente chiusi e, se aperti, scorrono in un'area a dimensione limitata. Restano necessari test manuali su finestre ridotte, App Sandbox e accessibilità.
+
+## Contabilità inode, sicurezza volumi e soglie (alpha.9)
+
+Il motore conserva soltanto metadati ottenuti da URLResourceValues e `Darwin.lstat`; non apre mai il contenuto. La coppia **device/inode** identifica un oggetto del filesystem *durante la scansione corrente*. I totali separano:
+
+- `observedLogicalBytes`: somma logica di tutti i percorsi esaminati (può ripetere hard link).
+- `observedUniqueLogicalBytes`: somma logica di una sola voce per coppia device/inode osservata.
+- `observedAllocatedBytes`: somma dei blocchi `st_blocks × 512` per inode osservato una sola volta. **Non equivale a spazio fisico esclusivo né a spazio recuperabile** per cloni APFS, snapshot, compressione, sparse file, dati purgeable e file esclusi.
+- `hardLinkedEntryCount`: percorsi con `st_nlink > 1`; `repeatedHardLinkEntryCount`: percorsi dello stesso inode già osservato in questa scansione.
+
+L'insieme delle identità è limitato dai **100.000 elementi massimi** già previsti dalla scansione. I device diversi da quello della radice selezionata sono saltati senza attraversarli. `lstat` su ogni directory prima dell'enumerazione limita l'attraversamento di symlink sostituiti; **non è una difesa completa da race TOCTOU**, né identifica mount alias sullo stesso device. Ogni futura mutazione richiederà un controllo file-descriptor-based separato.
+
+`ScanScope` registra le soglie facoltative per la singola esecuzione; `ScanReport` conserva le soglie realmente applicate. La UI offre preset da 50 MiB a 1 GiB e 30–365 giorni. L'assenza di valori usa il default del motore, mentre zero o valori negativi sono respinti. Non vengono introdotti privilegi o accessi in background.

@@ -60,3 +60,9 @@ Interfaccia originale macOS con `NavigationSplitView`, SF Symbols, colori di sis
 La schermata permette ricerca testuale (nome/percorso), filtro per motivo e tipo di file e ordinamento dimensione/data/nome. Mostra quanti dei candidati visualizzati corrispondono ai filtri e ricorda il limite di 500 risultati. I riepiloghi sono comprimibili per lasciare spazio alla lista.
 
 Tutti i file sono identificati come **protetti dalla rimozione**: una segnalazione per data o dimensione non è indicazione di superfluità. Il pulsante **Esporta riepilogo anonimo…** apre un dialogo esplicito di salvataggio. Nessuna selezione di file o azione di cancellazione è presente.
+
+## Soglie e spazio osservato (alpha.9)
+
+Prima di ogni analisi si possono scegliere soglie predefinite di **50/250/500/1024 MiB** e **30/90/180/365 giorni**. Un candidato deve soddisfare almeno una condizione. Nel report e nell'export appaiono i valori applicati realmente, anche dopo una nuova selezione della cartella.
+
+I riepiloghi mostrano separatamente somma per percorsi, somma logica per inode distinti e blocchi allocati osservati. Le voci con più hard link vengono etichettate. Nessuno di questi numeri deve essere chiamato «spazio liberabile»: cloni APFS e snapshot possono condividere blocchi, e i file possono essere ancora necessari.

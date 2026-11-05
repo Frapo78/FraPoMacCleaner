@@ -21,10 +21,13 @@
 - [x] Avanzamento non percentuale con contatori e diagnostica di esclusioni/errori per categoria (XCTest CI).
 - [x] Esploratore con ricerca e filtri per motivo/tipo, ordinamento multiplo e riepilogo espandibile (XCTest + CI).
 - [x] Esportazione manuale JSON di soli aggregati, priva di inventario, nomi e percorsi (test di riservatezza).
+- [x] Soglie di scansione modificabili per ogni esecuzione, con valori applicati conservati nel rapporto e nell'export.
+- [x] Conteggio inode unici/hard link e blocchi allocati osservati, con avviso esplicito sull'incertezza APFS.
+- [x] Esclusione read-only dei percorsi su device diverso, con test della regola di confine.
 - [ ] Risultati con rischio, motivazione, esclusioni ed errori (in alpha.8 motivi tipizzati, avviso di protezione e diagnostica; restano da progettare una classificazione differenziata e test di permessi).
 - [x] Test automatici su filesystem sintetico e prova manuale iniziale sul Mac (file grande e file datato).
 
-**Stato di v0.1.0-alpha.8:** 18 test XCTest superati, scanner di soli metadati attivo. Verificata anche su Mac la prima scansione di una cartella di fixture con due candidati (314,6 MB e file datato al 2020), entrambi elencati nella schermata Risultati. Restano **aperti** i test manuali su filtri, esportazione, avanzamento, autorizzazioni/revoca App Sandbox e prestazioni su alberi grandi, oltre alla classificazione del rischio più specifica; il gate della Fase 1 non è ancora chiuso.
+**Stato di v0.1.0-alpha.9:** 23 test XCTest superati, scanner di soli metadati attivo. Verificata anche su Mac la prima scansione di una cartella di fixture con due candidati (314,6 MB e file datato al 2020), entrambi elencati nella schermata Risultati. Restano **aperti** test manuali su soglie, hard link, App Sandbox/revoca e prestazioni 10k–100k elementi. La separazione di inode è implementata, ma stime affidabili di spazio recuperabile APFS/cloni/snapshot e classificazione del rischio differenziata richiedono sviluppo ulteriore; il gate della Fase 1 non è ancora chiuso.
 
 **Exit gate:** nessuna API di mutazione nel percorso di scansione; test dei casi avversi e prestazioni accettabili.
 
@@ -41,7 +44,7 @@
 ## Fase 3 — v0.2, analisi avanzata
 
 - [ ] Raggruppamento duplicati affidabile con SHA-256 e protezione hard link.
-- [ ] Gestione accurata stime APFS e dati non conteggiabili.
+- [ ] Gestione accurata stime APFS e dati non conteggiabili (alpha.9 misura inode e blocchi allocati; cloni/snapshot, byte esclusivi e spazio recuperabile restano sconosciuti).
 - [ ] Cache/log **utente** attraverso regole revisionate per caso d'uso.
 - [ ] Miglioramento filtri, export e prestazioni.
 
