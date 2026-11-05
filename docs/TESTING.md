@@ -1,6 +1,6 @@
 # Strategia di test e criteri di rilascio
 
-**Non ci sono test eseguibili oggi**: questo file definisce ciò che dovremo implementare prima del codice distruttivo.
+**Sono presenti suite XCTest per dominio e scanner read-only.** I test dello scanner sono stati aggiunti, ma devono ancora essere confermati dalla CI e da prove manuali su macOS. Non esistono test di operazioni distruttive perché non esiste codice di pulizia.
 
 ## Livelli
 

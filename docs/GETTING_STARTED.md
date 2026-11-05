@@ -37,16 +37,20 @@ Le prove di build e test reali vanno registrate con ambiente e risultato; **La C
 
 - Navigazione SwiftUI tra Panoramica, Scansione, Risultati e Impostazioni.
 - Lettura non distruttiva dei metadati di capacità del volume home.
-- Selettore di cartella senza scansione.
-- Contratti Swift per scanner, finding, scope e policy.
+- Selezione di cartella e scanner di metadati read-only con annullamento, in fase di verifica CI.
+- Motore Swift per scansione di file grandi/datati ed elenco risultati, senza accesso ai contenuti.
 - Risk policy `fail-closed`: nessun finding può essere rimosso.
 - Test XCTest di policy e formattazione dei dati.
 
 ## Non ancora implementato
 
-Analisi dei file, hashing, duplicati, cancellazione, spostamento nel Cestino, bookmark persistenti, report, disinstallazione e monitor sistema. Il pulsante scansione è disabilitato, anche se si seleziona una cartella.
+Analisi dei contenuti, hashing, duplicati, cancellazione, spostamento nel Cestino, bookmark persistenti, report esportabili, disinstallazione e monitor sistema. Sono attivi soltanto rilevamento dei metadati e revisione informativa.
 
-Gli URL restituiti dal selettore **non vengono letti dallo scanner**; l'accesso security-scoped verrà progettato e testato prima di implementare l'enumerazione.
+La scansione richiede la selezione esplicita di una cartella. `ScanSessionModel` avvia e termina l'accesso security-scoped per la durata del job. Questo comportamento richiede ancora prove manuali su Mac con App Sandbox e verifica della revoca dei permessi.
+
+## Primo test dello scanner (milestone in validazione)
+
+Aprire l'app, scegliere **Scansione**, selezionare una cartella contenente solo file sintetici, premere **Avvia scansione**, poi aprire **Risultati**. Lo scanner usa le soglie iniziali di 250 MiB o 180 giorni, limita l'analisi a 100.000 elementi e presenta al massimo 500 candidati. I file non vengono aperti né modificati e nessun elemento è cancellabile. Il codice e i nuovi test esistono nel repository; **non considerarli validati finché non risultano superati CI e test manuale**.
 
 ## Build scaricabili
 

@@ -1,6 +1,6 @@
 # Architettura tecnica iniziale
 
-**Stato: struttura di progetto Xcode presente; analisi e cleanup ancora da implementare.** Le API e le scelte di packaging richiedono test reali su Xcode/macOS.
+**Stato: struttura Xcode e primo scanner read-only implementati; nuovi test e runtime scanner ancora da validare in CI e manualmente.** Cleanup non implementato. Permessi e packaging richiedono verifiche continuative.
 
 ## Stack
 
