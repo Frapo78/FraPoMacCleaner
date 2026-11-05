@@ -66,7 +66,7 @@ Il repository contiene ora solo lo scheletro dell'app; **non è una versione com
 
 Il workflow separato [`development-sign.yml`](../.github/workflows/development-sign.yml) usa i secret `APPLE_DEVELOPMENT_P12_BASE64` e `APPLE_DEVELOPMENT_P12_PASSWORD` già configurati dal maintainer. Questo certificato è **Apple Development**, non Developer ID.
 
-**Sicurezza:** il workflow si esegue soltanto sul branch `main`, mai su PR; esegue build e test **prima** di rendere disponibili i secret al passo di firma; importa la chiave in un Portachiavi temporaneo del runner; controlla `codesign`, Team ID e architettura ARM64; produce uno ZIP e un file SHA-256 tra gli artefatti della run, senza creare una GitHub Release pubblica. Il Portachiavi temporaneo viene eliminato anche in caso di errore.
+**Sicurezza:** il workflow si esegue soltanto sul branch `main`, mai su PR; esegue i test in **Debug**, poi compila un bundle **Release** privo di componenti XCTest e librerie di debug, **prima** di rendere disponibili i secret al passo di firma; importa la chiave in un Portachiavi temporaneo del runner; controlla `codesign`, Team ID e architettura ARM64; produce uno ZIP e un file SHA-256 tra gli artefatti della run, senza creare una GitHub Release pubblica. Il Portachiavi temporaneo viene eliminato anche in caso di errore.
 
 Esecuzione manuale dal repository locale (richiede `gh auth login`):
 

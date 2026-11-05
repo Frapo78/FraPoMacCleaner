@@ -28,7 +28,7 @@ jobs:
           bash scripts/check_brand_assets.sh
           xcodebuild -version
 
-      - name: Build and test without signing credentials
+      - name: Test Debug and build clean Release without signing credentials
         shell: bash
         run: |
           set -euo pipefail
@@ -37,7 +37,22 @@ jobs:
             -destination 'platform=macOS,arch=arm64' \
             -derivedDataPath "$RUNNER_TEMP/FraPoDevelopment" \
             CODE_SIGNING_ALLOWED=NO test
-          test -f "$RUNNER_TEMP/FraPoDevelopment/Build/Products/Debug/FraPoMacCleaner.app/Contents/Resources/Assets.car"
+          xcodebuild -project FraPoMacCleaner.xcodeproj \
+            -scheme FraPoMacCleaner -configuration Release \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath "$RUNNER_TEMP/FraPoDevelopment" \
+            CODE_SIGNING_ALLOWED=NO build
+          APP="$RUNNER_TEMP/FraPoDevelopment/Build/Products/Release/FraPoMacCleaner.app"
+          test -d "$APP"
+          test -f "$APP/Contents/Resources/Assets.car"
+          test "$(lipo -archs "$APP/Contents/MacOS/FraPoMacCleaner")" = arm64
+          # Shipping XCTest, debug dylibs, or preview libraries is a packaging error.
+          if find "$APP/Contents" \
+            \( -name '*.xctest' -o -name '*XCTest*' -o -name '*.debug.dylib' -o -name '__preview.dylib' \) \
+            -print -quit | grep -q .; then
+            echo 'Release bundle contains test or debug components' >&2
+            exit 1
+          fi
 
       - name: Import Apple Development identity and sign build
         shell: bash
@@ -66,7 +81,7 @@ jobs:
             echo 'No valid Apple Development signing identity in imported keychain' >&2
             exit 1
           fi
-          APP="$RUNNER_TEMP/FraPoDevelopment/Build/Products/Debug/FraPoMacCleaner.app"
+          APP="$RUNNER_TEMP/FraPoDevelopment/Build/Products/Release/FraPoMacCleaner.app"
           codesign --force --timestamp=none \
             --entitlements FraPoMacCleaner/Configuration/FraPoMacCleaner.entitlements \
             --sign "$IDENTITY" "$APP"
@@ -80,7 +95,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          APP="$RUNNER_TEMP/FraPoDevelopment/Build/Products/Debug/FraPoMacCleaner.app"
+          APP="$RUNNER_TEMP/FraPoDevelopment/Build/Products/Release/FraPoMacCleaner.app"
           ZIP="$RUNNER_TEMP/FraPoMacCleaner-AppleDevelopment-arm64.zip"
           ditto -c -k --keepParent "$APP" "$ZIP"
           cd "$RUNNER_TEMP"
