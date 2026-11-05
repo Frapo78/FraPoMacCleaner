@@ -2,6 +2,16 @@
 
 Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 
+## v0.1.0-alpha.7 (2026-11-05) — avanzamento e diagnostica
+
+- Avanzamento della scansione con contatori reali di elementi visitati, file esaminati, candidati, esclusioni e problemi di lettura.
+- Snapshot di progresso iniziale, finale e ogni 128 elementi per ridurre l'impatto sulla UI; nessuna percentuale inventata.
+- Diagnostica sintetica raggruppata per motivo: percorsi protetti, symlink, pacchetti, cloud, tipi non supportati, problemi di accesso e metadati mancanti.
+- Nessuna registrazione di percorsi esclusi, contenuti dei file o dettagli sensibili di accesso. Le directory escluse non vengono esplorate.
+- Progressi di sessioni annullate o sostituite ignorati dalla UI.
+- **13 XCTest superati** su GitHub Actions macOS ARM64 / Xcode 16.4: [risultati CI](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42063148205).
+- Pulizia, disinstallazione e cancellazione restano disabilitate; test manuale di accessi e progressi ancora da completare.
+
 ## v0.1.0-alpha.6 (2026-11-05) — distribuzione dello spazio e categorie
 
 - Analisi **read-only** della dimensione logica per categoria di file e per sottocartella di primo livello nella cartella scelta.

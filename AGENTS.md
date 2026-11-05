@@ -4,7 +4,7 @@ Questo file va letto **prima di analizzare, modificare, creare codice o aprire P
 
 ## Stato del progetto
 
-- Fase corrente: **infrastruttura Xcode pre-alpha**. La creazione di skeleton SwiftUI e test è autorizzata; scanner e funzioni di pulizia devono seguire milestone esplicite e revisione di sicurezza.
+- Fase corrente: **scanner di metadati read-only pre-alpha** con riepiloghi, progresso e diagnostica; le funzioni di pulizia devono seguire milestone esplicite e revisione di sicurezza.
 - Il progetto include CI e preparazione delle release, ma nessun binario va dichiarato completo senza funzionalità e verifiche reali.
 - Il repository contiene una licenza **GPL-3.0**: non sostituirla o modificarla senza richiesta del maintainer.
 - Le funzionalità pianificate non devono mai essere descritte come già funzionanti.

@@ -44,3 +44,9 @@ Per ogni PR: indicare test eseguiti, ambiente macOS/Xcode, risultato e test non 
 ## Verifica della ripartizione (alpha.6)
 
 [CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42060620420): **11 test XCTest, 0 errori**. I due nuovi casi provano classificazione per estensione senza lettura dei contenuti e aggregazione di file piccoli sotto soglia, distinguendo i candidati dal totale osservato. Per la validazione manuale restano la UI dei grafici a barre, la revoca dei permessi e le prestazioni su alberi sintetici grandi.
+
+## Verifica dei progressi e delle esclusioni (alpha.7)
+
+[CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42063148205): **13 XCTest superati, zero errori**. Le nuove prove verificano che gli snapshot di progresso siano non decrescenti e coincidano con il rapporto finale, e che una sottocartella protetta venga esclusa senza leggere il contenuto. I test esistenti confermano separatamente link simbolici, limiti di scansione, annullamento e metadati.
+
+Da validare manualmente: annullamento su scansione lunga, progressi SwiftUI, autorizzazioni TCC/App Sandbox, volumi diversi e cartelle non accessibili. I dati di diagnostica sono solo contatori senza percorsi.

@@ -127,3 +127,9 @@ Vedi `docs/DECISIONS/` per le scelte registrate. Tutte le ADR usano una sola car
 La scansione mantiene contatori limitati per estensioni raggruppate in categorie semantiche e per il primo livello di sottocartelle. `ScanReport` contiene `observedLogicalBytes`, `fileCategories` e `firstLevelFolders`. Si aggregano **tutti i file regolari che hanno metadati accessibili**, non soltanto i candidati alle soglie di dimensione/età. Le viste possono mostrare i gruppi senza accedere nuovamente ai file.
 
 Non vengono letti contenuti, effettuati hash o trasferiti inventari. I byte aggregati sono **dimensioni logiche**: i file hard-link possono essere doppiamente contati, i cloni APFS condividono blocchi e file sparse hanno dimensione apparente maggiore dello spazio allocato. Il modello non dichiara spazio fisico recuperabile.
+
+## Avanzamento e diagnostica strutturata (alpha.7)
+
+`ScanEngine` accetta un callback `@Sendable` di `ScanProgress` per emettere soltanto snapshot dei contatori; l'overload preesistente `scan(in:)` rimane disponibile mediante extension. `ReadOnlyScanEngine` pubblica l'istantanea iniziale, una ogni 128 voci visitate e quella finale. Questo modello evita una percentuale non verificabile, dal momento che il numero totale degli elementi non è noto.
+
+`ScanSessionModel` trasferisce gli aggiornamenti sul MainActor e li scarta se appartengono a una scansione annullata o superata da una nuova sessione. Il report riassume esclusioni e problemi con un enum tipizzato e conteggi limitati: **non memorizza percorsi dei file esclusi, errori completi o contenuti**. L'enumerazione rimane di sola lettura e continua a ignorare symlink, pacchetti e aree sensibili. I messaggi del report non autorizzano la cancellazione.

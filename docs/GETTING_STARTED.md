@@ -70,3 +70,11 @@ L'artefatto della run è uno ZIP ARM64 firmato con l'identità di **sviluppo**. 
 ## Verifica ripartizione spazio (alpha.6)
 
 Aprire **Scansione**, selezionare una cartella sintetica con file di più tipi ed eseguire l'analisi. In **Risultati** devono apparire i riepiloghi **Per tipo di file** e **Per sottocartella**. I totali comprendono anche file piccoli non segnalati come candidati. Verificare che siano definiti esplicitamente come dimensioni logiche, non spazio fisico liberabile, e che l'app non proponga cancellazioni.
+
+## Verifica avanzamento e diagnostica (alpha.7)
+
+Dopo una scansione avviata esplicitamente, la sezione **Scansione** mostra il numero di elementi visitati, i file esaminati, i candidati, gli elementi esclusi e i problemi di lettura. Il totale di elementi non è noto prima della fine: il progresso è **indeterminato**, non una percentuale di spazio recuperabile. Aggiornamenti ogni 128 elementi più snapshot iniziale e finale.
+
+La sezione **Risultati** presenta i conteggi per causa: percorsi protetti, symlink, pacchetti, elementi cloud, tipi non supportati; inoltre problemi di accesso a cartelle e metadati mancanti. I conteggi non includono i contenuti delle directory escluse, che non vengono attraversate. Nessun percorso di file escluso o errore viene salvato nella diagnostica.
+
+Prova manuale: selezionare una cartella sintetica con almeno 300 file piccoli, alcuni elementi di prova esclusi e sottocartelle; osservare l'incremento dei contatori. Annullare una scansione più ampia e verificare che non vengano visualizzati risultati nuovi dalla scansione annullata. Restano da testare la revoca dei permessi, gli errori di accesso e la responsività su directory reali molto grandi.

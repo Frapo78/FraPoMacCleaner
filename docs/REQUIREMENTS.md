@@ -57,3 +57,10 @@ Le priorità sono **P0** (necessarie per il primo MVP), **P1** (iterazione succe
 - Il totale include file regolari piccoli, anche se non segnalati fra i candidati.
 - I totali **non** sono bytes fisici esclusivi né una stima dello spazio recuperabile: hard link, cloni APFS e file esclusi richiedono un trattamento distinto.
 - Nessun import di codice di terze parti: implementazione nativa e originale con Foundation/SwiftUI.
+
+## Avanzamento e report diagnostico (alpha.7)
+
+- Visualizzare in scansione i **conteggi reali** (elementi visitati, file esaminati, candidati, esclusioni ed errori) senza inventare una percentuale o una stima temporale.
+- I progressi non devono sopravvivere a scansioni annullate o alla selezione di un'altra cartella.
+- Raggruppare le esclusioni per motivo e i problemi per categoria, esponendo solo contatori. I contenuti delle directory escluse non vengono visitati né conteggiati.
+- Mantenere gli stessi limiti di I/O, il numero massimo di elementi e l'assenza completa di azioni di modifica/cancellazione.
