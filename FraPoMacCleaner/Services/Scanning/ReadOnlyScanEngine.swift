@@ -37,7 +37,10 @@ struct ReadOnlyScanEngine: ScanEngine {
         self.referenceDate = referenceDate
     }
 
-    func scan(in scope: ScanScope) async throws -> ScanReport {
+    func scan(
+        in scope: ScanScope,
+        progress: @escaping @Sendable (ScanProgress) -> Void
+    ) async throws -> ScanReport {
         try Task.checkCancellation()
         let root = scope.folderURL.standardizedFileURL
         guard root.isFileURL,
@@ -68,11 +71,36 @@ struct ReadOnlyScanEngine: ScanEngine {
         var candidates = 0
         var excluded = 0
         var errors = 0
+        var exclusionCounts: [ScanExclusionReason: Int] = [:]
+        var issueCounts: [ScanAccessIssue: Int] = [:]
         var findings: [ScanFinding] = []
         var observedLogicalBytes: Int64 = 0
         var categoryGroups: [String: ScanSizeGroup] = [:]
         var folderGroups: [String: ScanSizeGroup] = [:]
         let rootComponentCount = root.pathComponents.count
+
+        func skip(_ reason: ScanExclusionReason) {
+            excluded += 1
+            exclusionCounts[reason, default: 0] += 1
+        }
+
+        func issue(_ kind: ScanAccessIssue) {
+            errors += 1
+            issueCounts[kind, default: 0] += 1
+        }
+
+        func publishProgress(force: Bool = false) {
+            // Avoid flooding the UI on large trees. The maximum is unknown:
+            // do not display a misleading percentage.
+            guard force || visited % 128 == 0 else { return }
+            progress(ScanProgress(
+                visitedItemCount: visited,
+                inspectedFileCount: inspected,
+                candidateCount: candidates,
+                skippedItemCount: excluded,
+                errorCount: errors
+            ))
+        }
 
         func add(_ size: Int64, to label: String, in groups: inout [String: ScanSizeGroup]) {
             let previous = groups[label]
@@ -107,12 +135,21 @@ struct ReadOnlyScanEngine: ScanEngine {
                 skippedItemCount: excluded,
                 errorCount: errors,
                 reachedLimit: limit,
+                exclusionSummary: ScanExclusionReason.allCases.compactMap { reason in
+                    guard let count = exclusionCounts[reason], count > 0 else { return nil }
+                    return ScanExclusionSummary(reason: reason, count: count)
+                },
+                issueSummary: ScanAccessIssue.allCases.compactMap { kind in
+                    guard let count = issueCounts[kind], count > 0 else { return nil }
+                    return ScanIssueSummary(issue: kind, count: count)
+                },
                 observedLogicalBytes: observedLogicalBytes,
                 fileCategories: orderedGroups(categoryGroups),
                 firstLevelFolders: orderedGroups(folderGroups)
             )
         }
 
+        publishProgress(force: true)
         while let directory = directories.popLast() {
             try Task.checkCancellation()
             let entries: [URL]
@@ -124,31 +161,42 @@ struct ReadOnlyScanEngine: ScanEngine {
                 )
             } catch {
                 if directory == root { throw error }
-                errors += 1
+                issue(.unreadableDirectory)
+                publishProgress(force: true)
                 continue
             }
 
             for item in entries {
                 try Task.checkCancellation()
-                if visited >= maximumEntries { return report(limit: true) }
+                if visited >= maximumEntries {
+                    publishProgress(force: true)
+                    return report(limit: true)
+                }
                 visited += 1
+                defer { publishProgress() }
 
                 // Deny by path first; then inspect type before traversing.
                 if Self.isExcluded(item) {
-                    excluded += 1
+                    skip(.protectedPath)
                     continue
                 }
                 let properties: URLResourceValues
                 do {
                     properties = try item.resourceValues(forKeys: keys)
                 } catch {
-                    errors += 1
+                    issue(.unreadableMetadata)
                     continue
                 }
-                if properties.isSymbolicLink == true ||
-                   properties.isPackage == true ||
-                   properties.isUbiquitousItem == true {
-                    excluded += 1
+                if properties.isSymbolicLink == true {
+                    skip(.symbolicLink)
+                    continue
+                }
+                if properties.isPackage == true {
+                    skip(.package)
+                    continue
+                }
+                if properties.isUbiquitousItem == true {
+                    skip(.cloudItem)
                     continue
                 }
                 if properties.isDirectory == true {
@@ -156,13 +204,13 @@ struct ReadOnlyScanEngine: ScanEngine {
                     continue
                 }
                 guard properties.isRegularFile == true else {
-                    excluded += 1
+                    skip(.unsupportedItem)
                     continue
                 }
                 inspected += 1
 
                 guard let bytes = properties.fileSize, bytes >= 0 else {
-                    errors += 1
+                    issue(.missingSize)
                     continue
                 }
                 let size = Int64(bytes)
@@ -210,6 +258,7 @@ struct ReadOnlyScanEngine: ScanEngine {
         }
 
         try Task.checkCancellation()
+        publishProgress(force: true)
         return report(limit: false)
     }
 

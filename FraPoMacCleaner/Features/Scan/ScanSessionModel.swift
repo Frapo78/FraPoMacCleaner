@@ -11,6 +11,7 @@ final class ScanSessionModel: ObservableObject {
     @Published private(set) var selectedFolder: URL?
     @Published private(set) var phase: Phase = .idle
     @Published private(set) var report: ScanReport?
+    @Published private(set) var progress: ScanProgress?
     @Published private(set) var errorMessage: String?
 
     private let scanner: any ScanEngine
@@ -25,6 +26,7 @@ final class ScanSessionModel: ObservableObject {
         cancel()
         selectedFolder = url
         report = nil
+        progress = nil
         errorMessage = nil
         phase = .idle
     }
@@ -33,6 +35,7 @@ final class ScanSessionModel: ObservableObject {
         guard let folder = selectedFolder, phase != .scanning else { return }
         cancel()
         report = nil
+        progress = nil
         errorMessage = nil
         phase = .scanning
         generation += 1
@@ -44,7 +47,16 @@ final class ScanSessionModel: ObservableObject {
                 if granted { folder.stopAccessingSecurityScopedResource() }
             }
             do {
-                let result = try await engine.scan(in: ScanScope(folderURL: folder))
+                let result = try await engine.scan(
+                    in: ScanScope(folderURL: folder),
+                    progress: { [weak self] snapshot in
+                        Task { @MainActor [weak self] in
+                            guard let self, self.generation == runID,
+                                  self.phase == .scanning else { return }
+                            self.progress = snapshot
+                        }
+                    }
+                )
                 guard generation == runID, !Task.isCancelled else { return }
                 report = result
                 phase = .finished

@@ -40,6 +40,17 @@ struct ScanView: View {
                     }
                     if model.phase == .scanning {
                         ProgressView("Scansione in corso…")
+                        if let progress = model.progress {
+                            Text("\(progress.visitedItemCount) elementi visitati · \(progress.inspectedFileCount) file · \(progress.candidateCount) segnalati")
+                                .font(.callout)
+                                .monospacedDigit()
+                            Text("\(progress.skippedItemCount) esclusi · \(progress.errorCount) problemi di lettura")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                        Text("Avanzamento per elementi visitati; il totale non è noto in anticipo.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     } else if model.phase == .cancelled {
                         Text("Scansione annullata. Nessuna modifica ai file.")
                             .foregroundStyle(.secondary)

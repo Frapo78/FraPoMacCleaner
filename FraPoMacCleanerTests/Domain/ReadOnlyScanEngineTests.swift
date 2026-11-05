@@ -2,6 +2,23 @@ import Foundation
 import XCTest
 @testable import FraPoMacCleaner
 
+private final class ProgressRecorder: @unchecked Sendable {
+    private let lock = NSLock()
+    private var snapshots: [ScanProgress] = []
+
+    func record(_ snapshot: ScanProgress) {
+        lock.lock()
+        snapshots.append(snapshot)
+        lock.unlock()
+    }
+
+    var values: [ScanProgress] {
+        lock.lock()
+        defer { lock.unlock() }
+        return snapshots
+    }
+}
+
 final class ReadOnlyScanEngineTests: XCTestCase {
     private var folder: URL!
     private var outside: URL!
@@ -77,6 +94,10 @@ final class ReadOnlyScanEngineTests: XCTestCase {
         XCTAssertEqual(report.candidateCount, 1)
         XCTAssertEqual(report.findings.first?.fileURL, ordinary)
         XCTAssertGreaterThanOrEqual(report.skippedItemCount, 3)
+        XCTAssertEqual(report.exclusionSummary.reduce(0) { $0 + $1.count }, report.skippedItemCount)
+        let reasons = Set(report.exclusionSummary.map(\.reason))
+        XCTAssertTrue(reasons.contains(.symbolicLink))
+        XCTAssertTrue(reasons.contains(.protectedPath))
     }
 
     func testRejectsSymlinkRootAndSystemScopes() async throws {
@@ -137,13 +158,44 @@ final class ReadOnlyScanEngineTests: XCTestCase {
                        [272, 8])
     }
 
+    func testProgressSnapshotsAreMonotonicAndMatchFinalReport() async throws {
+        for index in 0..<260 {
+            _ = try makeFile("progress-\(index).txt", bytes: 4)
+        }
+        let recorder = ProgressRecorder()
+        let report = try await scanner().scan(
+            in: ScanScope(folderURL: folder),
+            progress: { recorder.record($0) }
+        )
+        let snapshots = recorder.values
+        XCTAssertGreaterThanOrEqual(snapshots.count, 3)
+        XCTAssertEqual(snapshots.last?.visitedItemCount, 260)
+        XCTAssertEqual(snapshots.last?.inspectedFileCount, report.inspectedFileCount)
+        XCTAssertEqual(snapshots.last?.skippedItemCount, report.skippedItemCount)
+        XCTAssertTrue(zip(snapshots, snapshots.dropFirst()).allSatisfy {
+            $0.visitedItemCount <= $1.visitedItemCount
+        })
+    }
+
+    func testProtectedPathsAppearInSummaryWithoutInspectingContents() async throws {
+        let protected = folder.appendingPathComponent(".ssh", isDirectory: true)
+        try FileManager.default.createDirectory(at: protected, withIntermediateDirectories: true)
+        _ = try makeFile("secret.bin", in: protected, bytes: 256)
+        let report = try await scanner().scan(in: ScanScope(folderURL: folder))
+        XCTAssertEqual(report.inspectedFileCount, 0)
+        XCTAssertEqual(report.skippedItemCount, 1)
+        XCTAssertEqual(report.exclusionSummary.first?.reason, .protectedPath)
+        XCTAssertEqual(report.exclusionSummary.first?.count, 1)
+        XCTAssertTrue(report.issueSummary.isEmpty)
+    }
+
     func testCategoryIsMetadataOnlyAndCaseInsensitive() {
         XCTAssertEqual(ScanFileCategory.classify(URL(fileURLWithPath: "/tmp/example.MP4")), .video)
         XCTAssertEqual(ScanFileCategory.classify(URL(fileURLWithPath: "/tmp/example.swift")), .sourceCode)
         XCTAssertEqual(ScanFileCategory.classify(URL(fileURLWithPath: "/tmp/example.unknown")), .other)
     }
 
-        func testExclusionRules() {
+    func testExclusionRules() {
         XCTAssertTrue(ReadOnlyScanEngine.isExcluded(
             URL(fileURLWithPath: "/Users/sample/Library/Keychains")
         ))

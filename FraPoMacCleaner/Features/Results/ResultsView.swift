@@ -19,6 +19,33 @@ struct ResultsView: View {
                         Text("\(report.errorCount) elementi non accessibili o con metadati mancanti.")
                             .foregroundStyle(.orange)
                     }
+                    if report.skippedItemCount > 0 || report.errorCount > 0 {
+                        GroupBox("Esclusioni e problemi di lettura") {
+                            VStack(alignment: .leading, spacing: 6) {
+                                ForEach(report.exclusionSummary) { entry in
+                                    HStack {
+                                        Text(entry.reason.label)
+                                        Spacer()
+                                        Text(entry.count.formatted())
+                                            .monospacedDigit()
+                                    }
+                                }
+                                ForEach(report.issueSummary) { entry in
+                                    HStack {
+                                        Label(entry.issue.label, systemImage: "exclamationmark.triangle")
+                                        Spacer()
+                                        Text(entry.count.formatted())
+                                            .monospacedDigit()
+                                    }
+                                }
+                                Text("Le cartelle escluse non vengono esplorate e i loro contenuti non sono conteggiati. Nessun permesso viene aggirato.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(6)
+                        }
+                    }
                     if report.inspectedFileCount > 0 {
                         GroupBox("Dove si concentra lo spazio analizzato") {
                             VStack(alignment: .leading, spacing: 12) {
