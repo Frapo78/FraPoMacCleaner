@@ -12,9 +12,9 @@
 
 ## Fase 1 — v0.1a, solo lettura
 
-- [ ] Progetto Xcode SwiftUI arm64, avvio e navigazione.
+- [x] Progetto Xcode SwiftUI arm64 e struttura di navigazione (compilazione CI ancora da verificare).
 - [ ] Selezione cartella con permessi coerenti.
-- [ ] Dashboard capacità disco attendibile.
+- [x] Provider di lettura dei metadati disco e dashboard iniziale (test su macOS ancora da eseguire).
 - [ ] Enumerazione cancellabile, senza seguire symlink.
 - [ ] Analisi metadati file grandi/vecchi.
 - [ ] Risultati con rischio, motivazione, esclusioni ed errori.
@@ -45,6 +45,14 @@
 - [ ] Login item: visione e collegamento alle impostazioni (per terze parti).
 - [ ] Monitor CPU/RAM/disco con impatto misurato.
 - [ ] Accessibility audit e localizzazione.
+
+## Automazione build e release
+
+- [x] Definizione di CI per build/test ARM64 e artefatti ZIP di sviluppo.
+- [x] Workflow di GitHub Release su tag semantico.
+- [ ] Prima esecuzione CI verde e test verificati su macOS.
+- [ ] Credenziali Apple Developer ID + notarizzazione configurate per versioni stabili.
+- [ ] Primo rilascio funzionante e testato, con ZIP scaricabile.
 
 ## Fase 5 — prima release pubblica
 

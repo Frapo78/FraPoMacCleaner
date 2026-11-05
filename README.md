@@ -2,9 +2,9 @@
 
 **Pulizia, analisi dello spazio e manutenzione consapevole per macOS su Apple Silicon.**
 
-> **Stato: progettazione (pre-alpha).** Questo repository contiene attualmente documentazione e decisioni architetturali. **Non esiste ancora un'app compilabile**, né sono implementate operazioni di scansione o pulizia.
+> **Stato: pre-alpha, scheletro applicativo.** È presente un progetto Xcode nativo SwiftUI con navigazione, lettura dello spazio disco e due suite di test. Scansione e pulizia dei file non sono ancora implementate; la compilazione su Xcode e la prima build CI devono essere verificate.
 
-FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza**, ispirato alla categoria di strumenti a cui appartiene CleanMyMac, ma sviluppato con design, codice e comportamento originali.
+FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza**, sviluppato con codice e interfaccia originali.
 
 ## Obiettivi
 
@@ -41,7 +41,7 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 | Monitor | CPU, memoria, processi e attività disco | v0.3 |
 | Scansioni pianificate | Solo con consenso e impatto limitato | Futuro |
 
-**Non implementato oggi:** tutto quanto elencato sopra. Le fasi sono obiettivi, non promesse di rilascio.
+**Stato attuale:** soltanto navigazione, pannello disco e selezione non operativa di una cartella sono inclusi nello scheletro. Le funzioni di scansione e pulizia non sono attive.
 
 ## Direzione tecnologica
 
@@ -50,7 +50,7 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 - Foundation, AppKit e framework di sistema **documentati e pubblici**.
 - Componenti separati per scansione, valutazione del rischio, autorizzazioni e operazioni sui file.
 - Distribuzione fuori dal Mac App Store **da valutare**, con firma e notarizzazione quando si distribuiranno binari.
-- Versione minima di macOS **da fissare dopo i primi test reali**.
+- Versione minima configurata inizialmente: **macOS 14+**, soggetta a revisione dopo test reali.
 
 ## Documentazione
 
@@ -66,17 +66,24 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 - [Decisioni architetturali](docs/DECISIONS/0001-native-macos.md)
 - [Contribuire](CONTRIBUTING.md)
 - [Istruzioni per agenti di sviluppo](AGENTS.md)
+- [Come compilare](docs/GETTING_STARTED.md)
+- [Politica delle release](docs/RELEASING.md)
 
-## Stato e prossima milestone
+## Avvio e distribuzione
 
-La **prima milestone** è un progetto Xcode minimale con dashboard e una scansione **read-only** limitata a cartelle scelte dall'utente. Soltanto dopo test e revisione del sistema di protezione aggiungeremo il trasferimento nel Cestino.
+- [Aprire e compilare in Xcode](docs/GETTING_STARTED.md)
+- [Pipeline CI e release ZIP](docs/RELEASING.md)
+- [GitHub Actions](.github/workflows/ci.yml)
+- [GitHub Releases](https://github.com/Frapo78/FraPoMacCleaner/releases)
 
-Non installare script di pulizia di terze parti spacciati per questo progetto: **non sono previste release eseguibili in questa fase**.
+Ogni modifica significativa del comportamento dovrà essere associata a una versione semantica e a una **GitHub Release** generata da un tag. I build di sviluppo saranno disponibili come artefatti CI. Le release stabili richiederanno firma Developer ID e notarizzazione; le prerelease sono esplicitamente indicate come test non firmati.
 
-## Licenza e marchi
+**Prossima milestone:** scanner **read-only** in ambiti selezionati, con gestione autorizzazioni, cancel e reporting. Le funzioni di pulizia saranno introdotte soltanto dopo test di sicurezza.
 
-Il repository include la licenza [GNU GPL v3](LICENSE). Il nome CleanMyMac è citato soltanto come riferimento funzionale: non esiste alcuna affiliazione con MacPaw o Apple. «FraPoMacCleaner» è il nome di lavoro del progetto.
+## Licenza
+
+Il repository include la licenza [GNU GPL v3](LICENSE). FraPoMacCleaner è un progetto autonomo e indipendente.
 
 ## English summary
 
-FraPoMacCleaner is a **planned, open-source, native Apple Silicon macOS cleaning and disk-analysis utility**. The project is documentation-only for now. Safety, explicit consent, clear previews, on-device processing, and recoverable operations take priority over aggressive «optimization».
+FraPoMacCleaner is a **native, open-source Apple Silicon macOS disk-analysis and cleaning utility**. The repository currently contains an Xcode/SwiftUI application scaffold, while file scanning and cleanup are not yet implemented. Safety, explicit consent, clear previews, on-device processing, and recoverable operations take priority over aggressive «optimization».

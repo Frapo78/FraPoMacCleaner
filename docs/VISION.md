@@ -34,7 +34,7 @@ L'app deve prima di tutto spiegare *cosa* ha trovato, *perché* suggerisce un'az
 - Eliminare cache di sistema indiscriminatamente, eseguire «RAM purge» o forzare manutenzioni superflue.
 - Modificare archivi foto, posta, password, database e dati sincronizzati per «guadagnare spazio».
 - Inventare una misura precisa dei GB effettivamente liberabili da cloni APFS, sparse file o contenuti purgeable.
-- Copiare codice, grafica o marchi di CleanMyMac.
+- Copiare codice, grafica, marchi o contenuti di prodotti di terzi.
 
 ## Cosa significa «successo»
 

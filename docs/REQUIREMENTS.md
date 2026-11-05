@@ -1,6 +1,6 @@
 # Requisiti funzionali — bozza iniziale
 
-Le priorità sono **P0** (necessarie per il primo MVP), **P1** (iterazione successiva) e **P2** (estensioni). Nessuna funzione è implementata in questa fase.
+Le priorità sono **P0** (necessarie per il primo MVP), **P1** (iterazione successiva) e **P2** (estensioni). Lo scheletro dell'interfaccia e la lettura dei metadati disco sono presenti; il motore di scansione e tutte le operazioni di pulizia restano da implementare.
 
 ## P0 — MVP: diagnosi e gestione prudente
 

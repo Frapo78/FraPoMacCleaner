@@ -1,0 +1,48 @@
+name: macOS Apple Silicon CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Environment
+        run: |
+          uname -m
+          xcodebuild -version
+          xcodebuild -list -project FraPoMacCleaner.xcodeproj
+          test "$(uname -m)" = "arm64"
+      - name: Build and test
+        run: |
+          set -euo pipefail
+          xcodebuild -project FraPoMacCleaner.xcodeproj \
+            -scheme FraPoMacCleaner -configuration Debug \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath "$RUNNER_TEMP/FraPoDerivedData" \
+            CODE_SIGNING_ALLOWED=NO test
+      - name: Package development build
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/FraPoDerivedData/Build/Products/Debug/FraPoMacCleaner.app"
+          test -d "$APP"
+          test "$(lipo -archs "$APP/Contents/MacOS/FraPoMacCleaner")" = "arm64"
+          ditto -c -k --keepParent "$APP" "$RUNNER_TEMP/FraPoMacCleaner-arm64-dev.zip"
+          shasum -a 256 "$RUNNER_TEMP/FraPoMacCleaner-arm64-dev.zip" > "$RUNNER_TEMP/FraPoMacCleaner-arm64-dev.zip.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FraPoMacCleaner-arm64-dev
+          path: |
+            ${{ runner.temp }}/FraPoMacCleaner-arm64-dev.zip
+            ${{ runner.temp }}/FraPoMacCleaner-arm64-dev.zip.sha256
+          retention-days: 14
+          if-no-files-found: error

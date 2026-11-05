@@ -1,6 +1,6 @@
 # Architettura tecnica iniziale
 
-**Stato: proposta progettuale; nessuna directory di codice è ancora stata creata.** Le API e le scelte di packaging verranno validate con un progetto Xcode sperimentale.
+**Stato: struttura di progetto Xcode presente; analisi e cleanup ancora da implementare.** Le API e le scelte di packaging richiedono test reali su Xcode/macOS.
 
 ## Stack
 
@@ -70,7 +70,7 @@ L'esecuzione gestisce errori parziali; un errore su un file non autorizza a ripr
 - `ActionPlan`: elenco selezionato, consenso e versione dei finding.
 - `OperationResult`: successo, errore, destinazione nel Cestino (quando disponibile), timestamp.
 
-## Separazione suggerita per il futuro
+## Struttura attuale e separazione futura
 
 ~~~text
 FraPoMacCleaner/
@@ -99,7 +99,9 @@ docs/
   DECISIONS/
 ~~~
 
-La struttura è **indicativa**, non un impegno a introdurre subito decine di moduli o target. Prima un'app Xcode minima, poi estrazione progressiva dei servizi testabili.
+Lo scheletro reale contiene `FraPoMacCleaner/App`, `Features`, `Domain`, `Services`, `Resources`, `Configuration` e `FraPoMacCleanerTests/Domain`. I servizi più rischiosi (TrashAdapter, CleanupCoordinator) **non esistono ancora**, intenzionalmente. La struttura illustrata è un obiettivo di evoluzione; gli altri moduli saranno aggiunti solo quando necessari.
+
+La composizione delle dipendenze si trova in `AppDependencies`; `ScanEngine` è attualmente un adapter che restituisce `notImplemented`, mentre `ConservativeRiskPolicy` classifica tutto come protetto. Il provider del volume legge metadati senza modifiche.
 
 ## Errori, osservabilità e performance
 
@@ -116,6 +118,6 @@ La struttura è **indicativa**, non un impegno a introdurre subito decine di mod
 - App Sandbox on/off per distribuzione diretta: decidere dopo prototipo e matrice permessi; no scorciatoie implicite.
 - Format di persistenza dei report (eventuale JSON/SQLite solo se utile).
 - Necessità di helper per feature future: **esclusa per l'MVP**.
-- Politiche di aggiornamento software e firma delle release.
+- Politiche di firma e notarizzazione: vedi `docs/RELEASING.md`; ZIP è il formato di distribuzione scelto.
 
 Vedi `docs/DECISIONS/` per le scelte registrate.

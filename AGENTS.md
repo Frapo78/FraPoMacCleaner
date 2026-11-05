@@ -4,8 +4,8 @@ Questo file va letto **prima di analizzare, modificare, creare codice o aprire P
 
 ## Stato del progetto
 
-- Fase corrente: **documentazione e progettazione**.
-- Non aggiungere codice eseguibile, configurazioni di build, workflow CI o release finché l'utente non chiede esplicitamente di iniziare l'implementazione.
+- Fase corrente: **infrastruttura Xcode pre-alpha**. La creazione di skeleton SwiftUI e test è autorizzata; scanner e funzioni di pulizia devono seguire milestone esplicite e revisione di sicurezza.
+- Il progetto include CI e preparazione delle release, ma nessun binario va dichiarato completo senza funzionalità e verifiche reali.
 - Il repository contiene una licenza **GPL-3.0**: non sostituirla o modificarla senza richiesta del maintainer.
 - Le funzionalità pianificate non devono mai essere descritte come già funzionanti.
 
@@ -19,6 +19,10 @@ Documenti vincolanti:
 3. `docs/REQUIREMENTS.md`, `docs/ROADMAP.md` e `docs/TESTING.md`.
 
 ## Regole di sviluppo
+
+- Non citare nomi, marchi, prodotti o società concorrenti in documentazione, sorgenti, commenti, metadati, asset e messaggi di commit. La descrizione pubblica del progetto deve essere autonoma.
+- Per modifiche maggiori: incrementare la versione, aggiornare il changelog, creare il tag Git semantico e verificare l'esito della GitHub Release. Consulta `docs/RELEASING.md`.
+- Prima di modificare la UI aprire `docs/GETTING_STARTED.md` e verificare i test CI; non dichiarare una build valida senza evidenza.
 
 1. **Read-only by default.** Nessun codice distruttivo dentro scanner o view model.
 2. **Due fasi distinte.** Ogni modifica ai file passa da piano/anteprima a conferma esplicita; rivalidare prima dell'esecuzione.
