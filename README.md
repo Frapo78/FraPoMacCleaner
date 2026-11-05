@@ -41,7 +41,7 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 | Monitor | CPU, memoria, processi e attività disco | v0.3 |
 | Scansioni pianificate | Solo con consenso e impatto limitato | Futuro |
 
-**Stato attuale:** soltanto navigazione, pannello disco e selezione non operativa di una cartella sono inclusi nello scheletro. Le funzioni di scansione e pulizia non sono attive.
+**Stato attuale:** logo e icona sono integrati nelle risorse di Xcode, insieme alla navigazione, al pannello disco e alla selezione non operativa di una cartella. Le funzioni di scansione e pulizia non sono attive.
 
 ## Direzione tecnologica
 
@@ -74,8 +74,9 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 - [Aprire e compilare in Xcode](docs/GETTING_STARTED.md)
 - [Pipeline CI e release ZIP](docs/RELEASING.md)
 - [GitHub Actions](.github/workflows/ci.yml)
-- **[Prima prerelease compilata: v0.1.0-alpha.2](https://github.com/Frapo78/FraPoMacCleaner/releases/tag/v0.1.0-alpha.2)** (ZIP ARM64, non firmata né notarizzata)
+- **[Prerelease attuale: v0.1.0-alpha.3](https://github.com/Frapo78/FraPoMacCleaner/releases/tag/v0.1.0-alpha.3)** (ZIP ARM64, senza firma/notarizzazione)
 - [Tutte le GitHub Releases](https://github.com/Frapo78/FraPoMacCleaner/releases)
+- [Identità visiva e icona macOS](docs/BRANDING.md)
 
 Ogni versione significativa dovrà aggiornare `RELEASE_VERSION`, `MARKETING_VERSION` e changelog: GitHub Actions compilerà e creerà automaticamente una **GitHub Release** con tag semantico. I build di sviluppo saranno disponibili come artefatti CI. Le release stabili richiederanno firma Developer ID e notarizzazione; le prerelease sono esplicitamente indicate come test non firmati.
 

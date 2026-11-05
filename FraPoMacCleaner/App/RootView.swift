@@ -29,11 +29,24 @@ struct RootView: View {
 
     var body: some View {
         NavigationSplitView {
-            List(SectionPage.allCases, selection: $selection) { item in
-                Label(item.label, systemImage: item.symbol).tag(item)
+            VStack(spacing: 0) {
+                Image("BrandLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: 182, maxHeight: 46)
+                    .padding(8)
+                    .background(.white, in: RoundedRectangle(cornerRadius: 10))
+                    .accessibilityLabel("FraPoMacCleaner")
+                    .padding(.horizontal, 12)
+                    .padding(.top, 18)
+                    .padding(.bottom, 12)
+
+                List(SectionPage.allCases, selection: $selection) { item in
+                    Label(item.label, systemImage: item.symbol).tag(item)
+                }
             }
             .navigationTitle("FraPoMacCleaner")
-            .frame(minWidth: 180)
+            .frame(minWidth: 200)
         } detail: {
             switch selection ?? .overview {
             case .overview: DashboardView(provider: dependencies.disk)

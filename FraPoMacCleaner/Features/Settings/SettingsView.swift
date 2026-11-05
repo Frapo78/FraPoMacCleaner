@@ -13,7 +13,8 @@ struct SettingsView: View {
             }
             Section("Informazioni") {
                 LabeledContent("App", value: "FraPoMacCleaner")
-                LabeledContent("Stato", value: "Pre-alpha")
+                LabeledContent("Versione", value: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.1.0")
+                LabeledContent("Canale", value: "Alpha")
             }
         }
         .formStyle(.grouped)

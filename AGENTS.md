@@ -18,6 +18,12 @@ Documenti vincolanti:
 2. `docs/ARCHITECTURE.md` e ADR approvate.
 3. `docs/REQUIREMENTS.md`, `docs/ROADMAP.md` e `docs/TESTING.md`.
 
+## Identità visiva
+
+- L'icona del bundle e il logo sono risorse del catalogo `FraPoMacCleaner/Resources/Assets.xcassets`, rispettivamente `AppIcon.appiconset` e `BrandLogo.imageset`.
+- Non sostituirli con segnaposto e non creare identità grafiche divergenti. Prima di cambiare marchio, aggiornare `docs/BRANDING.md`.
+- Ogni modifica agli asset deve essere verificata nelle build Debug e Release e produrre una nuova prerelease quando modifica la presentazione pubblica dell'app.
+
 ## Regole di sviluppo
 
 - Non citare nomi, marchi, prodotti o società concorrenti in documentazione, sorgenti, commenti, metadati, asset e messaggi di commit. La descrizione pubblica del progetto deve essere autonoma.

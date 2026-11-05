@@ -35,6 +35,7 @@ jobs:
           set -euo pipefail
           APP="$RUNNER_TEMP/FraPoDerivedData/Build/Products/Debug/FraPoMacCleaner.app"
           test -d "$APP"
+          test -f "$APP/Contents/Resources/Assets.car"
           test "$(lipo -archs "$APP/Contents/MacOS/FraPoMacCleaner")" = "arm64"
           ditto -c -k --keepParent "$APP" "$RUNNER_TEMP/FraPoMacCleaner-arm64-dev.zip"
           shasum -a 256 "$RUNNER_TEMP/FraPoMacCleaner-arm64-dev.zip" > "$RUNNER_TEMP/FraPoMacCleaner-arm64-dev.zip.sha256"

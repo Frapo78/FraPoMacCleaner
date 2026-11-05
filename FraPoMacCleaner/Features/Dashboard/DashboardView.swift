@@ -9,6 +9,15 @@ struct DashboardView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
+            Image("BrandLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(maxWidth: 460, maxHeight: 92, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background(.white, in: RoundedRectangle(cornerRadius: 16))
+                .accessibilityLabel("FraPoMacCleaner")
+
             Text("Panoramica").font(.largeTitle.bold())
             Text("Informazioni locali. Nessuna operazione automatica.")
                 .foregroundStyle(.secondary)

@@ -50,6 +50,10 @@ Si può anche creare manualmente il tag o avviare `workflow_dispatch` indicando 
 
 Se la pipeline fallisce, **nessuna release valida è stata prodotta**. Non pubblicare manualmente un artefatto compilato male.
 
+## Identità visiva e build
+
+Le build includono l'asset catalog `AppIcon.appiconset` per l'icona del bundle e `BrandLogo.imageset` per il logo visualizzato nell'app. Per verificare la dotazione della release, ispezionare `Contents/Resources/Assets.car` nel bundle e aprire l'applicazione sul Mac.
+
 ## Prima prerelease verificata
 
 Il workflow [Release macOS ARM64 ZIP](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42025800237) ha completato compilazione, XCTest, ZIP e pubblicazione. Artefatto pubblicato: [v0.1.0-alpha.2](https://github.com/Frapo78/FraPoMacCleaner/releases/tag/v0.1.0-alpha.2). Il pacchetto è per test, non firmato né notarizzato e non comprende alcuna funzione di cancellazione.
