@@ -19,6 +19,8 @@ struct ScanProgress: Sendable {
     let visitedItemCount: Int
     let inspectedFileCount: Int
     let candidateCount: Int
+    let appliedLargeThresholdBytes: Int64
+    let appliedAgeThresholdDays: Int
     let skippedItemCount: Int
     let errorCount: Int
 }

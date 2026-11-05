@@ -6,6 +6,8 @@ struct ScanView: View {
     let showResults: () -> Void
     @State private var showingPicker = false
     @State private var pickerError: String?
+    @State private var minimumSizeMiB: Int64 = 250
+    @State private var minimumAgeDays = 180
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
@@ -28,8 +30,35 @@ struct ScanView: View {
                         Text(pickerError).foregroundStyle(.red)
                     }
 
+                    GroupBox("Soglie di segnalazione") {
+                        HStack {
+                            Picker("File grandi", selection: $minimumSizeMiB) {
+                                Text("50 MiB").tag(Int64(50))
+                                Text("250 MiB").tag(Int64(250))
+                                Text("500 MiB").tag(Int64(500))
+                                Text("1 GiB").tag(Int64(1024))
+                            }
+                            .pickerStyle(.menu)
+                            Picker("File datati", selection: $minimumAgeDays) {
+                                Text("30 giorni").tag(30)
+                                Text("90 giorni").tag(90)
+                                Text("180 giorni").tag(180)
+                                Text("365 giorni").tag(365)
+                            }
+                            .pickerStyle(.menu)
+                        }
+                        .disabled(model.phase == .scanning)
+                        Text("Basta superare una delle due soglie. I conteggi complessivi includono anche i file non segnalati.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     HStack {
-                        Button("Avvia scansione") { model.start() }
+                        Button("Avvia scansione") {
+                            model.start(
+                                minimumSizeBytes: minimumSizeMiB * 1_048_576,
+                                minimumAgeDays: minimumAgeDays
+                            )
+                        }
                             .disabled(model.selectedFolder == nil || model.phase == .scanning)
                         if model.phase == .scanning {
                             Button("Annulla") { model.cancel() }
@@ -57,6 +86,9 @@ struct ScanView: View {
                     } else if let error = model.errorMessage {
                         Text(error).foregroundStyle(.red)
                     } else if let report = model.report {
+                        Text("Soglie applicate: \(report.appliedLargeThresholdBytes / 1_048_576) MiB oppure \(report.appliedAgeThresholdDays) giorni")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                         Text("\(report.inspectedFileCount) file esaminati · \(report.candidateCount) da verificare · \(report.skippedItemCount) esclusi · \(report.errorCount) errori")
                         if report.reachedLimit {
                             Text("Limite di elementi raggiunto: risultati parziali.")

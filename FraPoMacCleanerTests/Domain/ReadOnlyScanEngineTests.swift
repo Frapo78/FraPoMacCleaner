@@ -230,6 +230,40 @@ final class ReadOnlyScanEngineTests: XCTestCase {
         XCTAssertNotNil(report.findings.first?.allocatedSizeBytes)
     }
 
+    func testUserSelectedThresholdsOverrideEngineDefaults() async throws {
+        let file = try makeFile("small.txt", bytes: 256)
+        let baseline = try await scanner().scan(in: ScanScope(folderURL: folder))
+        XCTAssertEqual(baseline.candidateCount, 1)
+        XCTAssertEqual(baseline.appliedLargeThresholdBytes, 128)
+
+        let custom = try await scanner().scan(in: ScanScope(
+            folderURL: folder,
+            minimumLargeFileBytes: 512,
+            minimumAgeDays: 365
+        ))
+        XCTAssertEqual(custom.inspectedFileCount, 1)
+        XCTAssertEqual(custom.candidateCount, 0)
+        XCTAssertEqual(custom.appliedLargeThresholdBytes, 512)
+        XCTAssertEqual(custom.appliedAgeThresholdDays, 365)
+        XCTAssertEqual(custom.observedLogicalBytes, 256)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: file.path))
+    }
+
+    func testInvalidPerScanThresholdFailsClosed() async throws {
+        do {
+            _ = try await scanner().scan(in: ScanScope(
+                folderURL: folder, minimumLargeFileBytes: 0
+            ))
+            XCTFail("Zero threshold must be rejected")
+        } catch ReadOnlyScanError.invalidThreshold {}
+        do {
+            _ = try await scanner().scan(in: ScanScope(
+                folderURL: folder, minimumAgeDays: -1
+            ))
+            XCTFail("Negative threshold must be rejected")
+        } catch ReadOnlyScanError.invalidThreshold {}
+    }
+
     func testVolumeBoundaryRule() {
         XCTAssertFalse(ReadOnlyScanEngine.isDifferentDevice(rootDevice: 5, childDevice: 5))
         XCTAssertTrue(ReadOnlyScanEngine.isDifferentDevice(rootDevice: 5, childDevice: 6))

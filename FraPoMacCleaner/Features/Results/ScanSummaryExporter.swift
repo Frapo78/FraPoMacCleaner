@@ -19,6 +19,8 @@ enum ScanSummaryExporter {
         let note: String
         let inspectedFileCount: Int
         let candidateCount: Int
+        let appliedLargeThresholdBytes: Int64
+        let appliedAgeThresholdDays: Int
         let skippedItemCount: Int
         let errorCount: Int
         let reachedLimit: Bool
@@ -59,6 +61,8 @@ enum ScanSummaryExporter {
             note: "Metadati aggregati e blocchi allocati osservati, non spazio recuperabile. APFS può condividere blocchi.",
             inspectedFileCount: report.inspectedFileCount,
             candidateCount: report.candidateCount,
+            appliedLargeThresholdBytes: report.appliedLargeThresholdBytes,
+            appliedAgeThresholdDays: report.appliedAgeThresholdDays,
             skippedItemCount: report.skippedItemCount,
             errorCount: report.errorCount,
             reachedLimit: report.reachedLimit,

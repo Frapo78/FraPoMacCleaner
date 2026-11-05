@@ -31,7 +31,10 @@ final class ScanSessionModel: ObservableObject {
         phase = .idle
     }
 
-    func start() {
+    func start(
+        minimumSizeBytes: Int64? = nil,
+        minimumAgeDays: Int? = nil
+    ) {
         guard let folder = selectedFolder, phase != .scanning else { return }
         cancel()
         report = nil
@@ -41,6 +44,11 @@ final class ScanSessionModel: ObservableObject {
         generation += 1
         let runID = generation
         let engine = scanner
+        let scope = ScanScope(
+            folderURL: folder,
+            minimumLargeFileBytes: minimumSizeBytes,
+            minimumAgeDays: minimumAgeDays
+        )
         currentTask = Task(priority: .utility) {
             let granted = folder.startAccessingSecurityScopedResource()
             defer {
@@ -48,7 +56,7 @@ final class ScanSessionModel: ObservableObject {
             }
             do {
                 let result = try await engine.scan(
-                    in: ScanScope(folderURL: folder),
+                    in: scope,
                     progress: { [weak self] snapshot in
                         Task { @MainActor [weak self] in
                             guard let self, self.generation == runID,

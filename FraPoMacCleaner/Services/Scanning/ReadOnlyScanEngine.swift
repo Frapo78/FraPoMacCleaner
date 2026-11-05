@@ -4,6 +4,7 @@ import Darwin
 enum ReadOnlyScanError: LocalizedError {
     case invalidScope
     case protectedScope
+    case invalidThreshold
 
     var errorDescription: String? {
         switch self {
@@ -11,6 +12,8 @@ enum ReadOnlyScanError: LocalizedError {
             return "Seleziona una cartella reale e accessibile, non un collegamento."
         case .protectedScope:
             return "La cartella selezionata è esclusa per proteggere dati sensibili o di sistema."
+        case .invalidThreshold:
+            return "Le soglie di ricerca devono essere maggiori di zero."
         }
     }
 }
@@ -70,6 +73,11 @@ struct ReadOnlyScanEngine: ScanEngine {
         progress: @escaping @Sendable (ScanProgress) -> Void
     ) async throws -> ScanReport {
         try Task.checkCancellation()
+        let largeThreshold = scope.minimumLargeFileBytes ?? minimumLargeFileBytes
+        let ageThreshold = scope.minimumAgeDays ?? minimumAgeDays
+        guard largeThreshold > 0, ageThreshold > 0 else {
+            throw ReadOnlyScanError.invalidThreshold
+        }
         let root = scope.folderURL.standardizedFileURL
         guard root.isFileURL,
               root.path != "/",
@@ -135,6 +143,8 @@ struct ReadOnlyScanEngine: ScanEngine {
                 visitedItemCount: visited,
                 inspectedFileCount: inspected,
                 candidateCount: candidates,
+                appliedLargeThresholdBytes: largeThreshold,
+                appliedAgeThresholdDays: ageThreshold,
                 skippedItemCount: excluded,
                 errorCount: errors
             ))
@@ -313,17 +323,17 @@ struct ReadOnlyScanEngine: ScanEngine {
                     : "File nella cartella principale"
                 add(size, to: firstLevel, in: &folderGroups)
 
-                let isLarge = size >= minimumLargeFileBytes
+                let isLarge = size >= largeThreshold
                 let modifiedAt = properties.contentModificationDate
                 let isOld = modifiedAt.map {
-                    referenceDate.timeIntervalSince($0) >= Double(minimumAgeDays) * 86_400
+                    referenceDate.timeIntervalSince($0) >= Double(ageThreshold) * 86_400
                 } ?? false
                 guard isLarge || isOld else { continue }
 
                 candidates += 1
                 let reasons = [
                     isLarge ? "Dimensione logica elevata" : nil,
-                    isOld ? "Non modificato da almeno \(minimumAgeDays) giorni" : nil
+                    isOld ? "Non modificato da almeno \(ageThreshold) giorni" : nil
                 ].compactMap { $0 }
                 findings.append(ScanFinding(
                     fileURL: item,

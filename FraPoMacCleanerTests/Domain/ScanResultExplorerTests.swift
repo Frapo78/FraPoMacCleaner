@@ -72,6 +72,8 @@ final class ScanResultExplorerTests: XCTestCase {
             findings: [finding],
             inspectedFileCount: 2,
             candidateCount: 1,
+            appliedLargeThresholdBytes: 250 * 1_048_576,
+            appliedAgeThresholdDays: 180,
             skippedItemCount: 1,
             errorCount: 0,
             reachedLimit: false,

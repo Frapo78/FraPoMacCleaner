@@ -19,6 +19,9 @@ struct ResultsView: View {
                     Text("Risultati").font(.largeTitle.bold())
                     Text("\(report.candidateCount) file da verificare · \(report.inspectedFileCount) esaminati")
                         .foregroundStyle(.secondary)
+                    Text("Soglie: almeno \(report.appliedLargeThresholdBytes / 1_048_576) MiB oppure \(report.appliedAgeThresholdDays) giorni senza modifiche")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     HStack {
                         Label("Tutti protetti dalla rimozione", systemImage: "lock.shield")
                             .font(.caption)
