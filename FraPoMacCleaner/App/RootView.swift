@@ -31,6 +31,7 @@ struct RootView: View {
         NavigationSplitView {
             VStack(spacing: 0) {
                 Image("BrandLogo")
+                .interpolation(.high)
                     .resizable()
                     .scaledToFit()
                     .frame(maxWidth: 182, maxHeight: 46)

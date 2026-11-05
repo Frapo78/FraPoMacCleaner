@@ -23,6 +23,7 @@ Documenti vincolanti:
 - L'icona del bundle e il logo sono risorse del catalogo `FraPoMacCleaner/Resources/Assets.xcassets`, rispettivamente `AppIcon.appiconset` e `BrandLogo.imageset`.
 - Non sostituirli con segnaposto e non creare identità grafiche divergenti. Prima di cambiare marchio, aggiornare `docs/BRANDING.md`.
 - Ogni modifica agli asset deve essere verificata nelle build Debug e Release e produrre una nuova prerelease quando modifica la presentazione pubblica dell'app.
+- Non sostituire mai asset HD con miniature ingrandite. Conservare gli hash nel controllo `scripts/check_brand_assets.sh`, aggiornandoli solo dopo approvazione esplicita dei nuovi originali.
 
 ## Regole di sviluppo
 

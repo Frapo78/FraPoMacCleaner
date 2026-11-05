@@ -22,6 +22,8 @@ jobs:
           xcodebuild -version
           xcodebuild -list -project FraPoMacCleaner.xcodeproj
           test "$(uname -m)" = "arm64"
+      - name: Verify original branding images
+        run: bash scripts/check_brand_assets.sh
       - name: Build and test
         run: |
           set -euo pipefail

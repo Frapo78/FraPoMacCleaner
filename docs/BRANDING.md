@@ -10,7 +10,14 @@ Il logo orizzontale e l'icona di FraPoMacCleaner utilizzano un segno grafico **F
 - `FraPoMacCleaner/Resources/Assets.xcassets/AppIcon.appiconset/`: icona dell'app con varianti da 16 a 1024 pixel configurate in Xcode.
 - `ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon` abilita l'icona per il bundle macOS.
 
-Le immagini integrate sono state ricostruite a partire da versioni ridotte del materiale grafico preparato per il progetto. Le dimensioni dei PNG sono quelle richieste dall'asset catalog, ma la nitidezza delle varianti più grandi non corrisponde ancora a quella dei sorgenti originali. **Sostituire i PNG con gli originali ad alta risoluzione appena disponibile un trasferimento binario diretto verso GitHub.** Conservare nomi e contenuto dei manifest.
+Dalla **v0.1.0-alpha.4** sono integrati gli originali verificati, senza alcun ingrandimento di miniature:
+
+- Logo orizzontale trasparente: **1460×285 px**, SHA-256 `5538179542dfaf2f4aa13bc50b9456e9d4fe9a0530ce25e703d7b0ac6337cb82`.
+- Icona principale: **1024×1024 px**, SHA-256 `db8b77d6cf1dbfddb044c71e055c4ce68dcc126ed0d7bde25c8467f574602231`.
+- Varianti 16, 32, 64, 128, 256 e 512 px derivate dall'originale con riduzione.
+- `scripts/check_brand_assets.sh` verifica in CI e release l'identità degli originali e le dimensioni delle varianti.
+
+Sono immagini raster HD: per aumenti illimitati di dimensioni servirebbe una versione vettoriale, non ancora disponibile.
 
 ## Regole
 

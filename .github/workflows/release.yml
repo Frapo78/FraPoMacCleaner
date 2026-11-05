@@ -54,6 +54,8 @@ jobs:
             echo "prerelease=false" >> "$GITHUB_OUTPUT"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Verify original branding images
+        run: bash scripts/check_brand_assets.sh
       - name: Build and test
         run: |
           set -euo pipefail

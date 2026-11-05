@@ -2,6 +2,14 @@
 
 Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 
+## v0.1.0-alpha.4 (2026-11-05) — ripristino asset originali
+
+- Logo trasparente sostituito con il PNG originale **1460×285**, senza ingrandimenti di miniature.
+- Icona macOS sostituita con il PNG originale **1024×1024**; varianti piccole rigenerate per riduzione.
+- Interpolazione SwiftUI impostata su qualità alta per il logo.
+- Aggiunta la verifica automatica di SHA-256 e dimensioni dei PNG in CI e release.
+- Non sono state abilitate operazioni di scansione o pulizia.
+
 ## v0.1.0-alpha.3 (2026-11-05) — identità visiva nativa
 
 - Catalogo AppIcon macOS con varianti 16–1024 px integrate in Xcode e nella build.

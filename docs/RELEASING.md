@@ -52,7 +52,7 @@ Se la pipeline fallisce, **nessuna release valida è stata prodotta**. Non pubbl
 
 ## Identità visiva e build
 
-Le build includono l'asset catalog `AppIcon.appiconset` per l'icona del bundle e `BrandLogo.imageset` per il logo visualizzato nell'app. Per verificare la dotazione della release, ispezionare `Contents/Resources/Assets.car` nel bundle e aprire l'applicazione sul Mac.
+Le build includono l'asset catalog `AppIcon.appiconset` per l'icona del bundle e `BrandLogo.imageset` per il logo visualizzato nell'app. La CI e la pipeline release eseguono `scripts/check_brand_assets.sh` per prevenire sostituzioni con miniature ingrandite. Per verificare la dotazione della release, ispezionare `Contents/Resources/Assets.car` nel bundle e aprire l'applicazione sul Mac.
 
 ## Prima prerelease verificata
 

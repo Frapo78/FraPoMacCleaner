@@ -10,6 +10,7 @@ struct DashboardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Image("BrandLogo")
+                .interpolation(.high)
                 .resizable()
                 .scaledToFit()
                 .frame(maxWidth: 460, maxHeight: 92, alignment: .leading)

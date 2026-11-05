@@ -41,7 +41,7 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 | Monitor | CPU, memoria, processi e attività disco | v0.3 |
 | Scansioni pianificate | Solo con consenso e impatto limitato | Futuro |
 
-**Stato attuale:** logo e icona sono integrati nelle risorse di Xcode, insieme alla navigazione, al pannello disco e alla selezione non operativa di una cartella. Le funzioni di scansione e pulizia non sono attive.
+**Stato attuale:** sono integrati il logo originale 1460×285 e l'icona originale 1024×1024, con verifiche SHA-256 in CI. Sono presenti navigazione, pannello disco e selezione non operativa di una cartella. Le funzioni di scansione e pulizia non sono attive.
 
 ## Direzione tecnologica
 
@@ -74,7 +74,7 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 - [Aprire e compilare in Xcode](docs/GETTING_STARTED.md)
 - [Pipeline CI e release ZIP](docs/RELEASING.md)
 - [GitHub Actions](.github/workflows/ci.yml)
-- **[Prerelease attuale: v0.1.0-alpha.3](https://github.com/Frapo78/FraPoMacCleaner/releases/tag/v0.1.0-alpha.3)** (ZIP ARM64, senza firma/notarizzazione)
+- **[Prerelease attuale: v0.1.0-alpha.4](https://github.com/Frapo78/FraPoMacCleaner/releases/tag/v0.1.0-alpha.4)** (ZIP ARM64, senza firma/notarizzazione)
 - [Tutte le GitHub Releases](https://github.com/Frapo78/FraPoMacCleaner/releases)
 - [Identità visiva e icona macOS](docs/BRANDING.md)
 
