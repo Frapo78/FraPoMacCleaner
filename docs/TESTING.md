@@ -1,6 +1,6 @@
 # Strategia di test e criteri di rilascio
 
-**Sono presenti suite XCTest per dominio e scanner read-only.** I test dello scanner sono stati aggiunti, ma devono ancora essere confermati dalla CI e da prove manuali su macOS. Non esistono test di operazioni distruttive perché non esiste codice di pulizia.
+**Sono presenti suite XCTest per dominio e scanner read-only.** I test dello scanner sono stati eseguiti con successo su [macOS ARM64 (Xcode 16.4)](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42058024473): 9 test, 0 errori. Permessi App Sandbox, prestazioni su alberi grandi e casi di revoca rimangono da verificare manualmente. Non esistono test di operazioni distruttive perché non esiste codice di pulizia.
 
 ## Livelli
 

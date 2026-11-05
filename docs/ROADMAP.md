@@ -12,13 +12,15 @@
 
 ## Fase 1 — v0.1a, solo lettura
 
-- [x] Progetto Xcode SwiftUI arm64 e struttura di navigazione (compilazione CI ancora da verificare).
+- [x] Progetto Xcode SwiftUI arm64 e struttura di navigazione, verificati in CI.
 - [ ] Selezione cartella con permessi coerenti.
-- [x] Provider di lettura dei metadati disco e dashboard iniziale (test su macOS ancora da eseguire).
-- [ ] Enumerazione cancellabile, senza seguire symlink.
-- [ ] Analisi metadati file grandi/vecchi.
+- [x] Provider di lettura dei metadati disco e dashboard iniziale, verificati in CI.
+- [x] Enumerazione cancellabile, senza seguire symlink (test su fixture CI).
+- [x] Analisi metadati file grandi/vecchi (test su fixture CI).
 - [ ] Risultati con rischio, motivazione, esclusioni ed errori.
 - [ ] Test automatici su filesystem sintetico e verifica manuale sul Mac.
+
+**Stato di v0.1.0-alpha.5:** 9 test XCTest superati, scanner di soli metadati attivo. Restano **aperti** la verifica manuale dei permessi App Sandbox, le prove di prestazione su alberi grandi e un report di errori/rischi più dettagliato; il gate della Fase 1 non è ancora chiuso.
 
 **Exit gate:** nessuna API di mutazione nel percorso di scansione; test dei casi avversi e prestazioni accettabili.
 

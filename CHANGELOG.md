@@ -2,6 +2,19 @@
 
 Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 
+## v0.1.0-alpha.5 (2026-11-05) — prima scansione di sola lettura
+
+- Selezione esplicita di una cartella e scansione ricorsiva **solo metadati**, cancellabile; nessun file aperto, spostato o eliminato.
+- Individuazione informativa di file con dimensione logica almeno **250 MiB** o non modificati da almeno **180 giorni**.
+- Nuove schermate Scansione e Risultati collegate da una sessione condivisa; file consultabili e apertura nel Finder.
+- Esclusione conservativa di symlink, pacchetti applicativi, aree di sistema, directory sensibili, contenuti cloud e file di credenziali.
+- Analisi limitata a **100.000 elementi** e visualizzazione di **500 candidati** al massimo; conteggi di elementi ignorati, errori e risultati parziali.
+- **9 test XCTest superati su macOS 15 / Xcode 16.4**: file grandi/vecchi, esclusioni, integrità, link simbolici, cancel e limiti. Nessuna operazione di pulizia disponibile.
+- Riorganizzate le ADR in `docs/DECISIONS` per evitare conflitti tra maiuscole e minuscole nei clone macOS.
+- Eliminata una risorsa icona orfana che generava avvisi nella compilazione.
+- Build firmata Apple Development disponibile soltanto come artefatto di workflow di sviluppo; prerelease pubblica non notarizzata.
+- Accessi App Sandbox e interfaccia ancora da confermare con test manuale su Mac.
+
 ## v0.1.0-alpha.4 (2026-11-05) — ripristino asset originali
 
 - Logo trasparente sostituito con il PNG originale **1460×285**, senza ingrandimenti di miniature.

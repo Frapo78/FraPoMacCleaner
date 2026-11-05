@@ -1,6 +1,6 @@
 # Funzionalità e priorità
 
-Legenda: **P0** = MVP, **P1** = fase successiva, **P2** = esplorazione. Nessuna voce è ancora implementata.
+Legenda: **P0** = MVP, **P1** = fase successiva, **P2** = esplorazione. Dashboard disco e primo scanner di metadati read-only sono implementati e verificati da XCTest; le funzioni di pulizia restano interamente da sviluppare.
 
 | Modulo | Funzione prevista | Priorità | Vincoli |
 | --- | --- | --- | --- |

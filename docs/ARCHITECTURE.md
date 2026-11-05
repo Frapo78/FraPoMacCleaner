@@ -1,6 +1,6 @@
 # Architettura tecnica iniziale
 
-**Stato: struttura Xcode e primo scanner read-only implementati; nuovi test e runtime scanner ancora da validare in CI e manualmente.** Cleanup non implementato. Permessi e packaging richiedono verifiche continuative.
+**Stato: struttura Xcode e primo scanner read-only implementati; scanner verificato da 9 test CI su macOS ARM64, test manuale App Sandbox ancora da eseguire.** Cleanup non implementato. Permessi e packaging richiedono verifiche continuative.
 
 ## Stack
 

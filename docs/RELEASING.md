@@ -60,7 +60,7 @@ Il workflow [Release macOS ARM64 ZIP](https://github.com/Frapo78/FraPoMacCleaner
 
 ## Limite di questa fase
 
-Il repository contiene ora solo lo scheletro dell'app; **non è una versione completa per uso quotidiano**. La prima release stabile sarà definita solo quando saranno completate e testate le funzionalità effettivamente previste per quel traguardo.
+Il repository contiene lo scheletro e un primo scanner read-only di metadati; **non è una versione completa per uso quotidiano**. La prima release stabile sarà definita solo quando saranno completate e testate le funzionalità effettivamente previste per quel traguardo.
 
 ## Build di sviluppo firmata con Apple Development
 

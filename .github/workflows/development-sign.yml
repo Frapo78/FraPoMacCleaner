@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/development-sign.yml'
+      - 'RELEASE_VERSION'
 
 permissions:
   contents: read

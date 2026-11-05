@@ -1,6 +1,6 @@
 # Requisiti funzionali — bozza iniziale
 
-Le priorità sono **P0** (necessarie per il primo MVP), **P1** (iterazione successiva) e **P2** (estensioni). Dashboard e primo scanner di metadati read-only sono stati implementati, con esito della CI e test manuale ancora da confermare. Le operazioni di pulizia restano da implementare.
+Le priorità sono **P0** (necessarie per il primo MVP), **P1** (iterazione successiva) e **P2** (estensioni). Dashboard e primo scanner di metadati read-only sono stati implementati, con 9 test CI superati e test manuale App Sandbox ancora da confermare. Le operazioni di pulizia restano da implementare.
 
 ## P0 — MVP: diagnosi e gestione prudente
 
