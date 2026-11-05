@@ -17,10 +17,11 @@
 - [x] Provider di lettura dei metadati disco e dashboard iniziale, verificati in CI.
 - [x] Enumerazione cancellabile, senza seguire symlink (test su fixture CI).
 - [x] Analisi metadati file grandi/vecchi (test su fixture CI).
+- [x] Ripartizione delle dimensioni logiche per tipo e sottocartella (XCTest CI); senza stime di spazio recuperabile.
 - [ ] Risultati con rischio, motivazione, esclusioni ed errori.
 - [x] Test automatici su filesystem sintetico e prova manuale iniziale sul Mac (file grande e file datato).
 
-**Stato di v0.1.0-alpha.5:** 9 test XCTest superati, scanner di soli metadati attivo. Verificata anche su Mac la prima scansione di una cartella di fixture con due candidati (314,6 MB e file datato al 2020), entrambi elencati nella schermata Risultati. Restano **aperti** i test di autorizzazioni/revoca App Sandbox, le prove di prestazione su alberi grandi e un report di errori/rischi più dettagliato; il gate della Fase 1 non è ancora chiuso.
+**Stato di v0.1.0-alpha.6:** 11 test XCTest superati, scanner di soli metadati attivo. Verificata anche su Mac la prima scansione di una cartella di fixture con due candidati (314,6 MB e file datato al 2020), entrambi elencati nella schermata Risultati. Restano **aperti** i test manuali di aggregazione e autorizzazioni/revoca App Sandbox, le prove di prestazione su alberi grandi e un report di errori/rischi più dettagliato; il gate della Fase 1 non è ancora chiuso.
 
 **Exit gate:** nessuna API di mutazione nel percorso di scansione; test dei casi avversi e prestazioni accettabili.
 

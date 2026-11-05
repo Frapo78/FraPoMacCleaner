@@ -2,6 +2,16 @@
 
 Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 
+## v0.1.0-alpha.6 (2026-11-05) — distribuzione dello spazio e categorie
+
+- Analisi **read-only** della dimensione logica per categoria di file e per sottocartella di primo livello nella cartella scelta.
+- Raggruppamenti calcolati su tutti i file regolari accessibili, non solo sui candidati segnalati per dimensione o anzianità.
+- Interfaccia Risultati con riepiloghi, barre proporzionali e legenda che distingue dimensione logica, occupazione effettiva e spazio recuperabile.
+- Classificazione tramite estensione, senza leggere o trasmettere i contenuti; esclusioni e annullamento mantenuti.
+- Due test aggiuntivi per classificazione e aggregazione, **11 XCTest superati** su macOS ARM64 / Xcode 16.4: [build CI](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42060620420).
+- Revisione di architetture e funzionalità di progetti pubblici: nessun codice esterno copiato o dipendenza introdotta.
+- Pulizia, disinstallazione e manutenzione attiva restano **disabilitate**.
+
 ## v0.1.0-alpha.5 (2026-11-05) — prima scansione di sola lettura
 
 - Selezione esplicita di una cartella e scansione ricorsiva **solo metadati**, cancellabile; nessun file aperto, spostato o eliminato.

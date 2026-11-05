@@ -52,6 +52,7 @@ Documenti vincolanti:
 - Aggiornamento di documentazione, ADR e changelog quando cambiano decisioni o comportamento.
 - Build/test documentati con output reale; non dichiarare «test superati» senza averli eseguiti.
 - Nessun commit di segreti, certificati, provisioning profile, dati di utenti, archivi di cache o artefatti binari.
+- Prima di riutilizzare codice esterno verificare licenza, titolarità e obblighi di attribuzione compatibili con GPL-3.0; non importare codice solo perché visibile pubblicamente. Le idee funzionali generali non richiedono copia del sorgente.
 - I secret Apple Development si usano esclusivamente nel workflow di sviluppo su `main`; mai nelle PR o nel workflow di distribuzione. Non mettere la chiave privata negli artefatti.
 - Se un'azione richiede privilegi più elevati, bloccarla e proporre una progettazione separata per la revisione.
 

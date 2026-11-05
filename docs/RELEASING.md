@@ -85,3 +85,7 @@ gh run download RUN_ID -R Frapo78/FraPoMacCleaner -n FraPoMacCleaner-AppleDevelo
 **Limiti:** la firma di sviluppo non conferisce un'autorizzazione per la distribuzione pubblica e non evita gli avvisi Gatekeeper sui Mac di altri utenti. Non fornisce notarizzazione. Le normali GitHub Releases continuano a seguire il workflow separato `release.yml` e richiedono un vero certificato Developer ID per la distribuzione stabile.
 
 Il file `.p12` e la sua password non devono mai essere inclusi nella repository, nei log o nei file ZIP.
+
+## Politica di riuso del codice
+
+Le idee generali di strumenti open source possono ispirare la progettazione; i sorgenti esterni **non vengono copiati automaticamente**. Prima dell'inclusione di codice di terzi verificare titolarità e licenza specifica, compatibilità con GPL-3.0, clausole commerciali, obblighi di attribuzione, avvisi di copyright e test. Le implementazioni di analisi introdotte in alpha.6 sono originali e non introducono dipendenze.

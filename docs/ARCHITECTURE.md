@@ -121,3 +121,9 @@ La composizione delle dipendenze si trova in `AppDependencies`. `ReadOnlyScanEng
 - Politiche di firma e notarizzazione: vedi `docs/RELEASING.md`; ZIP è il formato di distribuzione scelto.
 
 Vedi `docs/DECISIONS/` per le scelte registrate. Tutte le ADR usano una sola cartella con maiuscole coerenti, per evitare collisioni su filesystem macOS case-insensitive.
+
+## Aggregazione dei metadati (alpha.6)
+
+La scansione mantiene contatori limitati per estensioni raggruppate in categorie semantiche e per il primo livello di sottocartelle. `ScanReport` contiene `observedLogicalBytes`, `fileCategories` e `firstLevelFolders`. Si aggregano **tutti i file regolari che hanno metadati accessibili**, non soltanto i candidati alle soglie di dimensione/età. Le viste possono mostrare i gruppi senza accedere nuovamente ai file.
+
+Non vengono letti contenuti, effettuati hash o trasferiti inventari. I byte aggregati sono **dimensioni logiche**: i file hard-link possono essere doppiamente contati, i cloni APFS condividono blocchi e file sparse hanno dimensione apparente maggiore dello spazio allocato. Il modello non dichiara spazio fisico recuperabile.

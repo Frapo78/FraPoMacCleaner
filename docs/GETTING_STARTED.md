@@ -66,3 +66,7 @@ gh run list --workflow development-sign.yml -R Frapo78/FraPoMacCleaner --limit 5
 ```
 
 L'artefatto della run è uno ZIP ARM64 firmato con l'identità di **sviluppo**. Non è notarizzato e non sostituisce la release ufficiale. I secret rimangono protetti da GitHub Actions e il certificato non viene committato.
+
+## Verifica ripartizione spazio (alpha.6)
+
+Aprire **Scansione**, selezionare una cartella sintetica con file di più tipi ed eseguire l'analisi. In **Risultati** devono apparire i riepiloghi **Per tipo di file** e **Per sottocartella**. I totali comprendono anche file piccoli non segnalati come candidati. Verificare che siano definiti esplicitamente come dimensioni logiche, non spazio fisico liberabile, e che l'app non proponga cancellazioni.

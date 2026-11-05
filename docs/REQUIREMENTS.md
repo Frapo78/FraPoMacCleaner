@@ -49,3 +49,11 @@ Le priorità sono **P0** (necessarie per il primo MVP), **P1** (iterazione succe
 - **Spazio recuperabile stimato:** valore non garantito; può differire per APFS, hard link, cloni, snapshot e file purgeable.
 - **Rimozione recuperabile:** spostamento nel Cestino; recupero possibile solo finché il file rimane lì e il filesystem supporta l'operazione.
 - **File sicuro:** nel contesto dell'app vuol dire «candidato a revisione a basso rischio», **non** garanzia assoluta di eliminabilità.
+
+## Ripartizione delle dimensioni logiche (v0.1.0-alpha.6)
+
+- Conteggi e somme per categorie di estensione, senza apertura del contenuto.
+- Riepilogo delle sottocartelle dirette della cartella selezionata.
+- Il totale include file regolari piccoli, anche se non segnalati fra i candidati.
+- I totali **non** sono bytes fisici esclusivi né una stima dello spazio recuperabile: hard link, cloni APFS e file esclusi richiedono un trattamento distinto.
+- Nessun import di codice di terze parti: implementazione nativa e originale con Foundation/SwiftUI.
