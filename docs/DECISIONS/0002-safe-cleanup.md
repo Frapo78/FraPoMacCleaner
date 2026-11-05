@@ -11,6 +11,7 @@ Le utility di pulizia possono provocare perdita dati, falsi positivi e degrado o
 
 - Due fasi non confondibili: **scansione read-only → piano d'azione e consenso**.
 - Ogni candidato espone percorso, dimensione, giustificazione, grado di rischio e stima non garantita.
+- Nessuna selezione automatica dei file individuati; persino gli elementi segnalati restano protetti nella prima fase.
 - I percorsi protetti non sono selezionabili.
 - La pulizia avviene soltanto dopo **revalidazione** immediata, con gestione prudente delle race.
 - Il percorso ordinario usa il **Cestino**, mai `removeItem` o comandi shell distruttivi come soluzione predefinita.

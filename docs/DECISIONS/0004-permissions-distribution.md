@@ -1,4 +1,4 @@
-# ADR-0003 — Permessi, sandbox e distribuzione: decisione aperta
+# ADR-0004 — Permessi, sandbox e distribuzione: decisione aperta
 
 - **Stato:** proposta / da validare
 - **Data:** 2026-11-05

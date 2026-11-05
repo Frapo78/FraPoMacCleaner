@@ -15,7 +15,7 @@ Un unico progetto `FraPoMacCleaner.xcodeproj`, con target applicazione macOS e t
 - `Configuration/`: configurazioni ed entitlements.
 - `FraPoMacCleanerTests/`: test non distruttivi.
 
-`UnavailableScanEngine` è deliberatamente inerte; `ConservativeRiskPolicy` classifica ogni elemento come protetto. Nessun componente che elimina file.
+`ReadOnlyScanEngine` esamina soltanto metadati di cartelle scelte dall'utente; `ConservativeRiskPolicy` classifica ogni elemento come protetto. Nessun componente che elimina file. Il vecchio adapter `UnavailableScanEngine` rimane solo come fallback di compatibilità.
 
 ## Build e distribuzione
 

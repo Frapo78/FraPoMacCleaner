@@ -120,4 +120,4 @@ La composizione delle dipendenze si trova in `AppDependencies`. `ReadOnlyScanEng
 - Necessità di helper per feature future: **esclusa per l'MVP**.
 - Politiche di firma e notarizzazione: vedi `docs/RELEASING.md`; ZIP è il formato di distribuzione scelto.
 
-Vedi `docs/DECISIONS/` per le scelte registrate.
+Vedi `docs/DECISIONS/` per le scelte registrate. Tutte le ADR usano una sola cartella con maiuscole coerenti, per evitare collisioni su filesystem macOS case-insensitive.

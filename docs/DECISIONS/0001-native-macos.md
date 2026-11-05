@@ -15,7 +15,7 @@ L'app deve leggere metadati del filesystem, mostrare dashboard macOS e gestire o
 - Preferire architettura modulare leggera e separare UI, dominio e I/O.
 - Non usare Electron o runtime web per l'interfaccia principale.
 - Per il MVP **nessun helper privilegiato**.
-- Scegliere versione minima macOS solo dopo confronto API e prova su ambiente reale.
+- Target minimo provvisorio **macOS 14+**, da confermare con prove reali su Mac compatibili.
 
 ## Conseguenze
 
