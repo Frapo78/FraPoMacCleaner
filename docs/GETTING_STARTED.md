@@ -51,3 +51,14 @@ Gli URL restituiti dal selettore **non vengono letti dallo scanner**; l'accesso 
 ## Build scaricabili
 
 GitHub Actions crea un **artefatto ZIP temporaneo** ad ogni push verificato su `main`. Le GitHub Release ufficiali sono generate mediante tag di versione (vedi [RELEASING.md](RELEASING.md)).
+
+## Build Apple Development firmata tramite GitHub Actions
+
+Per avviare la build di test firmata sul runner GitHub (solo `main`), utilizzare:
+
+```sh
+gh workflow run development-sign.yml --ref main -R Frapo78/FraPoMacCleaner
+gh run list --workflow development-sign.yml -R Frapo78/FraPoMacCleaner --limit 5
+```
+
+L'artefatto della run è uno ZIP ARM64 firmato con l'identità di **sviluppo**. Non è notarizzato e non sostituisce la release ufficiale. I secret rimangono protetti da GitHub Actions e il certificato non viene committato.

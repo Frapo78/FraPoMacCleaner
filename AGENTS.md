@@ -52,6 +52,7 @@ Documenti vincolanti:
 - Aggiornamento di documentazione, ADR e changelog quando cambiano decisioni o comportamento.
 - Build/test documentati con output reale; non dichiarare «test superati» senza averli eseguiti.
 - Nessun commit di segreti, certificati, provisioning profile, dati di utenti, archivi di cache o artefatti binari.
+- I secret Apple Development si usano esclusivamente nel workflow di sviluppo su `main`; mai nelle PR o nel workflow di distribuzione. Non mettere la chiave privata negli artefatti.
 - Se un'azione richiede privilegi più elevati, bloccarla e proporre una progettazione separata per la revisione.
 
 ## Sequenza di lavoro

@@ -61,3 +61,27 @@ Il workflow [Release macOS ARM64 ZIP](https://github.com/Frapo78/FraPoMacCleaner
 ## Limite di questa fase
 
 Il repository contiene ora solo lo scheletro dell'app; **non è una versione completa per uso quotidiano**. La prima release stabile sarà definita solo quando saranno completate e testate le funzionalità effettivamente previste per quel traguardo.
+
+## Build di sviluppo firmata con Apple Development
+
+Il workflow separato [`development-sign.yml`](../.github/workflows/development-sign.yml) usa i secret `APPLE_DEVELOPMENT_P12_BASE64` e `APPLE_DEVELOPMENT_P12_PASSWORD` già configurati dal maintainer. Questo certificato è **Apple Development**, non Developer ID.
+
+**Sicurezza:** il workflow si esegue soltanto sul branch `main`, mai su PR; esegue build e test **prima** di rendere disponibili i secret al passo di firma; importa la chiave in un Portachiavi temporaneo del runner; controlla `codesign`, Team ID e architettura ARM64; produce uno ZIP e un file SHA-256 tra gli artefatti della run, senza creare una GitHub Release pubblica. Il Portachiavi temporaneo viene eliminato anche in caso di errore.
+
+Esecuzione manuale dal repository locale (richiede `gh auth login`):
+
+```sh
+gh workflow run development-sign.yml --ref main -R Frapo78/FraPoMacCleaner
+gh run list --workflow development-sign.yml -R Frapo78/FraPoMacCleaner --limit 5
+```
+
+Per leggere lo stato e ottenere l'artefatto, identificare la run conclusa con successo:
+
+```sh
+gh run view RUN_ID -R Frapo78/FraPoMacCleaner
+gh run download RUN_ID -R Frapo78/FraPoMacCleaner -n FraPoMacCleaner-AppleDevelopment-arm64
+```
+
+**Limiti:** la firma di sviluppo non conferisce un'autorizzazione per la distribuzione pubblica e non evita gli avvisi Gatekeeper sui Mac di altri utenti. Non fornisce notarizzazione. Le normali GitHub Releases continuano a seguire il workflow separato `release.yml` e richiedono un vero certificato Developer ID per la distribuzione stabile.
+
+Il file `.p12` e la sua password non devono mai essere inclusi nella repository, nei log o nei file ZIP.
