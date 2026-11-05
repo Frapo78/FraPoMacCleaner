@@ -50,7 +50,7 @@ La scansione richiede la selezione esplicita di una cartella. `ScanSessionModel`
 
 ## Primo test dello scanner (milestone in validazione)
 
-Aprire l'app, scegliere **Scansione**, selezionare una cartella contenente solo file sintetici, premere **Avvia scansione**, poi aprire **Risultati**. Lo scanner usa le soglie iniziali di 250 MiB o 180 giorni, limita l'analisi a 100.000 elementi e presenta al massimo 500 candidati. I file non vengono aperti né modificati e nessun elemento è cancellabile. Il codice dello scanner ha superato 9 test XCTest nel [workflow macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42058024473). La selezione cartella e l'accesso App Sandbox richiedono ancora verifica manuale sul Mac.
+Aprire l'app, scegliere **Scansione**, selezionare una cartella contenente solo file sintetici, premere **Avvia scansione**, poi aprire **Risultati**. Lo scanner usa le soglie iniziali di 250 MiB o 180 giorni, limita l'analisi a 100.000 elementi e presenta al massimo 500 candidati. I file non vengono aperti né modificati e nessun elemento è cancellabile. Il codice dello scanner ha superato 9 test XCTest nel [workflow macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42058024473). La scansione di una cartella sintetica è stata verificata visivamente su Mac il 5 novembre 2026: 2 file esaminati e 2 candidati correttamente motivati (314,6 MB per dimensione, file del 1 gennaio 2020 per anzianità). Restano da eseguire prove di revoca permessi, errori reali e comportamento App Sandbox su altri ambiti.
 
 ## Build scaricabili
 

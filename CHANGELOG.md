@@ -13,7 +13,7 @@ Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 - Riorganizzate le ADR in `docs/DECISIONS` per evitare conflitti tra maiuscole e minuscole nei clone macOS.
 - Eliminata una risorsa icona orfana che generava avvisi nella compilazione.
 - Build firmata Apple Development disponibile soltanto come artefatto di workflow di sviluppo; prerelease pubblica non notarizzata.
-- Accessi App Sandbox e interfaccia ancora da confermare con test manuale su Mac.
+- Prima prova manuale completata il 5 novembre 2026 su Mac: 2 file sintetici analizzati e 2 risultati corretti nella UI. Restano da verificare revoca autorizzazioni, grandi alberi e limiti della sandbox.
 
 ## v0.1.0-alpha.4 (2026-11-05) — ripristino asset originali
 
