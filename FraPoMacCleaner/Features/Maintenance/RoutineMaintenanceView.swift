@@ -1,12 +1,9 @@
 import AppKit
 import ServiceManagement
 import SwiftUI
-import UniformTypeIdentifiers
 
 struct RoutineMaintenanceView: View {
     @StateObject private var model = RoutineInspectionModel()
-    @State private var showingPicker = false
-    @State private var requestedArea: RoutineArea = .userLogs
 
     let startupOnly: Bool
 
@@ -20,30 +17,30 @@ struct RoutineMaintenanceView: View {
                 .foregroundStyle(.secondary)
 
             if startupOnly {
-                Text("La gestione di tutti gli elementi di login è disponibile nelle Impostazioni di sistema. L'inventario qui riguarda soltanto i file .plist della cartella utente selezionata.")
+                Text("La gestione completa degli elementi di login è nelle Impostazioni di sistema. Qui controlli solo gli agenti configurati nella tua cartella personale.")
                     .font(.callout)
-                Button("Apri Elementi login nelle Impostazioni") {
+                Button("Gestisci gli avvii del Mac") {
                     SMAppService.openSystemSettingsLoginItems()
                 }
-                Button("Ispeziona ~/Library/LaunchAgents…") {
-                    requestedArea = .userLaunchAgents
-                    showingPicker = true
+                Button("Controlla gli avvii automatici") {
+                    model.inspect(area: .userLaunchAgents)
                 }
+                .disabled(model.state == .loading)
             } else {
                 GroupBox("Diagnosi guidata") {
                     VStack(alignment: .leading, spacing: 10) {
-                        Button("Analizza ~/Library/Logs…") {
-                            requestedArea = .userLogs
-                            showingPicker = true
+                        Button("Controlla i log") {
+                            model.inspect(area: .userLogs)
                         }
+                        .disabled(model.state == .loading)
                         Text("Solo log e rapporti diagnostici dell'utente non modificati da almeno 30 giorni.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Button("Analizza build Xcode (DerivedData)…") {
-                            requestedArea = .xcodeDerivedData
-                            showingPicker = true
+                        Button("Controlla i file temporanei") {
+                            model.inspect(area: .xcodeDerivedData)
                         }
-                        Text("Raggruppa per progetto i file di compilazione osservabili; anche le build vecchie possono servire.")
+                        .disabled(model.state == .loading)
+                        Text("Cerca file creati da Xcode durante lo sviluppo. Anche quelli vecchi possono servire.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -64,7 +61,9 @@ struct RoutineMaintenanceView: View {
                     .foregroundStyle(.secondary)
             }
             if let message = model.message {
-                Text(message).foregroundStyle(.red)
+                Label(message, systemImage: "exclamationmark.triangle")
+                    .foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             if let report = model.report {
                 HStack {
@@ -119,11 +118,5 @@ struct RoutineMaintenanceView: View {
         }
         .padding(24)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .fileImporter(isPresented: $showingPicker, allowedContentTypes: [.folder],
-                      allowsMultipleSelection: false) { result in
-            if case .success(let urls) = result, let first = urls.first {
-                model.inspect(area: requestedArea, folder: first)
-            }
-        }
     }
 }

@@ -57,13 +57,24 @@ struct RoutineReport: Sendable {
 enum RoutineInspectionError: LocalizedError {
     case outsideAllowlist
     case notDirectory
+    case missingDirectory
+    case accessDenied
+    case unreadableDirectory
     case cancelled
 
     var errorDescription: String? {
         switch self {
         case .outsideAllowlist: "La cartella non coincide con la posizione utente consentita."
-        case .notDirectory: "La cartella scelta non è una directory reale accessibile."
-        case .cancelled: "Ispezione annullata."
+        case .notDirectory:
+            "La posizione prevista non è una cartella valida."
+        case .missingDirectory:
+            "Questa cartella non esiste sul Mac. Non c'è nulla da analizzare in questa categoria."
+        case .accessDenied:
+            "macOS non consente l'accesso a questa cartella. La scansione è stata interrotta senza modificare nulla."
+        case .unreadableDirectory:
+            "Impossibile leggere questa cartella. Controlla i permessi macOS e riprova."
+        case .cancelled:
+            "Ispezione annullata."
         }
     }
 }
@@ -145,7 +156,8 @@ struct RoutineInspectionEngine: Sendable {
     }
 
     /// Uses metadata only; never reads plist/log contents or changes an item.
-    /// The selected URL must match the precise preapproved root for its category.
+    /// The URL must match the precise preapproved root for its category.
+    /// The sandbox's narrowly scoped read-only exception is never a write grant.
     func inspect(
         area: RoutineArea,
         selectedURL: URL,
@@ -160,8 +172,14 @@ struct RoutineInspectionEngine: Sendable {
         else { throw RoutineInspectionError.outsideAllowlist }
 
         var rootInfo = stat()
-        guard lstat(root.path, &rootInfo) == 0,
-              (rootInfo.st_mode & mode_t(S_IFMT)) == mode_t(S_IFDIR)
+        guard lstat(root.path, &rootInfo) == 0 else {
+            switch errno {
+            case ENOENT: throw RoutineInspectionError.missingDirectory
+            case EACCES, EPERM: throw RoutineInspectionError.accessDenied
+            default: throw RoutineInspectionError.unreadableDirectory
+            }
+        }
+        guard (rootInfo.st_mode & mode_t(S_IFMT)) == mode_t(S_IFDIR)
         else { throw RoutineInspectionError.notDirectory }
 
         let rootDevice = FileIdentity(rootInfo).device
@@ -198,6 +216,9 @@ struct RoutineInspectionEngine: Sendable {
                     options: []
                 )
             } catch {
+                if directory == root {
+                    throw RoutineInspectionError.unreadableDirectory
+                }
                 errors += 1
                 continue
             }

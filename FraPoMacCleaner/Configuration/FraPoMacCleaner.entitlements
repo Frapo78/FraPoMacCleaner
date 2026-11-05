@@ -6,5 +6,12 @@
     <true/>
     <key>com.apple.security.files.user-selected.read-only</key>
     <true/>
+    <!-- Minimal read-only exceptions for three fixed account folders. -->
+    <key>com.apple.security.temporary-exception.files.home-relative-path.read-only</key>
+    <array>
+        <string>/Library/Logs/</string>
+        <string>/Library/Developer/Xcode/DerivedData/</string>
+        <string>/Library/LaunchAgents/</string>
+    </array>
 </dict>
 </plist>

@@ -120,6 +120,26 @@ final class RoutineInspectionEngineTests: XCTestCase {
         XCTAssertEqual(limited.inspectedItemCount, 3)
     }
 
+    func testAreaPathsAreFixedAndDistinct() {
+        XCTAssertEqual(RoutineArea.userLogs.relativePath, "Library/Logs")
+        XCTAssertEqual(RoutineArea.xcodeDerivedData.relativePath,
+                       "Library/Developer/Xcode/DerivedData")
+        XCTAssertEqual(RoutineArea.userLaunchAgents.relativePath,
+                       "Library/LaunchAgents")
+        XCTAssertEqual(Set(RoutineArea.allCases.map(\.relativePath)).count, 3)
+    }
+
+    func testMissingPredefinedFolderIsReportedAsMissing() throws {
+        let unavailable = root.appendingPathComponent("missing", isDirectory: true)
+        let configured = RoutineInspectionEngine(allowedRoots: [.userLogs: unavailable])
+        XCTAssertThrowsError(try configured.inspect(
+            area: .userLogs,
+            selectedURL: unavailable
+        )) { error in
+            XCTAssertEqual(error as? RoutineInspectionError, .missingDirectory)
+        }
+    }
+
     func testUserReportsNeverContainDeletionAuthority() throws {
         try fixture("old.log")
         let report = try engine(area: .userLogs).inspect(

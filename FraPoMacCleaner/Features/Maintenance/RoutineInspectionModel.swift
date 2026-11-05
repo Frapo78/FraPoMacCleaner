@@ -19,7 +19,20 @@ final class RoutineInspectionModel: ObservableObject {
         self.engine = engine
     }
 
-    func inspect(area: RoutineArea, folder: URL) {
+    /// One-click scan of the fixed account directory for this category.
+    /// Never broadens access to a user-supplied arbitrary path.
+    func inspect(area: RoutineArea) {
+        guard let folder = engine.allowedRoots[area] else {
+            cancel()
+            report = nil
+            message = "Impossibile individuare la cartella personale del Mac."
+            state = .failed
+            return
+        }
+        inspect(area: area, folder: folder)
+    }
+
+    private func inspect(area: RoutineArea, folder: URL) {
         cancel()
         report = nil
         message = nil
@@ -30,10 +43,6 @@ final class RoutineInspectionModel: ObservableObject {
 
         // Filesystem enumeration is synchronous: do not inherit MainActor.
         running = Task.detached(priority: .utility) { [weak self] in
-            let scope = folder.startAccessingSecurityScopedResource()
-            defer {
-                if scope { folder.stopAccessingSecurityScopedResource() }
-            }
             do {
                 let result = try engine.inspect(
                     area: area, selectedURL: folder,
