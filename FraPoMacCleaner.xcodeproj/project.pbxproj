@@ -30,7 +30,7 @@
   000000000000000000000053 /* build:FraPoMacCleaner/Services/Scanning/ReadOnlyScanEngine.swift */ = { isa = PBXBuildFile; fileRef = 000000000000000000000050; };
   000000000000000000000054 /* build:FraPoMacCleaner/Features/Scan/ScanSessionModel.swift */ = { isa = PBXBuildFile; fileRef = 000000000000000000000051; };
   000000000000000000000055 /* build:FraPoMacCleanerTests/Domain/ReadOnlyScanEngineTests.swift */ = { isa = PBXBuildFile; fileRef = 000000000000000000000052; };
-   = { isa = PBXBuildFile; fileRef = 000000000000000000000001; };
+  000000000000000000000015 /* build:FraPoMacCleaner/App/AppDependencies.swift */ = { isa = PBXBuildFile; fileRef = 000000000000000000000001; };
   000000000000000000000016 /* build:FraPoMacCleaner/App/FraPoMacCleanerApp.swift */ = { isa = PBXBuildFile; fileRef = 000000000000000000000002; };
   000000000000000000000017 /* build:FraPoMacCleaner/App/RootView.swift */ = { isa = PBXBuildFile; fileRef = 000000000000000000000003; };
   000000000000000000000018 /* build:FraPoMacCleaner/Domain/Models/DiskSpaceSnapshot.swift */ = { isa = PBXBuildFile; fileRef = 000000000000000000000004; };
