@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum SectionPage: String, CaseIterable, Identifiable {
-    case overview, scan, results, settings
+    case overview, scan, results, maintenance, startup, settings
     var id: Self { self }
 
     var label: String {
@@ -9,6 +9,8 @@ enum SectionPage: String, CaseIterable, Identifiable {
         case .overview: "Panoramica"
         case .scan: "Scansione"
         case .results: "Risultati"
+        case .maintenance: "Manutenzione"
+        case .startup: "Avvii automatici"
         case .settings: "Impostazioni"
         }
     }
@@ -18,6 +20,8 @@ enum SectionPage: String, CaseIterable, Identifiable {
         case .overview: "square.grid.2x2"
         case .scan: "magnifyingglass"
         case .results: "doc.text.magnifyingglass"
+        case .maintenance: "externaldrive.badge.magnifyingglass"
+        case .startup: "gearshape.2"
         case .settings: "gearshape"
         }
     }
@@ -64,6 +68,10 @@ struct RootView: View {
                 ScanView(model: scanSession) { selection = .results }
             case .results:
                 ResultsView(model: scanSession)
+            case .maintenance:
+                RoutineMaintenanceView(startupOnly: false)
+            case .startup:
+                RoutineMaintenanceView(startupOnly: true)
             case .settings:
                 SettingsView()
             }
