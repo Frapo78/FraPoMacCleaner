@@ -19,10 +19,12 @@
 - [x] Analisi metadati file grandi/vecchi (test su fixture CI).
 - [x] Ripartizione delle dimensioni logiche per tipo e sottocartella (XCTest CI); senza stime di spazio recuperabile.
 - [x] Avanzamento non percentuale con contatori e diagnostica di esclusioni/errori per categoria (XCTest CI).
-- [ ] Risultati con rischio, motivazione, esclusioni ed errori (conteggi per motivo integrati in alpha.7; rischio esplicito e dettagli per-file ancora da sviluppare).
+- [x] Esploratore con ricerca e filtri per motivo/tipo, ordinamento multiplo e riepilogo espandibile (XCTest + CI).
+- [x] Esportazione manuale JSON di soli aggregati, priva di inventario, nomi e percorsi (test di riservatezza).
+- [ ] Risultati con rischio, motivazione, esclusioni ed errori (in alpha.8 motivi tipizzati, avviso di protezione e diagnostica; restano da progettare una classificazione differenziata e test di permessi).
 - [x] Test automatici su filesystem sintetico e prova manuale iniziale sul Mac (file grande e file datato).
 
-**Stato di v0.1.0-alpha.7:** 13 test XCTest superati, scanner di soli metadati attivo. Verificata anche su Mac la prima scansione di una cartella di fixture con due candidati (314,6 MB e file datato al 2020), entrambi elencati nella schermata Risultati. Restano **aperti** i test manuali di avanzamento, aggregazione e autorizzazioni/revoca App Sandbox, le prove di prestazione su alberi grandi e il dettaglio dei rischi e degli errori per-file; il gate della Fase 1 non è ancora chiuso.
+**Stato di v0.1.0-alpha.8:** 18 test XCTest superati, scanner di soli metadati attivo. Verificata anche su Mac la prima scansione di una cartella di fixture con due candidati (314,6 MB e file datato al 2020), entrambi elencati nella schermata Risultati. Restano **aperti** i test manuali su filtri, esportazione, avanzamento, autorizzazioni/revoca App Sandbox e prestazioni su alberi grandi, oltre alla classificazione del rischio più specifica; il gate della Fase 1 non è ancora chiuso.
 
 **Exit gate:** nessuna API di mutazione nel percorso di scansione; test dei casi avversi e prestazioni accettabili.
 

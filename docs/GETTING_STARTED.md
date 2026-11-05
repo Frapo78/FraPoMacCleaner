@@ -78,3 +78,11 @@ Dopo una scansione avviata esplicitamente, la sezione **Scansione** mostra il nu
 La sezione **Risultati** presenta i conteggi per causa: percorsi protetti, symlink, pacchetti, elementi cloud, tipi non supportati; inoltre problemi di accesso a cartelle e metadati mancanti. I conteggi non includono i contenuti delle directory escluse, che non vengono attraversate. Nessun percorso di file escluso o errore viene salvato nella diagnostica.
 
 Prova manuale: selezionare una cartella sintetica con almeno 300 file piccoli, alcuni elementi di prova esclusi e sottocartelle; osservare l'incremento dei contatori. Annullare una scansione più ampia e verificare che non vengano visualizzati risultati nuovi dalla scansione annullata. Restano da testare la revoca dei permessi, gli errori di accesso e la responsività su directory reali molto grandi.
+
+## Esploratore e rapporto anonimo (alpha.8)
+
+Dopo una scansione di fixture, aprire **Risultati**. Usare il campo di ricerca (nome o percorso), il filtro **Motivo** (tutti/grandi/datati), il filtro **Tipo** e l'ordinamento **Dimensione / Più vecchi / Più recenti / Nome**. I filtri agiscono soltanto sui candidati mantenuti in memoria (massimo 500), non interrogano nuovamente il filesystem. Il pannello **Riepilogo spazio ed esclusioni** è espandibile.
+
+Il pulsante **Esporta riepilogo anonimo…** apre il pannello di salvataggio macOS e genera su richiesta un JSON locale. Il documento contiene solo conteggi complessivi, tipologie note ed esclusioni/errori aggregati: **nessun nome, percorso, elenco dei file o etichetta delle sottocartelle**. Non includere mai il rapporto nei log pubblici senza averlo prima letto: anche i conteggi possono essere considerati informazioni private. L'app non salva il report automaticamente.
+
+Test manuale: creare una cartella sintetica contenente file di almeno due tipologie, sia grandi sia datati. Verificare filtri, ordinamenti, ricerca case-insensitive, azzeramento dei filtri e apertura nel Finder. Esportare il JSON e verificarne l'assenza di nomi e percorsi specifici. Nessuna funzione di cancellazione deve comparire.

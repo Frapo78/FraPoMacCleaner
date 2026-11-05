@@ -133,3 +133,11 @@ Non vengono letti contenuti, effettuati hash o trasferiti inventari. I byte aggr
 `ScanEngine` accetta un callback `@Sendable` di `ScanProgress` per emettere soltanto snapshot dei contatori; l'overload preesistente `scan(in:)` rimane disponibile mediante extension. `ReadOnlyScanEngine` pubblica l'istantanea iniziale, una ogni 128 voci visitate e quella finale. Questo modello evita una percentuale non verificabile, dal momento che il numero totale degli elementi non è noto.
 
 `ScanSessionModel` trasferisce gli aggiornamenti sul MainActor e li scarta se appartengono a una scansione annullata o superata da una nuova sessione. Il report riassume esclusioni e problemi con un enum tipizzato e conteggi limitati: **non memorizza percorsi dei file esclusi, errori completi o contenuti**. L'enumerazione rimane di sola lettura e continua a ignorare symlink, pacchetti e aree sensibili. I messaggi del report non autorizzano la cancellazione.
+
+## Esploratore e export opt-in (alpha.8)
+
+`ScanFinding` conserva motivazioni tipizzate (`largeFile`, `oldFile`) oltre alla spiegazione leggibile. `ScanResultExplorer` è una trasformazione pura in memoria: cerca e ordina soltanto l'elenco limitato dei candidati; **non apre file** né richiede nuovi permessi. Il modello di rischio `ConservativeRiskPolicy` continua a classificare tutti i candidati come `protected`, indipendentemente dai filtri.
+
+`ScanSummaryExporter.encode` produce JSON con una **schema whitelist esplicita** (versione, conteggi, categorie note, errori/esclusioni aggregate). Non serializza `ScanFinding`, URL, timestamp, nomi di sottocartella o dettagli errori. La vista mostra un `NSSavePanel` per ogni esportazione: nessun file è scritto senza scelta del percorso e nessun dato viene trasmesso. La diagnostica aggregata resta indicativa, non equivale a spazio recuperabile.
+
+Per mantenere l'elenco accessibile, i riepiloghi sono inizialmente chiusi e, se aperti, scorrono in un'area a dimensione limitata. Restano necessari test manuali su finestre ridotte, App Sandbox e accessibilità.

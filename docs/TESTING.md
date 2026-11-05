@@ -50,3 +50,9 @@ Per ogni PR: indicare test eseguiti, ambiente macOS/Xcode, risultato e test non 
 [CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42063148205): **13 XCTest superati, zero errori**. Le nuove prove verificano che gli snapshot di progresso siano non decrescenti e coincidano con il rapporto finale, e che una sottocartella protetta venga esclusa senza leggere il contenuto. I test esistenti confermano separatamente link simbolici, limiti di scansione, annullamento e metadati.
 
 Da validare manualmente: annullamento su scansione lunga, progressi SwiftUI, autorizzazioni TCC/App Sandbox, volumi diversi e cartelle non accessibili. I dati di diagnostica sono solo contatori senza percorsi.
+
+## Esplorazione e privacy del rapporto (alpha.8)
+
+[CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42066402117): **18 test XCTest, zero errori**. Cinque test nuovi verificano ricerca per nome/percorso senza distinzione maiuscole, combinazione dei filtri, quattro ordinamenti con date mancanti, esportazione limitata ai soli aggregati con un nome utente fittizio ostile e mantenimento della policy che blocca la rimozione.
+
+La compilazione UI su macOS ARM64 è stata completata; la verifica manuale dell'interfaccia, salvataggio attraverso `NSSavePanel`, accesso App Sandbox/revoca, test di prestazione e accessibilità restano aperti.

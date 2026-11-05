@@ -64,3 +64,11 @@ Le priorità sono **P0** (necessarie per il primo MVP), **P1** (iterazione succe
 - I progressi non devono sopravvivere a scansioni annullate o alla selezione di un'altra cartella.
 - Raggruppare le esclusioni per motivo e i problemi per categoria, esponendo solo contatori. I contenuti delle directory escluse non vengono visitati né conteggiati.
 - Mantenere gli stessi limiti di I/O, il numero massimo di elementi e l'assenza completa di azioni di modifica/cancellazione.
+
+## Esplorazione dei candidati e export privato (alpha.8)
+
+- Ricerca locale su nome/percorso, filtri motivazione/categoria, ordinamento con parità deterministica e date mancanti in fondo.
+- I filtri non devono cambiare i dati della scansione, modificare file o navigare fuori dall'ambito autorizzato.
+- La visualizzazione distingue **segnalazione informativa** e **ammissibilità alla pulizia**, che rimane sempre `protected`.
+- Export manuale JSON con soli aggregati esplicitamente autorizzati: escludere filename, percorso, timestamp per-file, elenco findings e titoli delle sottocartelle.
+- Non generare report in background e non trasmetterli automaticamente.

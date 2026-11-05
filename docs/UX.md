@@ -54,3 +54,9 @@ Non usare mai «Pulizia completata» se sono presenti errori senza renderli visi
 ## Identità visiva
 
 Interfaccia originale macOS con `NavigationSplitView`, SF Symbols, colori di sistema, dark/light mode e grafici sobrii. Non copiare schermate, loghi, icone o testi di applicazioni concorrenti. Supportare VoiceOver, contrasto, tastiera, dimensioni finestre e riduzione animazioni.
+
+## Risultati navigabili (alpha.8)
+
+La schermata permette ricerca testuale (nome/percorso), filtro per motivo e tipo di file e ordinamento dimensione/data/nome. Mostra quanti dei candidati visualizzati corrispondono ai filtri e ricorda il limite di 500 risultati. I riepiloghi sono comprimibili per lasciare spazio alla lista.
+
+Tutti i file sono identificati come **protetti dalla rimozione**: una segnalazione per data o dimensione non è indicazione di superfluità. Il pulsante **Esporta riepilogo anonimo…** apre un dialogo esplicito di salvataggio. Nessuna selezione di file o azione di cancellazione è presente.

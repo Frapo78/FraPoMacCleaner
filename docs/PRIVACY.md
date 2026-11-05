@@ -19,3 +19,9 @@ La futura app potrà leggere metadati locali (nome, URL/percorso, dimensione, da
 ## Punti da finalizzare prima del rilascio
 
 Formato e ciclo di vita dei report, eventuali bookmark di sicurezza, canale di aggiornamento software, eventuale crash reporting opt-in e testo definitivo della privacy policy. Qualsiasi servizio di rete futuro richiederà una decisione architetturale e una informativa aggiornata.
+
+## Esportazione locale anonima (alpha.8)
+
+La funzione `ScanSummaryExporter` richiede un gesto esplicito e una destinazione scelta con il pannello macOS. Il JSON contiene **solo** aggregati numerici e categorie fisse; non include nomi, percorsi, date individuali, etichette delle cartelle o liste dei candidati. Nessun upload o salvataggio automatico. L'utente conserva e gestisce il file esportato.
+
+La parola *anonimo* descrive l'assenza di identificativi diretti nel documento, non garantisce anonimato matematico in tutti gli scenari: anche le statistiche aggregate possono essere private. Il file non deve essere allegato automaticamente a segnalazioni pubbliche.

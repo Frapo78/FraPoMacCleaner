@@ -2,6 +2,16 @@
 
 Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 
+## v0.1.0-alpha.8 (2026-11-05) — esploratore dei risultati e report privato
+
+- Esploratore risultati con ricerca locale per nome e percorso, filtri per file grandi/datati e tipo, quattro ordinamenti (dimensione, anzianità, modifica più recente, nome).
+- Distinzione tipizzata del motivo della segnalazione, senza dedurre eliminabilità o sicurezza da dimensione e data.
+- Riepiloghi delle categorie ed esclusioni espandibili e scorrevoli, per mantenere la lista utilizzabile su finestre compatte.
+- Esportazione facoltativa di **JSON anonimo** con conteggi e categorie aggregate tramite dialogo di salvataggio di macOS. Esclusi intenzionalmente nomi file, percorsi, etichette delle cartelle e inventari.
+- Tutte le voci rimangono protette: nessuna selezione per la pulizia o API distruttiva.
+- **18 test XCTest superati** su macOS ARM64 / Xcode 16.4, inclusi ricerca, filtri, ordinamenti, protezione e riservatezza dell'export. [CI](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42066402117).
+- Esclusi i casi di revoca dei permessi e test manuali di UI/export, ancora da validare sul Mac prima di chiudere la Fase 1.
+
 ## v0.1.0-alpha.7 (2026-11-05) — avanzamento e diagnostica
 
 - Avanzamento della scansione con contatori reali di elementi visitati, file esaminati, candidati, esclusioni e problemi di lettura.
