@@ -1,37 +1,50 @@
-# AGENTS.md — Contratto di lavoro per FraPoMacCleaner
+# AGENTS.md — Contratto operativo per sviluppatori e assistenti AI
 
-Questo documento orienta contributori umani e agenti software. Si applica a tutto il repository, salvo regole locali più restrittive.
+Questo file va letto **prima di analizzare, modificare, creare codice o aprire PR** su FraPoMacCleaner. Si applica all'intero repository, salvo istruzioni più restrittive in file AGENTS.md locali.
 
-## Fase attuale
+## Stato del progetto
 
-**Documentation-first**: prima di aggiungere implementazioni eseguibili, mantenere allineati visione, architettura, sicurezza, roadmap e piano di test. Non presentare mai piani o pseudocodice come funzionalità esistenti.
+- Fase corrente: **documentazione e progettazione**.
+- Non aggiungere codice eseguibile, configurazioni di build, workflow CI o release finché l'utente non chiede esplicitamente di iniziare l'implementazione.
+- Il repository contiene una licenza **GPL-3.0**: non sostituirla o modificarla senza richiesta del maintainer.
+- Le funzionalità pianificate non devono mai essere descritte come già funzionanti.
 
-## Priorità vincolanti
+## Obiettivo
 
-1. Proteggere i dati dell'utente prima di ottimizzare spazio o velocità.
-2. Non bypassare SIP, TCC, Gatekeeper, sandbox o altre protezioni di macOS.
-3. Non richiedere root, `sudo`, privilegi amministrativi o helper privilegiati per le funzioni MVP.
-4. Nessuna pulizia silenziosa, ricorsiva o permanente. Ogni elemento deve essere comprensibile, controllabile e confermato.
-5. Usare percorsi selezionati dall'utente e autorizzazioni documentate; non presumere accesso a tutto il filesystem.
-6. Non inserire telemetria, account, rete o raccolta di dati personali senza decisione architetturale e consenso.
-7. Mantenere identità visiva, implementazione, testi e risorse originali; non importare asset proprietari da concorrenti.
-8. Separare analisi in sola lettura e mutazione; le API distruttive non devono essere raggiungibili dalla pipeline di scansione.
-9. Prima di ogni azione sui file, rivalidare tipo, permessi, percorso, policy ed eventuale cambiamento d'identità fra scansione e azione.
-10. Considerare symlink, hard link, pacchetti, volumi esterni, iCloud, APFS clone/snapshot e app in esecuzione.
-11. Ogni PR con operazioni sui file deve includere test di sicurezza/errore e percorso di annullamento ove possibile.
-12. Non dichiarare “build riuscita”, test passati o compatibilità verificata senza output effettivo.
+Costruire una utility macOS **nativa Swift/SwiftUI** per Apple Silicon che analizzi e gestisca file superflui con un criterio **safety-first** e senza bypassare le protezioni del sistema operativo.
 
-## Procedura per le modifiche
+Documenti vincolanti:
+1. `docs/SECURITY.md` (in caso di conflitto prevale sui requisiti funzionali).
+2. `docs/ARCHITECTURE.md` e ADR approvate.
+3. `docs/REQUIREMENTS.md`, `docs/ROADMAP.md` e `docs/TESTING.md`.
 
-- Leggere `README.md`, `docs/ARCHITECTURE.md`, `docs/SAFETY.md` e `docs/ROADMAP.md`.
-- Eseguire piccoli cambiamenti verificabili; evitare grandi riscritture estranee al compito.
-- Per una scelta tecnica trasversale, aggiungere un ADR in `docs/decisions/` con contesto, opzioni, decisione e conseguenze.
-- Aggiornare checklist e test pertinenti nello stesso cambiamento.
-- In caso di dubbio sulla sicurezza: **non eliminare**, registrare l'incertezza e richiedere decisione esplicita.
-- Conservare la licenza GPL-3.0 e rispettare le licenze delle dipendenze.
-- Linguaggio dei documenti: italiano; nomi tecnici/API possono restare in inglese.
+## Regole di sviluppo
 
-## Definition of Done per la futura implementazione
+1. **Read-only by default.** Nessun codice distruttivo dentro scanner o view model.
+2. **Due fasi distinte.** Ogni modifica ai file passa da piano/anteprima a conferma esplicita; rivalidare prima dell'esecuzione.
+3. **Default Cestino.** Non introdurre `rm -rf`, `sudo`, operazioni su cartelle di sistema o pulizie ricorsive indiscriminate.
+4. **Least privilege.** Mai tentare di eludere SIP, TCC, sandbox, autorizzazioni, Gatekeeper o permessi UNIX.
+5. **Percorsi ostili.** Non fidarsi del nome di un file o della sua posizione iniziale: trattare symlink, hard link, mount point, path traversal e sostituzione tra scansione e azione (TOCTOU).
+6. **Valori verificabili.** Distinguere «dimensione logica» da «spazio fisico recuperabile»; non sommare ingenuamente cloni APFS o hard link.
+7. **Prudenza applicativa.** Escludere per impostazione predefinita dati attivi di browser, database, app, backup, sincronizzazioni cloud, librerie foto e credenziali.
+8. **Cancellazione e ripristino.** Registrare esito per-file e non promettere ripristino automatico universale.
+9. **Risorse.** I/O e hash in streaming, job annullabili, limiti di concorrenza, UI responsiva.
+10. **Privacy.** Niente upload di percorsi, contenuto file, inventari, identificativi o telemetria non autorizzata.
+11. **API ufficiali.** Preferire API pubbliche Apple, documentare limiti e permessi necessari; nessuna API privata.
+12. **No promesse infondate.** Niente «boost RAM», finti indicatori di salute o stime inventate.
 
-Una funzione può essere chiamata “implementata” solo dopo: compilazione su macOS Apple Silicon, test pertinenti superati, comportamento su errori validato, documentazione aggiornata e nessuna regressione delle regole di sicurezza.
+## Qualità richiesta per ogni futura PR di codice
 
+- Scope piccolo e testabile; nessun refactoring estraneo.
+- Test automatici su file temporanei e fixture sintetiche, mai sui dati reali dell'utente.
+- Copertura dei casi pericolosi e delle condizioni di errore.
+- Aggiornamento di documentazione, ADR e changelog quando cambiano decisioni o comportamento.
+- Build/test documentati con output reale; non dichiarare «test superati» senza averli eseguiti.
+- Nessun commit di segreti, certificati, provisioning profile, dati di utenti, archivi di cache o artefatti binari.
+- Se un'azione richiede privilegi più elevati, bloccarla e proporre una progettazione separata per la revisione.
+
+## Sequenza di lavoro
+
+Leggere repository e `AGENTS.md` → identificare il requisito → controllare `docs/SECURITY.md` → proporre modifica minima → implementare (solo se richiesto) → testare → esaminare i rischi → documentare esito e limiti.
+
+In caso di ambiguità scegliere sempre l'opzione **meno distruttiva**. Non trasformare una funzione informativa in un'azione automatica.

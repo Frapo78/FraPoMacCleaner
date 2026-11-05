@@ -1,106 +1,121 @@
-# Architettura iniziale (proposta)
+# Architettura tecnica iniziale
 
-## Scelte di base
+**Stato: proposta progettuale; nessuna directory di codice è ancora stata creata.** Le API e le scelte di packaging verranno validate con un progetto Xcode sperimentale.
 
-App desktop **SwiftUI**, nativa ARM64, Swift 6, organizzazione pragmatica **MVVM + Domain Services + Infrastructure Adapters**. Non usare Electron, server locali o servizi remoti per il nucleo dell'app.
+## Stack
 
-**Stato:** architettura da implementare; nessuna cartella sorgente descritta sotto esiste ancora.
+- Swift 6 (con adozione graduale della strict concurrency), SwiftUI + AppKit dove necessario.
+- Foundation, UniformTypeIdentifiers, CryptoKit, OSLog, framework pubblici.
+- Elaborazione asincrona e cancellabile (`async/await`, `actor` per stato condiviso).
+- Nessun servizio cloud necessario al funzionamento; nessun helper privilegiato per il primo MVP.
 
-## Schema logico
+## Componenti logici
 
-```text
-SwiftUI Views / Accessibility
-          |
-      ViewModels
-          |
-   Application Use Cases
-   Scan | Review | Cleanup | Report
-          |
-  Domain Models & Policies
-          |
-  Protocol-based Adapters
-  FileSystem | Storage | Metrics
-          |
-  macOS APIs (Foundation / Darwin)
-```
+~~~text
+┌──────────────────────── SwiftUI / AppKit ──────────────────────────┐
+│ Dashboard · Scansione · Risultati · Piano azione · Impostazioni     │
+└────────────────────────────┬──────────────────────────────────────┘
+                             │ ViewModels (stato UI)
+┌────────────────────────────▼──────────────────────────────────────┐
+│ Application Layer                                                  │
+│ ScanCoordinator · PermissionCoordinator · CleanupCoordinator     │
+│ Progress/Cancel · ReportCoordinator                               │
+└───────────────┬──────────────────────────────┬────────────────────┘
+                │                              │
+┌───────────────▼──────────────────┐  ┌────────▼────────────────────┐
+│ Domain / Policy                  │  │ Infrastructure / Adapters  │
+│ ScanItem · Finding · RiskPolicy  │  │ FileEnumerator · Metadata  │
+│ Eligibility · ActionPlan         │  │ VolumeInfo · TrashAdapter  │
+│ ProtectedPaths · OperationResult │  │ ReportStore · SystemMetrics│
+└──────────────────────────────────┘  └─────────────────────────────┘
+~~~
 
-La UI non chiama direttamente `removeItem`, `trashItem` o comandi di shell. La sola componente autorizzata a modificare file è l'adapter di pulizia, invocato da un use case che applica i controlli.
+**Regola chiave:** una vista o uno scanner non può chiamare direttamente una funzione distruttiva. Il coordinatore delle operazioni è l'unico punto di ingresso per azioni che mutano il filesystem.
 
-## Organizzazione futura del progetto
+## Flusso di scansione
 
-```text
+1. L'utente seleziona ambiti; il PermissionCoordinator acquisisce/valida l'autorizzazione.
+2. ScanCoordinator crea un'istanza di scansione cancellabile e un identificatore.
+3. FileEnumerator elenca senza seguire link simbolici, ignora percorsi esclusi e raccoglie metadati disponibili.
+4. Moduli di analisi producono `Finding` immutabili e motivati.
+5. RiskPolicy valuta ogni candidato rispetto a denylist, tipo di file, accessibilità e informazioni disponibili.
+6. UI mostra risultati **senza attivare azioni automaticamente**.
+7. Il report indica anche errori, cartelle saltate, elementi non leggibili e limiti di accuratezza.
+
+## Flusso di pulizia (fase successiva)
+
+~~~text
+Selezione esplicita
+    ↓
+ActionPlan immutabile + motivazione + stima
+    ↓
+Conferma utente
+    ↓
+Revalidate: identità/ambito/autorizzazione/tipo/sicurezza
+    ↓
+TrashAdapter (Cestino) per ciascun elemento approvato
+    ↓
+OperationResult per file + audit minimale + verifica spazio
+~~~
+
+L'esecuzione gestisce errori parziali; un errore su un file non autorizza a riprovare con permessi elevati. La validazione deve evitare errori TOCTOU: una verifica basata solo su stringa del percorso **non è sufficiente**. Se non si può garantire l'identità dell'oggetto in modo ragionevole, **non si esegue** l'operazione.
+
+## Modelli concettuali
+
+- `ScanScope`: cartella/volume, autorizzazione e filtri.
+- `ScanSession`: identificatore, stato, data, progress e diagnostica.
+- `FileIdentity`: URL, identificatore file/volume quando disponibile, metadati osservati (non persistenza garantita dopo riavvio).
+- `Finding`: riferimento al file, categoria, dimensione apparente, spiegazione e prove.
+- `RiskAssessment`: categoria, motivazione, eventuali blocchi.
+- `ActionPlan`: elenco selezionato, consenso e versione dei finding.
+- `OperationResult`: successo, errore, destinazione nel Cestino (quando disponibile), timestamp.
+
+## Separazione suggerita per il futuro
+
+~~~text
 FraPoMacCleaner/
-  App/                         # Entrypoint, navigazione e dependency wiring
-  Presentation/
+  App/                 # entrypoint e composizione dipendenze
+  Features/
     Dashboard/
     Scan/
-    Review/
-    History/
+    Results/
+    Cleanup/
     Settings/
   Domain/
-    Models/                    # ScanItem, ScanSession, SafetyAssessment, CleanupResult
-    Policies/                  # Scope, Exclusions, Risk, Eligibility
-    Protocols/                 # FileInventory, TrashService, MetricsProvider
-  Application/
-    ScanUseCase/
-    ReviewUseCase/
-    CleanupUseCase/
-  Infrastructure/
+    Models/
+    Policies/
+  Services/
     FileSystem/
-    Persistence/
-    SystemMetrics/
-  Resources/                   # Asset originali, stringhe, localizzazioni
+    Volumes/
+    Permissions/
+    Reports/
+    Metrics/
+  Resources/
 FraPoMacCleanerTests/
-  Unit/
-  Integration/
   Fixtures/
+  Policy/
+  Integration/
 docs/
-```
+  DECISIONS/
+~~~
 
-Directory rappresentative: il layout potrà essere semplificato dopo il primo prototipo, purché rimangano separati scanner e mutazioni.
+La struttura è **indicativa**, non un impegno a introdurre subito decine di moduli o target. Prima un'app Xcode minima, poi estrazione progressiva dei servizi testabili.
 
-## Entità di dominio proposte
+## Errori, osservabilità e performance
 
-- **ScanScope:** radice autorizzata, volume, origine del permesso, esclusioni applicabili.
-- **ScanSession:** identificatore locale, orari, configurazione, statistiche ed errori.
-- **ScanItem:** identificatore opaco, URL, metadati necessari, dimensione logica, stato della risorsa, motivazione del suggerimento.
-- **SafetyAssessment:** stato `protected / review / eligible`, spiegazione e versione della policy.
-- **CleanupPlan:** insieme esplicito di elementi selezionati, snapshot del controllo preliminare, stima del totale.
-- **CleanupResult:** esito per file (cestinato, saltato, cambiato, accesso negato, fallito), destinazione del Cestino se disponibile.
-
-Non archiviare hash o contenuto dei file senza necessità funzionale esplicita.
-
-## Pipeline
-
-1. **Authorization:** acquisire solo scope e permessi necessari.
-2. **Inventory (read-only):** enumerare senza seguire link fuori scope, con cancellazione cooperativa e memoria limitata.
-3. **Classify:** policy conservative, esclusioni ed etichette di rischio.
-4. **Review:** filtrare/ordinare e selezionare; non mutare il filesystem.
-5. **Preflight:** rivalidare file, identità, path canonico, eventuale mount, stato corrente e autorizzazione.
-6. **Execute:** spostare un elemento alla volta nel Cestino mediante API appropriate.
-7. **Audit:** riportare ogni esito, compresi i fallimenti parziali, senza asserire recupero immediato dello spazio.
-
-## Concorrenza e prestazioni
-
-- Structured concurrency di Swift con task cancellabili; UI sempre sul main actor, I/O fuori.
-- Scansione streaming e limiti configurabili a parallelismo, memoria e accessi al disco.
-- Hash per duplicati solo in P1 e in modalità progressiva; prima filtrare con dimensioni e caratteristiche.
-- Nessuna scansione continua in background nell'MVP.
-
-## Error handling
-
-I problemi su un file non devono abortire l'intera sessione. Distinguere *permission denied*, file scomparso, file modificato, risorsa cloud non locale, volume disconnesso e errore I/O. I candidati sconosciuti si **saltano**.
-
-## Persistenza e privacy
-
-Solo impostazioni e riepiloghi essenziali locali. Non salvare contenuti, percorsi personali o inventari completi per impostazione predefinita; eventuali preferenze di accesso persistente richiederanno bookmarks e revisione della sicurezza.
+- `OSLog` con privacy dei percorsi come default.
+- Report locali minimali; nessun invio remoto.
+- Progresso «elementi esaminati» quando il totale non è conoscibile; evitare percentuali arbitrarie.
+- Streaming durante hash e raccolta metadati, non mantenere in RAM interi file.
+- Concorrenza limitata per disco e politiche di throttling per ridurre pressione sull'SSD.
+- Supporto a cancellazione, permessi revocati, file rimossi o modificati durante la scansione.
 
 ## Decisioni ancora aperte
 
-- App Sandbox abilitata o meno nella prima distribuzione esterna: valutare con un prototipo di permessi.
-- Scelta minima effettiva macOS/Xcode; da validare compilando su Apple Silicon.
-- Trattamento delle cartelle package e dei file APFS clone per stime più fedeli.
-- Localizzazione e formato esportazione report.
+- Minimo macOS (candidato da verificare: macOS 14+).
+- App Sandbox on/off per distribuzione diretta: decidere dopo prototipo e matrice permessi; no scorciatoie implicite.
+- Format di persistenza dei report (eventuale JSON/SQLite solo se utile).
+- Necessità di helper per feature future: **esclusa per l'MVP**.
+- Politiche di aggiornamento software e firma delle release.
 
-Consultare `docs/decisions/` per le scelte registrate.
-
+Vedi `docs/DECISIONS/` per le scelte registrate.

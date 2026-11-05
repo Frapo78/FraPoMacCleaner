@@ -1,54 +1,41 @@
 # Visione del prodotto
 
-## Problema
+## Il problema
 
-Gli utenti macOS spesso non sanno *quali* dati occupino spazio, *se* siano eliminabili e *quale effetto* abbia la rimozione. Un'interfaccia che promette “ottimizzazione” senza spiegazioni può indurre perdita di dati o pulizie inutili.
+Le utility di «pulizia» possono confondere tre problemi distinti: **spazio occupato**, **prestazioni** e **salute del sistema**. Molti interventi proposti dal mercato (svuotare qualsiasi cache, «pulire la RAM», cancellare log a caso) non hanno un beneficio stabile e possono peggiorare l'esperienza.
 
-## Proposta di valore
+## Missione
 
-FraPoMacCleaner dà strumenti per ispezionare, comprendere e liberare spazio **con decisioni verificabili**. È un'app nativa Apple Silicon, con un costo di risorse contenuto, senza dipendenza da servizi cloud e con azioni leggibili.
+**FraPoMacCleaner rende comprensibile l'occupazione del disco e permette di recuperare spazio con interventi prudenti, verificabili e scelti dall'utente.**
 
-## Pubblico
+L'app deve prima di tutto spiegare *cosa* ha trovato, *perché* suggerisce un'azione e *cosa può andare perso*.
 
-- Utenti domestici che vogliono capire cosa occupa il proprio SSD.
-- Sviluppatori e creativi con molti file, cache di build e archivi.
-- Utenti avanzati che richiedono report e selezioni precise, non un pulsante “magico”.
+## Principi di prodotto
 
-## Differenziazione
+- **Chiarezza > spettacolarizzazione:** niente punteggi di salute inventati.
+- **Controllo umano > automazione indiscriminata:** decisione esplicita per ogni categoria di rischio.
+- **Rispetto per macOS:** il sistema già gestisce swap, memoria compressa, molte cache e attività di manutenzione.
+- **Assenza di sorprese:** nessuna pulizia in background non autorizzata.
+- **Prestazioni sostenibili:** l'app non deve saturare CPU/SSD per «ottimizzare» un Mac.
+- **Accessibilità e inclusione:** interfaccia chiara, VoiceOver, navigazione da tastiera.
+- **Software verificabile:** codice open source e documentazione delle decisioni.
 
-- Presenta **risultati e rischio** prima di offrire un'azione.
-- Distingue spazio logico, spazio allocato e spazio realmente recuperabile dove le API permettono una stima.
-- Evidenzia cosa viene *escluso*, non solo cosa viene trovato.
-- Privilegia azioni reversibili e fornisce un resoconto di ciò che è cambiato.
-- Non equipara memoria RAM usata a “problema” e non elimina cache indiscriminatamente.
+## Destinatari
 
-## Principi guida
-
-**Sicurezza > correttezza > chiarezza > prestazioni > ampiezza di funzioni.**
-
-L'utente mantiene il controllo: il programma può raccomandare, non deve forzare una scelta. Le operazioni automatiche future richiederanno una valutazione separata.
+- Chi vuole liberare spazio su SSD interni di dimensione limitata.
+- Chi ha grandi archivi di download e documenti.
+- Chi desidera identificare duplicati senza rischiare dati preziosi.
+- Chi cerca diagnostica sintetica senza strumenti invasivi.
 
 ## Non-obiettivi
 
-- Imitare interfaccia, icone, nomi o meccaniche proprietarie di CleanMyMac.
-- Antimalware/antivirus, modifica delle protezioni del sistema, “riparazioni” non documentate.
-- Pulizia di RAM, forzatura di purge di cache macOS, terminazione automatica di processi.
-- Rimozione di snapshot APFS/Time Machine, cartelle di sistema, backup o dati iCloud in MVP.
-- Cancellazione irreversibile o svuotamento automatico del Cestino.
-- Account obbligatori, pubblicità, abbonamenti o telemetria nel MVP.
+- Sostituire gli strumenti di sicurezza, backup e ripristino Apple.
+- Disattivare SIP, TCC, Gatekeeper, FileVault, Spotlight o altri servizi di protezione.
+- Eliminare cache di sistema indiscriminatamente, eseguire «RAM purge» o forzare manutenzioni superflue.
+- Modificare archivi foto, posta, password, database e dati sincronizzati per «guadagnare spazio».
+- Inventare una misura precisa dei GB effettivamente liberabili da cloni APFS, sparse file o contenuti purgeable.
+- Copiare codice, grafica o marchi di CleanMyMac.
 
-## Criteri qualitativi
+## Cosa significa «successo»
 
-- Zero perdita dati nei test e nessuna azione fuori dall'ambito esplicitamente autorizzato.
-- Scansione interrompibile, interfaccia responsiva, consumo risorse misurabile.
-- Messaggi onesti per “non accessibile”, “stima”, “file escluso” e “azione non eseguita”.
-- Capacità di spiegare all'utente perché un elemento è stato suggerito o protetto.
-
-## Vincoli di piattaforma
-
-ARM64 nativo, SwiftUI, rispetto delle autorizzazioni del filesystem e delle protezioni macOS. Requisito minimo proposto: macOS 14+; da misurare e confermare nella prima build.
-
-## Stato
-
-Questa è una visione, non la descrizione di un prodotto già funzionante.
-
+Un utente riesce a identificare un insieme di file che può eliminare, comprende le conseguenze, agisce deliberatamente e verifica lo spazio effettivamente recuperato. **Una scansione che non suggerisce nulla da cancellare è un esito valido.**

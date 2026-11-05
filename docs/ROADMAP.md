@@ -1,65 +1,59 @@
-# Roadmap
+# Roadmap — FraPoMacCleaner
 
-Le date non costituiscono una promessa di rilascio. Ogni milestone avanza solo se supera i criteri di uscita.
+**Bozza orientativa.** Le versioni sono traguardi logici, non date promesse. Nessun punto è da considerarsi completato prima che esistano build e test verificati.
 
-## M0 — Fondazioni e documentazione (attuale)
+## Fase 0 — Fondamenta di progetto (documentazione)
 
-- [x] Visione, target, confini e principi di prodotto
-- [x] Architettura iniziale e separazione scansione / mutazione
-- [x] Modello di sicurezza, privacy, UX e piano test
-- [x] Inventario funzionalità e priorità
-- [ ] Validazione requisiti macOS/Xcode, sandbox e autorizzazioni con prototipo
-- [ ] Revisione e accettazione esplicita delle decisioni aperte
+- [x] Visione, principi e limiti.
+- [x] Architettura iniziale, sicurezza e privacy.
+- [x] Specifiche MVP, UX e criteri di test.
+- [ ] Confermare target macOS, toolchain Xcode e scelte di signing/sandbox.
+- [ ] Rivedere le regole per accessi e percorsi con test sul Mac Apple Silicon.
 
-**Exit gate:** documenti coerenti; rischi principali catalogati e policy condivise.
+## Fase 1 — v0.1a, solo lettura
 
-## M1 — Scheletro nativo
+- [ ] Progetto Xcode SwiftUI arm64, avvio e navigazione.
+- [ ] Selezione cartella con permessi coerenti.
+- [ ] Dashboard capacità disco attendibile.
+- [ ] Enumerazione cancellabile, senza seguire symlink.
+- [ ] Analisi metadati file grandi/vecchi.
+- [ ] Risultati con rischio, motivazione, esclusioni ed errori.
+- [ ] Test automatici su filesystem sintetico e verifica manuale sul Mac.
 
-- [ ] Progetto Xcode arm64 SwiftUI avviabile
-- [ ] Sidebar, navigazione, design system e accessibilità base
-- [ ] Domain models, adapter protocollati e dependency injection
-- [ ] Impostazioni locali, error handling, test suite iniziale
-- [ ] CI di build/test su runner macOS compatibile
+**Exit gate:** nessuna API di mutazione nel percorso di scansione; test dei casi avversi e prestazioni accettabili.
 
-**Exit gate:** app compilabile su Mac Apple Silicon, test verdi; nessun codice di cancellazione.
+## Fase 2 — v0.1b, pulizia controllata
 
-## M2 — Analisi read-only
+- [ ] Piano d'azione con preview e consenso.
+- [ ] Revalidazione identità/ambito/permessi prima dell'esecuzione.
+- [ ] Spostamento nel Cestino per file ammissibili.
+- [ ] Log locale essenziale con risultati parziali ed errori.
+- [ ] Test di sicurezza e crash/cancel/revoke.
 
-- [ ] Selezione cartelle e permessi secondo policy scelta
-- [ ] Inventory streaming, esclusioni, progresso e annullamento
-- [ ] File grandi/vecchi, ordinamento e filtri
-- [ ] Report di errori ed esclusioni, niente accesso fuori scope
-- [ ] Test con symlink, package, volumi e file mutabili
+**Exit gate:** nessuna cancellazione definitiva nel flusso standard; esiti reali verificati su fixture.
 
-**Exit gate:** scansione affidabile senza modificare dati; limiti memoria/I/O misurati.
+## Fase 3 — v0.2, analisi avanzata
 
-## M3 — Pulizia MVP e versione 0.1
+- [ ] Raggruppamento duplicati affidabile con SHA-256 e protezione hard link.
+- [ ] Gestione accurata stime APFS e dati non conteggiabili.
+- [ ] Cache/log **utente** attraverso regole revisionate per caso d'uso.
+- [ ] Miglioramento filtri, export e prestazioni.
 
-- [ ] Selezione esplicita, valutazione rischio, preflight
-- [ ] Cestino tramite API native, mai delete permanente
-- [ ] Esiti per file, gestione errori parziali e interruzione
-- [ ] Test sicurezza e test manuali di recupero con dati fittizi
-- [ ] Documentazione installazione, limiti, permessi, firma/notarizzazione se distribuita
+## Fase 4 — v0.3, manutenzione informativa
 
-**Exit gate:** nessuna perdita dati nei test, operazioni prevedibili, versione candidata verificata su Apple Silicon.
+- [ ] Inventario app/residui con spiegazione delle associazioni.
+- [ ] Login item: visione e collegamento alle impostazioni (per terze parti).
+- [ ] Monitor CPU/RAM/disco con impatto misurato.
+- [ ] Accessibility audit e localizzazione.
 
-## M4 — Analisi avanzata / versione 0.2
+## Fase 5 — prima release pubblica
 
-- [ ] Classificazione prudente di cache/log utente
-- [ ] Ricerca duplicati con hash incrementale e politica di conservazione copie
-- [ ] Report più precisi su spazio logico/fisico quando possibile
+- [ ] Revisione sicurezza indipendente e privacy.
+- [ ] Build arm64 riproducibile (nei limiti di signing Apple).
+- [ ] Firma Developer ID, notarizzazione, verifica Gatekeeper.
+- [ ] Release note, changelog, installazione e disinstallazione documentate.
+- [ ] Pacchetto scaricabile con checksum.
 
-## M5 — Diagnostica / versione 0.3
+## Non-obiettivi fino a rivalutazione formale
 
-- [ ] Monitor risorse senza promesse di “boost”
-- [ ] Inventario app e login items con API documentate
-- [ ] Valutare disinstallazione residui solo dopo audit separato
-
-## Backlog esplicitamente rinviato
-
-Automazione, helper privilegiati, interventi su snapshot, cancellazione definitiva, antimalware, sincronizzazione cloud e funzioni di rete. Ogni aggiunta richiede valutazione di sicurezza/privacy autonoma.
-
-## Regole per lo stato
-
-Spuntare una voce solo quando esiste evidenza nel repository. Una specifica scritta non equivale a una funzione completata.
-
+«RAM boost», pulizia automatica integrale, cancellazione di cache di sistema, servizi root generici e scansioni in background senza consenso.

@@ -1,37 +1,21 @@
-# Privacy, permessi e distribuzione
+# Privacy by design
 
-## Politica MVP
+**Stato:** impegni di progettazione, non informativa legale definitiva di un'app distribuita.
 
-FraPoMacCleaner deve funzionare **interamente in locale**, senza account e senza collegamenti a server. Non trasmette inventari dei file, nomi, contenuti, hash o statistiche diagnostiche. Telemetria, sincronizzazione e crash reporting remoti sono **fuori scope** finché non esiste una decisione esplicita.
+## Dati trattati
 
-## Dati elaborati
+La futura app potrà leggere metadati locali (nome, URL/percorso, dimensione, data di modifica, tipo) dei file **nell'ambito autorizzato**. Il confronto di duplicati può richiedere la lettura del contenuto per calcolare un hash locale: il contenuto non deve essere caricato su servizi remoti.
 
-| Dato | Perché | Persistenza proposta |
-| --- | --- | --- |
-| URL e metadati dei candidati | Mostrare risultati e verificare scelte | Memoria volatile nella sessione |
-| Dimensioni e date | Ordinamento e report | Memoria volatile; eventuale riepilogo aggregato |
-| Cartelle autorizzate/escluse | Gestire scope utente | Preferenze locali, con revoca |
-| Risultato di pulizia | Trasparenza e supporto in caso d'errore | Riepilogo locale con controlli di eliminazione |
-| Contenuto dei file | Non necessario in MVP | Non leggere, non salvare |
-| Hash file | Solo futura ricerca duplicati | On demand, mai trasmesso |
+## Impegni
 
-## Permessi
+- Elaborazione **sul Mac**, senza server di analisi.
+- **Nessuna telemetria per impostazione predefinita**.
+- Niente account o login obbligatorio.
+- Log diagnostici con percorsi e identificativi oscurati o protetti; esportazione solo su scelta dell'utente.
+- Report locali minimali, cancellabili, e con periodo di conservazione definito prima del rilascio.
+- Permessi richiesti solo quando una funzione ne ha effettiva necessità.
+- Nessuna scansione in background o accesso permanente a cartelle senza consenso specifico.
 
-- Richiedere accesso solo quando serve e spiegare l'utilizzo.
-- Valutare pannelli di selezione cartelle e security-scoped bookmarks **se il modello sandbox li richiede**.
-- I permessi macOS (File e cartelle, Accesso completo al disco, TCC) restano sotto controllo del sistema e dell'utente: non sono bypassabili dal progetto.
-- In caso di accesso negato, fornire istruzioni chiare senza richiedere privilegi maggiori del necessario.
-- Se un bookmark persistente diventa invalido, chiedere nuovamente l'accesso; offrire la revoca in preferenze.
+## Punti da finalizzare prima del rilascio
 
-## Policy di logging
-
-Niente nome utente, percorso completo, nome di file o contenuto nei log diagnostici per impostazione predefinita. Usare categorie, conteggi e codici d'errore. Un'eventuale esportazione dettagliata dev'essere avviata dall'utente, con anteprima e avvertimento sul contenuto.
-
-## Modalità di distribuzione
-
-Ipotesi iniziale: distribuzione diretta (non Mac App Store), con firma e notarizzazione prima di un rilascio pubblico. **Non è ancora una decisione sul sandbox**. La configurazione di sandbox, entitlements, eventuali helper e accesso a cartelle protette va sperimentata e documentata in un ADR successivo; nessuna scorciatoia con escalation dei privilegi.
-
-## Dipendenze
-
-Preferire i framework Apple. Nuove librerie solo se indispensabili, mantenute e compatibili con GPL-3.0. Nessuna dipendenza con SDK di analytics obbligatori.
-
+Formato e ciclo di vita dei report, eventuali bookmark di sicurezza, canale di aggiornamento software, eventuale crash reporting opt-in e testo definitivo della privacy policy. Qualsiasi servizio di rete futuro richiederà una decisione architetturale e una informativa aggiornata.
