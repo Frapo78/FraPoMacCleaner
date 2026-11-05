@@ -179,7 +179,8 @@ struct RoutineInspectionEngine: Sendable {
         var projectGroups: [String: (count: Int, bytes: Int64, latest: Date?)] = [:]
         let manager = FileManager.default
 
-        scan: while let directory = stack.popLast() {
+        scan: while let next = stack.popLast() {
+            let directory = next.url
             if isCancelled() { throw RoutineInspectionError.cancelled }
             var dirInfo = stat()
             guard lstat(directory.path, &dirInfo) == 0,

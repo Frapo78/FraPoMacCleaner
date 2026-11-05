@@ -39,25 +39,31 @@ final class RoutineInspectionModel: ObservableObject {
                     area: area, selectedURL: folder,
                     isCancelled: { Task.isCancelled }
                 )
-                await MainActor.run {
-                    guard let self, self.generation == ticket, self.state == .loading
-                    else { return }
-                    self.report = result
-                    self.state = .complete
-                    self.running = nil
-                }
+                await self?.finish(report: result, ticket: ticket)
             } catch {
                 let cancelled = error is CancellationError
                     || (error as? RoutineInspectionError) == .cancelled
-                let description = error.localizedDescription
-                await MainActor.run {
-                    guard let self, self.generation == ticket else { return }
-                    self.message = cancelled ? nil : description
-                    self.state = cancelled ? .cancelled : .failed
-                    self.running = nil
-                }
+                await self?.fail(
+                    message: cancelled ? nil : error.localizedDescription,
+                    cancelled: cancelled,
+                    ticket: ticket
+                )
             }
         }
+    }
+
+    private func finish(report: RoutineReport, ticket: Int) {
+        guard generation == ticket, state == .loading else { return }
+        self.report = report
+        state = .complete
+        running = nil
+    }
+
+    private func fail(message: String?, cancelled: Bool, ticket: Int) {
+        guard generation == ticket else { return }
+        self.message = message
+        state = cancelled ? .cancelled : .failed
+        running = nil
     }
 
     func cancel() {
