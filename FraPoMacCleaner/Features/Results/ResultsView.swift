@@ -36,6 +36,11 @@ struct ResultsView: View {
                         Text("\(report.errorCount) elementi non accessibili o con metadati mancanti.")
                             .foregroundStyle(.orange)
                     }
+                    if report.hardLinkedEntryCount > 0 {
+                        Text("\(report.hardLinkedEntryCount) percorsi con più hard link: non considerarli copie eliminabili.")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
                     if report.inspectedFileCount > 0 || report.skippedItemCount > 0 || report.errorCount > 0 {
                         DisclosureGroup(isExpanded: $showingScanDetails) {
                             ScrollView {
@@ -82,7 +87,16 @@ struct ResultsView: View {
                                         total: report.observedLogicalBytes
                                     )
                                 }
-                                Text("Somma delle dimensioni logiche dei soli file esaminati: non è lo spazio fisico occupato né recuperabile. Hard link, cloni APFS ed elementi esclusi possono alterare il confronto con il disco.")
+                                Divider()
+                                Text("Dimensione logica (tutti i percorsi): \(ByteCountFormatter.string(fromByteCount: report.observedLogicalBytes, countStyle: .file))")
+                                Text("Dimensione logica (inode distinti): \(ByteCountFormatter.string(fromByteCount: report.observedUniqueLogicalBytes, countStyle: .file))")
+                                Text("Blocchi allocati osservati (inode distinti): \(ByteCountFormatter.string(fromByteCount: report.observedAllocatedBytes, countStyle: .file))")
+                                if report.repeatedHardLinkEntryCount > 0 {
+                                    Text("\(report.repeatedHardLinkEntryCount) collegamenti aggiuntivi dello stesso inode")
+                                }
+                                Text("Valori osservati, non spazio recuperabile. Cloni APFS, compressione, snapshot e file esclusi possono condividere blocchi o alterare i totali.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -159,8 +173,17 @@ struct ResultsView: View {
                                     }
                                     Label("Solo lettura", systemImage: "lock.shield")
                                         .foregroundStyle(.secondary)
+                                    if item.hasMultipleHardLinks {
+                                        Label("Hard link", systemImage: "link")
+                                            .foregroundStyle(.orange)
+                                    }
                                 }
                                 .font(.caption)
+                                if let allocated = item.allocatedSizeBytes {
+                                    Text("Blocchi allocati osservati: \(ByteCountFormatter.string(fromByteCount: allocated, countStyle: .file))")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
                                 Text(item.explanation)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)

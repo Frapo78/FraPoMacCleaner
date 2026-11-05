@@ -21,6 +21,9 @@ struct ScanFinding: Identifiable, Hashable, Sendable {
     let modifiedAt: Date?
     let explanation: String
     let reasons: Set<ScanFindingReason>
+    /// Blocks allocated for this file according to lstat; not uniquely reclaimable.
+    let allocatedSizeBytes: Int64?
+    let hasMultipleHardLinks: Bool
 
     init(
         id: UUID = UUID(),
@@ -28,7 +31,9 @@ struct ScanFinding: Identifiable, Hashable, Sendable {
         logicalSizeBytes: Int64,
         modifiedAt: Date? = nil,
         explanation: String,
-        reasons: Set<ScanFindingReason> = []
+        reasons: Set<ScanFindingReason> = [],
+        allocatedSizeBytes: Int64? = nil,
+        hasMultipleHardLinks: Bool = false
     ) {
         self.id = id
         self.fileURL = fileURL
@@ -36,5 +41,7 @@ struct ScanFinding: Identifiable, Hashable, Sendable {
         self.modifiedAt = modifiedAt
         self.explanation = explanation
         self.reasons = reasons
+        self.allocatedSizeBytes = allocatedSizeBytes
+        self.hasMultipleHardLinks = hasMultipleHardLinks
     }
 }

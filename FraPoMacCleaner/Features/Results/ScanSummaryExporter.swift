@@ -23,6 +23,10 @@ enum ScanSummaryExporter {
         let errorCount: Int
         let reachedLimit: Bool
         let observedLogicalBytes: Int64
+        let observedUniqueLogicalBytes: Int64
+        let observedAllocatedBytes: Int64
+        let hardLinkedEntryCount: Int
+        let repeatedHardLinkEntryCount: Int
         let categories: [CategorySummary]
         let exclusions: [CountSummary]
         let accessIssues: [CountSummary]
@@ -51,14 +55,18 @@ enum ScanSummaryExporter {
             return CountSummary(label: issue.label, count: entry.count)
         }
         let summary = SafeSummary(
-            schemaVersion: 1,
-            note: "Solo metadati aggregati. Dimensione logica, non spazio recuperabile.",
+            schemaVersion: 2,
+            note: "Metadati aggregati e blocchi allocati osservati, non spazio recuperabile. APFS può condividere blocchi.",
             inspectedFileCount: report.inspectedFileCount,
             candidateCount: report.candidateCount,
             skippedItemCount: report.skippedItemCount,
             errorCount: report.errorCount,
             reachedLimit: report.reachedLimit,
             observedLogicalBytes: report.observedLogicalBytes,
+            observedUniqueLogicalBytes: report.observedUniqueLogicalBytes,
+            observedAllocatedBytes: report.observedAllocatedBytes,
+            hardLinkedEntryCount: report.hardLinkedEntryCount,
+            repeatedHardLinkEntryCount: report.repeatedHardLinkEntryCount,
             categories: categories,
             exclusions: exclusions,
             accessIssues: issues

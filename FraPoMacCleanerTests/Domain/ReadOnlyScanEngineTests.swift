@@ -195,6 +195,46 @@ final class ReadOnlyScanEngineTests: XCTestCase {
         XCTAssertTrue(report.issueSummary.isEmpty)
     }
 
+    func testHardLinksAreCountedAsOneDistinctInode() async throws {
+        let original = try makeFile("original.mov", bytes: 256)
+        let linked = folder.appendingPathComponent("second-name.mov")
+        try FileManager.default.linkItem(at: original, to: linked)
+
+        let report = try await scanner().scan(in: ScanScope(folderURL: folder))
+        XCTAssertEqual(report.inspectedFileCount, 2)
+        XCTAssertEqual(report.candidateCount, 2)
+        XCTAssertEqual(report.observedLogicalBytes, 512)
+        XCTAssertEqual(report.observedUniqueLogicalBytes, 256)
+        XCTAssertEqual(report.hardLinkedEntryCount, 2)
+        XCTAssertEqual(report.repeatedHardLinkEntryCount, 1)
+        XCTAssertTrue(report.findings.allSatisfy { $0.hasMultipleHardLinks })
+        XCTAssertEqual(Set(report.findings.map { $0.allocatedSizeBytes }).count, 1)
+        XCTAssertTrue(report.observedAllocatedBytes >= 0)
+    }
+
+    func testSparseFileDoesNotImplyPhysicalSpaceRecovery() async throws {
+        let file = folder.appendingPathComponent("sparse.bin")
+        let handle = try FileHandle(forWritingTo: {
+            FileManager.default.createFile(atPath: file.path, contents: Data())
+            return file
+        }())
+        try handle.truncate(atOffset: 1_048_576)
+        try handle.close()
+
+        let report = try await scanner().scan(in: ScanScope(folderURL: folder))
+        XCTAssertEqual(report.observedLogicalBytes, 1_048_576)
+        XCTAssertEqual(report.observedUniqueLogicalBytes, 1_048_576)
+        XCTAssertGreaterThanOrEqual(report.observedAllocatedBytes, 0)
+        XCTAssertLessThanOrEqual(report.observedAllocatedBytes, report.observedLogicalBytes)
+        XCTAssertEqual(report.findings.count, 1)
+        XCTAssertNotNil(report.findings.first?.allocatedSizeBytes)
+    }
+
+    func testVolumeBoundaryRule() {
+        XCTAssertFalse(ReadOnlyScanEngine.isDifferentDevice(rootDevice: 5, childDevice: 5))
+        XCTAssertTrue(ReadOnlyScanEngine.isDifferentDevice(rootDevice: 5, childDevice: 6))
+    }
+
     func testCategoryIsMetadataOnlyAndCaseInsensitive() {
         XCTAssertEqual(ScanFileCategory.classify(URL(fileURLWithPath: "/tmp/example.MP4")), .video)
         XCTAssertEqual(ScanFileCategory.classify(URL(fileURLWithPath: "/tmp/example.swift")), .sourceCode)

@@ -78,6 +78,10 @@ final class ScanResultExplorerTests: XCTestCase {
             exclusionSummary: [ScanExclusionSummary(reason: .protectedPath, count: 1)],
             issueSummary: [],
             observedLogicalBytes: 640,
+            observedUniqueLogicalBytes: 640,
+            observedAllocatedBytes: 512,
+            hardLinkedEntryCount: 0,
+            repeatedHardLinkEntryCount: 0,
             fileCategories: [
                 ScanSizeGroup(label: "Documenti", fileCount: 2, logicalSizeBytes: 640),
                 ScanSizeGroup(label: secret, fileCount: 1, logicalSizeBytes: 999)
@@ -91,8 +95,9 @@ final class ScanResultExplorerTests: XCTestCase {
         XCTAssertFalse(content.contains(secret))
         XCTAssertFalse(content.contains("sensitive-project"))
         XCTAssertFalse(content.contains("report.PDF"))
-        XCTAssertTrue(content.contains("\"schemaVersion\" : 1"))
+        XCTAssertTrue(content.contains("\"schemaVersion\" : 2"))
         XCTAssertTrue(content.contains("\"observedLogicalBytes\" : 640"))
+        XCTAssertTrue(content.contains("\"observedAllocatedBytes\" : 512"))
         XCTAssertTrue(content.contains("\"Documenti\""))
         XCTAssertTrue(content.contains("\"Percorso protetto\""))
     }

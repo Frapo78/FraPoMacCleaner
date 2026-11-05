@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 
 enum ReadOnlyScanError: LocalizedError {
     case invalidScope
@@ -17,6 +18,33 @@ enum ReadOnlyScanError: LocalizedError {
 /// Bounded, cancellable enumeration of metadata. Never opens file contents.
 /// A finding means "worth reviewing", not "safe to remove".
 struct ReadOnlyScanEngine: ScanEngine {
+    /// For read-only metadata accounting, file identity is local to a filesystem.
+    private struct InodeKey: Hashable {
+        let device: UInt64
+        let inode: UInt64
+
+        init(_ metadata: stat) {
+            device = UInt64(bitPattern: Int64(metadata.st_dev))
+            inode = UInt64(metadata.st_ino)
+        }
+    }
+
+    /// A mounted filesystem inside the chosen directory is not implicitly authorized.
+    static func isDifferentDevice(rootDevice: UInt64, childDevice: UInt64) -> Bool {
+        rootDevice != childDevice
+    }
+
+    private static func allocatedBytes(_ metadata: stat) -> Int64 {
+        let blocks = max(0, Int64(metadata.st_blocks))
+        let (bytes, overflow) = blocks.multipliedReportingOverflow(by: 512)
+        return overflow ? Int64.max : bytes
+    }
+
+    private static func saturatingAdd(_ a: Int64, _ b: Int64) -> Int64 {
+        let (sum, overflow) = a.addingReportingOverflow(b)
+        return overflow ? Int64.max : sum
+    }
+
     let minimumLargeFileBytes: Int64
     let minimumAgeDays: Int
     let maximumEntries: Int
@@ -58,6 +86,11 @@ struct ReadOnlyScanEngine: ScanEngine {
               rootProperties.isSymbolicLink != true,
               rootProperties.isPackage != true
         else { throw ReadOnlyScanError.invalidScope }
+        var rootMetadata = stat()
+        guard lstat(root.path, &rootMetadata) == 0,
+              (rootMetadata.st_mode & mode_t(S_IFMT)) == mode_t(S_IFDIR)
+        else { throw ReadOnlyScanError.invalidScope }
+        let rootDevice = InodeKey(rootMetadata).device
 
         let keys: Set<URLResourceKey> = [
             .isDirectoryKey, .isRegularFileKey, .isSymbolicLinkKey,
@@ -75,6 +108,11 @@ struct ReadOnlyScanEngine: ScanEngine {
         var issueCounts: [ScanAccessIssue: Int] = [:]
         var findings: [ScanFinding] = []
         var observedLogicalBytes: Int64 = 0
+        var observedUniqueLogicalBytes: Int64 = 0
+        var observedAllocatedBytes: Int64 = 0
+        var hardLinkedEntryCount = 0
+        var repeatedHardLinkEntryCount = 0
+        var seenInodes = Set<InodeKey>()
         var categoryGroups: [String: ScanSizeGroup] = [:]
         var folderGroups: [String: ScanSizeGroup] = [:]
         let rootComponentCount = root.pathComponents.count
@@ -144,6 +182,10 @@ struct ReadOnlyScanEngine: ScanEngine {
                     return ScanIssueSummary(issue: kind, count: count)
                 },
                 observedLogicalBytes: observedLogicalBytes,
+                observedUniqueLogicalBytes: observedUniqueLogicalBytes,
+                observedAllocatedBytes: observedAllocatedBytes,
+                hardLinkedEntryCount: hardLinkedEntryCount,
+                repeatedHardLinkEntryCount: repeatedHardLinkEntryCount,
                 fileCategories: orderedGroups(categoryGroups),
                 firstLevelFolders: orderedGroups(folderGroups)
             )
@@ -152,6 +194,22 @@ struct ReadOnlyScanEngine: ScanEngine {
         publishProgress(force: true)
         while let directory = directories.popLast() {
             try Task.checkCancellation()
+            // A mounted directory or a replaced symlink must not escape the scope.
+            var dirMetadata = stat()
+            guard lstat(directory.path, &dirMetadata) == 0,
+                  (dirMetadata.st_mode & mode_t(S_IFMT)) == mode_t(S_IFDIR)
+            else {
+                if directory == root { throw ReadOnlyScanError.invalidScope }
+                issue(.unreadableDirectory)
+                continue
+            }
+            if Self.isDifferentDevice(
+                rootDevice: rootDevice,
+                childDevice: InodeKey(dirMetadata).device
+            ) {
+                skip(.otherVolume)
+                continue
+            }
             let entries: [URL]
             do {
                 entries = try fileManager.contentsOfDirectory(
@@ -178,6 +236,22 @@ struct ReadOnlyScanEngine: ScanEngine {
                 // Deny by path first; then inspect type before traversing.
                 if Self.isExcluded(item) {
                     skip(.protectedPath)
+                    continue
+                }
+                var itemMetadata = stat()
+                guard lstat(item.path, &itemMetadata) == 0 else {
+                    issue(.unreadableMetadata)
+                    continue
+                }
+                if (itemMetadata.st_mode & mode_t(S_IFMT)) == mode_t(S_IFLNK) {
+                    skip(.symbolicLink)
+                    continue
+                }
+                if Self.isDifferentDevice(
+                    rootDevice: rootDevice,
+                    childDevice: InodeKey(itemMetadata).device
+                ) {
+                    skip(.otherVolume)
                     continue
                 }
                 let properties: URLResourceValues
@@ -214,11 +288,23 @@ struct ReadOnlyScanEngine: ScanEngine {
                     continue
                 }
                 let size = Int64(bytes)
+                let blocksAllocated = Self.allocatedBytes(itemMetadata)
+                let key = InodeKey(itemMetadata)
+                if itemMetadata.st_nlink > 1 { hardLinkedEntryCount += 1 }
+                if seenInodes.insert(key).inserted {
+                    observedUniqueLogicalBytes = Self.saturatingAdd(
+                        observedUniqueLogicalBytes, size
+                    )
+                    observedAllocatedBytes = Self.saturatingAdd(
+                        observedAllocatedBytes, blocksAllocated
+                    )
+                } else {
+                    repeatedHardLinkEntryCount += 1
+                }
 
-                // Aggregate only successfully inspected regular-file metadata.
-                // A sparse file or APFS clone can have a large logical size but little unique disk usage.
-                observedLogicalBytes = observedLogicalBytes > Int64.max - size
-                    ? Int64.max : observedLogicalBytes + size
+                // The legacy per-path totals deliberately preserve all observed paths.
+                // The unique-inode aggregates above are separate; APFS clone sharing remains unknown.
+                observedLogicalBytes = Self.saturatingAdd(observedLogicalBytes, size)
                 add(size, to: ScanFileCategory.classify(item).label, in: &categoryGroups)
 
                 let components = item.standardizedFileURL.pathComponents
@@ -249,7 +335,9 @@ struct ReadOnlyScanEngine: ScanEngine {
                             isLarge ? ScanFindingReason.largeFile : nil,
                             isOld ? ScanFindingReason.oldFile : nil
                         ].compactMap { $0 }
-                    )
+                    ),
+                    allocatedSizeBytes: blocksAllocated,
+                    hasMultipleHardLinks: itemMetadata.st_nlink > 1
                 ))
                 if findings.count > maximumFindings {
                     findings.sort {

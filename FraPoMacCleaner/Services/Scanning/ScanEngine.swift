@@ -24,7 +24,7 @@ struct ScanProgress: Sendable {
 }
 
 enum ScanExclusionReason: String, CaseIterable, Sendable {
-    case protectedPath, symbolicLink, package, cloudItem, unsupportedItem
+    case protectedPath, symbolicLink, package, cloudItem, unsupportedItem, otherVolume
 
     var label: String {
         switch self {
@@ -33,6 +33,7 @@ enum ScanExclusionReason: String, CaseIterable, Sendable {
         case .package: "Pacchetto applicativo o libreria"
         case .cloudItem: "Elemento gestito dal cloud"
         case .unsupportedItem: "Tipo di elemento non supportato"
+        case .otherVolume: "Altro volume o punto di montaggio"
         }
     }
 }
@@ -121,6 +122,14 @@ struct ScanReport: Sendable {
     /// These aggregates cover only regular, accessible files, including files below the alert thresholds.
     /// Sizes are logical and may double-count hard links or APFS clones.
     let observedLogicalBytes: Int64
+    /// Logical size counted once for each observed (device, inode) pair.
+    let observedUniqueLogicalBytes: Int64
+    /// Allocated bytes for distinct observed inodes; APFS clones can share blocks.
+    let observedAllocatedBytes: Int64
+    /// Paths pointing to inodes whose link count is greater than one.
+    let hardLinkedEntryCount: Int
+    /// Paths that refer to an inode already counted in this scan.
+    let repeatedHardLinkEntryCount: Int
     let fileCategories: [ScanSizeGroup]
     let firstLevelFolders: [ScanSizeGroup]
 }
