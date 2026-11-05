@@ -140,6 +140,70 @@ final class RoutineInspectionEngineTests: XCTestCase {
         }
     }
 
+    func testOldDiagnosticsGetReviewHintButNormalLogsStayProtected() throws {
+        try fixture("recent-report.ips", daysAgo: 40)
+        try fixture("old-report.ips", daysAgo: 120)
+        try fixture("old-app.log", daysAgo: 120)
+        try fixture("old-rotated.log.1.gz", daysAgo: 120)
+        let report = try engine(area: .userLogs).inspect(area: .userLogs, selectedURL: root)
+        XCTAssertEqual(report.reviewCount, 2)
+        XCTAssertEqual(Set(report.entries.filter {
+            $0.reviewLevel == .needsReview
+        }.map(\.label)), Set(["old-report.ips", "old-rotated.log.1.gz"]))
+        XCTAssertTrue(report.entries.allSatisfy { !$0.canRemove })
+        XCTAssertGreaterThanOrEqual(report.observedAllocatedBytes, 0)
+    }
+
+    func testXcodeOldBuildsAreHintsAndRecentBuildsRemainProtected() throws {
+        let old = root.appendingPathComponent("OldProject", isDirectory: true)
+        let recent = root.appendingPathComponent("RecentProject", isDirectory: true)
+        try FileManager.default.createDirectory(at: old, withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: recent, withIntermediateDirectories: true)
+        try fixture("old.o", in: old, daysAgo: 180)
+        try fixture("new.o", in: recent, daysAgo: 1)
+        let report = try engine(area: .xcodeDerivedData).inspect(
+            area: .xcodeDerivedData, selectedURL: root
+        )
+        XCTAssertEqual(report.entries.count, 2)
+        XCTAssertEqual(report.reviewCount, 1)
+        XCTAssertEqual(report.entries.first(where: { $0.label == "OldProject" })?.reviewLevel,
+                       .needsReview)
+        XCTAssertEqual(report.entries.first(where: { $0.label == "RecentProject" })?.reviewLevel,
+                       .protected)
+        XCTAssertTrue(report.entries.allSatisfy { !$0.canRemove })
+    }
+
+    func testIncompleteResultsCannotClaimToBeReviewable() throws {
+        for i in 0..<6 { try fixture("report-\(i).ips", daysAgo: 130) }
+        let report = try engine(area: .userLogs, maximumVisited: 2).inspect(
+            area: .userLogs, selectedURL: root
+        )
+        XCTAssertTrue(report.reachedLimit)
+        XCTAssertEqual(report.reviewCount, 0)
+        XCTAssertTrue(report.entries.allSatisfy { $0.reviewLevel == .protected })
+    }
+
+    func testAgentIsAlwaysProtectedEvenWhenVeryOld() {
+        let result = RoutineReviewPolicy.assess(
+            area: .userLaunchAgents, filename: "com.example.old.plist",
+            lastModified: Date(timeIntervalSince1970: 0),
+            now: Date(), complete: true
+        )
+        XCTAssertEqual(result, .protected)
+    }
+
+    func testPolicyIsFailClosedForMissingDatesAndErrors() {
+        XCTAssertEqual(RoutineReviewPolicy.assess(
+            area: .xcodeDerivedData, filename: "Old",
+            lastModified: nil, now: Date(), complete: true
+        ), .protected)
+        XCTAssertEqual(RoutineReviewPolicy.assess(
+            area: .userLogs, filename: "old.ips",
+            lastModified: Date(timeIntervalSince1970: 0),
+            now: Date(), complete: false
+        ), .protected)
+    }
+
     func testUserReportsNeverContainDeletionAuthority() throws {
         try fixture("old.log")
         let report = try engine(area: .userLogs).inspect(

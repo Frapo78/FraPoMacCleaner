@@ -35,12 +35,68 @@ enum RoutineArea: String, CaseIterable, Hashable, Sendable {
     }
 }
 
+/// Advisory, never an authorization to delete. Even a review item remains protected.
+enum RoutineReviewLevel: String, Sendable {
+    case protected, needsReview
+
+    var label: String {
+        switch self {
+        case .protected: "Protetto"
+        case .needsReview: "Da approfondire"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .protected: "lock.shield"
+        case .needsReview: "questionmark.circle"
+        }
+    }
+}
+
+/// Only metadata observed in the present scan; no assumption about open files.
+enum RoutineReviewPolicy {
+    static let reviewAgeDays = 90
+
+    static func assess(
+        area: RoutineArea,
+        filename: String,
+        lastModified: Date?,
+        now: Date,
+        complete: Bool,
+        datesVerified: Bool = true
+    ) -> RoutineReviewLevel {
+        guard complete, datesVerified, let date = lastModified,
+              now.timeIntervalSince(date) >= Double(reviewAgeDays) * 86_400
+        else { return .protected }
+
+        switch area {
+        case .userLogs:
+            let name = filename.lowercased()
+            let diagnostic = [".ips", ".crash", ".hang", ".spin", ".diag"]
+                .contains { name.hasSuffix($0) }
+            let rotated = [".log.0.gz", ".log.1.gz", ".log.2.gz", ".log.3.gz"]
+                .contains { name.hasSuffix($0) }
+            return diagnostic || rotated ? .needsReview : .protected
+        case .xcodeDerivedData:
+            return .needsReview // An old build is not proof that it is unused.
+        case .userLaunchAgents:
+            return .protected
+        }
+    }
+}
+
 struct RoutineEntry: Identifiable, Sendable {
     let url: URL
     let label: String
     let description: String
     let logicalSizeBytes: Int64?
     let modifiedAt: Date?
+    let allocatedSizeBytes: Int64?
+    let origin: String
+    let reviewLevel: RoutineReviewLevel
+    /// No cleanup permission is ever granted by diagnostics.
+    var canRemove: Bool { false }
     var id: String { url.path }
 }
 
@@ -52,6 +108,8 @@ struct RoutineReport: Sendable {
     let errorCount: Int
     let reachedLimit: Bool
     let observedLogicalBytes: Int64
+    let observedAllocatedBytes: Int64
+    var reviewCount: Int { entries.filter { $0.reviewLevel == .needsReview }.count }
 }
 
 enum RoutineInspectionError: LocalizedError {
@@ -150,6 +208,12 @@ struct RoutineInspectionEngine: Sendable {
         }
     }
 
+    private static func allocatedBytes(_ metadata: stat) -> Int64 {
+        let blocks = max(0, Int64(metadata.st_blocks))
+        let (bytes, overflow) = blocks.multipliedReportingOverflow(by: 512)
+        return overflow ? Int64.max : bytes
+    }
+
     private static func add(_ lhs: Int64, _ rhs: Int64) -> Int64 {
         let (sum, overflow) = lhs.addingReportingOverflow(rhs)
         return overflow ? Int64.max : sum
@@ -192,9 +256,13 @@ struct RoutineInspectionEngine: Sendable {
         var errors = 0
         var entries: [RoutineEntry] = []
         var total: Int64 = 0
+        var totalAllocated: Int64 = 0
         var reachedLimit = false
         var counted = Set<FileIdentity>()
-        var projectGroups: [String: (count: Int, bytes: Int64, latest: Date?)] = [:]
+        var projectGroups: [
+            String: (count: Int, bytes: Int64, allocated: Int64,
+                     latest: Date?, unknownDates: Bool)
+        ] = [:]
         let manager = FileManager.default
 
         scan: while let next = stack.popLast() {
@@ -264,6 +332,7 @@ struct RoutineInspectionEngine: Sendable {
                     continue
                 }
                 let size = max(0, Int64(metadata.st_size))
+                let allocated = Self.allocatedBytes(metadata)
                 let date = try? item.resourceValues(
                     forKeys: [.contentModificationDateKey]
                 ).contentModificationDate
@@ -277,12 +346,20 @@ struct RoutineInspectionEngine: Sendable {
                     else { skipped += 1; continue }
                     if !counted.insert(identity).inserted { skipped += 1; continue }
                     total = Self.add(total, size)
+                    totalAllocated = Self.add(totalAllocated, allocated)
+                    let parts = item.pathComponents
+                    let source = parts.count > rootParts + 1
+                        ? "Sottocartella: \(parts[rootParts]) (origine non verificata)"
+                        : "Log utente"
                     entries.append(RoutineEntry(
                         url: item,
                         label: item.lastPathComponent,
-                        description: "Log o diagnostica utente datato · protetto",
+                        description: "Log o diagnostica utente datato · protetto dalla rimozione",
                         logicalSizeBytes: size,
-                        modifiedAt: modified
+                        modifiedAt: modified,
+                        allocatedSizeBytes: allocated,
+                        origin: source,
+                        reviewLevel: .protected
                     ))
                 case .xcodeDerivedData:
                     let parts = item.pathComponents
@@ -293,9 +370,12 @@ struct RoutineInspectionEngine: Sendable {
                     projectGroups[name] = (
                         count: (existing?.count ?? 0) + 1,
                         bytes: Self.add(existing?.bytes ?? 0, size),
-                        latest: max(existing?.latest ?? .distantPast, date ?? .distantPast)
+                        allocated: Self.add(existing?.allocated ?? 0, allocated),
+                        latest: max(existing?.latest ?? .distantPast, date ?? .distantPast),
+                        unknownDates: (existing?.unknownDates ?? false) || date == nil
                     )
                     total = Self.add(total, size)
+                    totalAllocated = Self.add(totalAllocated, allocated)
                 case .userLaunchAgents:
                     guard directory == root,
                           item.pathExtension.lowercased() == "plist"
@@ -305,20 +385,56 @@ struct RoutineInspectionEngine: Sendable {
                         label: item.deletingPathExtension().lastPathComponent,
                         description: "Agente registrato su disco · attività non verificata · protetto",
                         logicalSizeBytes: size,
-                        modifiedAt: date
+                        modifiedAt: date,
+                        allocatedSizeBytes: allocated,
+                        origin: "Agente utente (stato di esecuzione sconosciuto)",
+                        reviewLevel: .protected
                     ))
                 }
             }
         }
 
+        // A partial scan or any read failure cannot support an age-based hint.
+        // An incomplete scan must never produce "needs review" classifications.
+        let complete = !reachedLimit && errors == 0
         if area == .xcodeDerivedData {
             entries = projectGroups.map { name, value in
-                RoutineEntry(
+                let latest = value.latest == .distantPast ? nil : value.latest
+                return RoutineEntry(
                     url: root.appendingPathComponent(name, isDirectory: true),
                     label: name,
                     description: "\(value.count) file di build osservati · cartella protetta",
                     logicalSizeBytes: value.bytes,
-                    modifiedAt: value.latest == .distantPast ? nil : value.latest
+                    modifiedAt: latest,
+                    allocatedSizeBytes: value.allocated,
+                    origin: "Cartella di compilazione Xcode",
+                    reviewLevel: RoutineReviewPolicy.assess(
+                        area: .xcodeDerivedData,
+                        filename: name,
+                        lastModified: latest,
+                        now: referenceDate,
+                        complete: complete,
+                        datesVerified: !value.unknownDates
+                    )
+                )
+            }
+        } else if area == .userLogs {
+            entries = entries.map { item in
+                RoutineEntry(
+                    url: item.url,
+                    label: item.label,
+                    description: item.description,
+                    logicalSizeBytes: item.logicalSizeBytes,
+                    modifiedAt: item.modifiedAt,
+                    allocatedSizeBytes: item.allocatedSizeBytes,
+                    origin: item.origin,
+                    reviewLevel: RoutineReviewPolicy.assess(
+                        area: .userLogs,
+                        filename: item.label,
+                        lastModified: item.modifiedAt,
+                        now: referenceDate,
+                        complete: complete
+                    )
                 )
             }
         }
@@ -332,6 +448,15 @@ struct RoutineInspectionEngine: Sendable {
         if entries.count > maximumDisplayed {
             reachedLimit = true
             entries = Array(entries.prefix(maximumDisplayed))
+            // Incomplete display cannot confidently imply anything is unused.
+            entries = entries.map { item in
+                RoutineEntry(
+                    url: item.url, label: item.label, description: item.description,
+                    logicalSizeBytes: item.logicalSizeBytes, modifiedAt: item.modifiedAt,
+                    allocatedSizeBytes: item.allocatedSizeBytes, origin: item.origin,
+                    reviewLevel: .protected
+                )
+            }
         }
         return RoutineReport(
             area: area,
@@ -340,7 +465,8 @@ struct RoutineInspectionEngine: Sendable {
             skippedItemCount: skipped,
             errorCount: errors,
             reachedLimit: reachedLimit,
-            observedLogicalBytes: total
+            observedLogicalBytes: total,
+            observedAllocatedBytes: totalAllocated
         )
     }
 }
