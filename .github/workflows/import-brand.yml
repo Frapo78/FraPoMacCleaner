@@ -1,0 +1,77 @@
+name: Import brand images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/import-brand.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download and rasterize brand assets
+        shell: bash
+        env:
+          ICON_THUMBNAIL_URL: 'https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2F6b92f7ad-74f5-4b25-9302-0a9fddfae6e0/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAILpV9AYeMNzxuatLgYlWTFU9EDElN0-tmbwS83mQdkq&exp=1793899477&osig=AAAAAAAAAAAAAAAAAAAAAJe_PNSyUdtdpWBMFASR_2Sjq60JnrnGK8LEo0Rw8j54&signer=media-rpc&token=AAIAAU0AJDZiOTJmN2FkLTc0ZjUtNGIyNS05MzAyLTBhOWZkZGZhZTZlMAAAAAABoay9uAj4HFrbXoxW9MdxC2nY1njjBNodNEujGfEzn20YavkRUQ&x-canva-quality=thumbnail'
+          LOGO_THUMBNAIL_URL: 'https://media.canva.com/v2/image-resize/format:PNG/height:39/quality:100/uri:ifs%3A%2F%2FM%2F7ff2b1f4-bf38-48ce-914f-8802d8947156/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAADLxYZq4z-xbL7igYJ8ArMuhOgkq58l55Ubmjejluf_2&exp=1793898704&osig=AAAAAAAAAAAAAAAAAAAAAFnN5-5RnAa3iKhX9RIrUTZ9OsBSqucPzcDEo-FA71qE&signer=media-rpc&token=AAIAAU0AJDdmZjJiMWY0LWJmMzgtNDhjZS05MTRmLTg4MDJkODk0NzE1NgAAAAABoayx7ICG_WMdxHDId30GiG95pou5w0K2g4e_JJdJ3RgDbMpXGw&x-canva-quality=thumbnail'
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os, subprocess, pathlib, urllib.request, re
+          root=pathlib.Path('FraPoMacCleaner/Resources/Assets.xcassets')
+          outdir=pathlib.Path(os.environ['RUNNER_TEMP'])
+          def download(name, url, width, height):
+              hi=re.sub(r'/height:\d+/',f'/height:{height}/',url)
+              hi=re.sub(r'/width:\d+',f'/width:{width}',hi)
+              for idx, candidate in enumerate((hi,url)):
+                  target=outdir/f'{name}-{idx}.png'
+                  try:
+                      req=urllib.request.Request(candidate,headers={'User-Agent':'FraPoMacCleanerBrandImporter/1.0'})
+                      with urllib.request.urlopen(req,timeout=25) as src, target.open('wb') as dst:
+                          dst.write(src.read())
+                      proc=subprocess.run(['sips','-g','pixelWidth','-g','pixelHeight',str(target)],capture_output=True,text=True,check=True)
+                      print(f'{name} candidate {idx}: {proc.stdout}',flush=True)
+                      if idx==0 and (f'pixelWidth: {width}' not in proc.stdout or f'pixelHeight: {height}' not in proc.stdout):
+                          continue
+                      return target
+                  except Exception as e:
+                      print(f'{name} candidate {idx} failed: {e}', flush=True)
+              raise RuntimeError(f'{name}: no downloadable image')
+          original_icon=download('icon',os.environ['ICON_THUMBNAIL_URL'],1024,1024)
+          original_logo=download('logo',os.environ['LOGO_THUMBNAIL_URL'],1460,285)
+          icon_dir=root/'AppIcon.appiconset'
+          icon_dir.mkdir(parents=True, exist_ok=True)
+          sizes=[(16,'16',1),(32,'16',2),(32,'32',1),(64,'32',2),(128,'128',1),(256,'128',2),(256,'256',1),(512,'256',2),(512,'512',1),(1024,'512',2)]
+          import json
+          manifest=[]
+          for px,points,scale in sizes:
+              dest=icon_dir/f'icon-{px}.png'
+              if not dest.exists():
+                  subprocess.run(['sips','-s','format','png','-z',str(px),str(px),str(original_icon),'--out',str(dest)],check=True,stdout=subprocess.DEVNULL)
+              manifest.append({'size':f'{points}x{points}','idiom':'mac','filename':f'icon-{px}.png','scale':f'{scale}x'})
+          (icon_dir/'Contents.json').write_text(json.dumps({'images':manifest,'info':{'author':'xcode','version':1}},indent=2)+'\n')
+          logo_dir=root/'BrandLogo.imageset'
+          logo_dir.mkdir(parents=True, exist_ok=True)
+          subprocess.run(['sips','-s','format','png','-z','285','1460',str(original_logo),'--out',str(logo_dir/'brand-logo.png')],check=True,stdout=subprocess.DEVNULL)
+          (logo_dir/'Contents.json').write_text(json.dumps({'images':[{'filename':'brand-logo.png','idiom':'universal'}],'info':{'author':'xcode','version':1}},indent=2)+'\n')
+          print('Assets ready',flush=True)
+          PY
+      - name: Verify image dimensions and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          sips -g pixelWidth -g pixelHeight FraPoMacCleaner/Resources/Assets.xcassets/AppIcon.appiconset/icon-1024.png
+          sips -g pixelWidth -g pixelHeight FraPoMacCleaner/Resources/Assets.xcassets/BrandLogo.imageset/brand-logo.png
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add FraPoMacCleaner/Resources/Assets.xcassets
+          git diff --cached --quiet && exit 0
+          git commit -m "assets: add native icon catalog and horizontal brand artwork"
+          git push origin HEAD:main
