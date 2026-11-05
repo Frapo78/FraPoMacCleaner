@@ -1,8 +1,15 @@
 import AppKit
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ResultsView: View {
     @ObservedObject var model: ScanSessionModel
+    @State private var searchText = ""
+    @State private var reasonFilter: ScanResultReasonFilter = .all
+    @State private var categoryFilter: ScanFileCategory?
+    @State private var sortOrder: ScanResultSort = .largest
+    @State private var exportError = ""
+    @State private var showingExportError = false
 
     var body: some View {
         Group {
@@ -11,6 +18,15 @@ struct ResultsView: View {
                     Text("Risultati").font(.largeTitle.bold())
                     Text("\(report.candidateCount) file da verificare · \(report.inspectedFileCount) esaminati")
                         .foregroundStyle(.secondary)
+                    HStack {
+                        Label("Tutti protetti dalla rimozione", systemImage: "lock.shield")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Spacer(minLength: 8)
+                        Button("Esporta riepilogo anonimo…") { exportSummary(report) }
+                            .help("Esporta soltanto conteggi e categorie: nessun nome o percorso")
+                    }
+
                     if report.reachedLimit || report.candidateCount > report.findings.count {
                         Text("Elenco parziale: vengono mostrati al massimo i 500 candidati più grandi.")
                             .foregroundStyle(.orange)
@@ -76,7 +92,41 @@ struct ResultsView: View {
                             description: Text("Non sono stati trovati file oltre le soglie di dimensione o anzianità.")
                         )
                     } else {
-                        List(report.findings) { item in
+                        HStack(spacing: 12) {
+                            TextField("Cerca nome o percorso", text: $searchText)
+                                .textFieldStyle(.roundedBorder)
+                                .accessibilityLabel("Cerca risultati")
+                            Picker("Motivo", selection: $reasonFilter) {
+                                ForEach(ScanResultReasonFilter.allCases) { option in
+                                    Text(option.label).tag(option)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            Picker("Tipo", selection: $categoryFilter) {
+                                Text("Tutti i tipi").tag(nil as ScanFileCategory?)
+                                ForEach(ScanFileCategory.allCases, id: \.self) { kind in
+                                    Text(kind.label).tag(kind as ScanFileCategory?)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            Picker("Ordina", selection: $sortOrder) {
+                                ForEach(ScanResultSort.allCases) { option in
+                                    Text(option.label).tag(option)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                        }
+                        Text("\(visibleFindings(report).count) di \(report.findings.count) risultati visualizzati (massimo 500 conservati per scansione)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        if visibleFindings(report).isEmpty {
+                            ContentUnavailableView(
+                                "Nessun risultato corrispondente",
+                                systemImage: "line.3.horizontal.decrease.circle",
+                                description: Text("Modifica i filtri o la ricerca.")
+                            )
+                        } else {
+                        List(visibleFindings(report)) { item in
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(item.fileURL.lastPathComponent)
                                     .font(.headline)
@@ -101,12 +151,19 @@ struct ResultsView: View {
                                 Text(item.explanation)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
+                                Label(
+                                    "Protetto: una segnalazione non prova che il file sia superfluo",
+                                    systemImage: "shield.lefthalf.filled"
+                                )
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
                                 Button("Mostra nel Finder") {
                                     NSWorkspace.shared.activateFileViewerSelecting([item.fileURL])
                                 }
                                 .buttonStyle(.link)
                             }
                             .padding(.vertical, 5)
+                        }
                         }
                     }
                 }
@@ -122,6 +179,37 @@ struct ResultsView: View {
             }
         }
         .navigationTitle("Risultati")
+        .alert("Esportazione non riuscita", isPresented: $showingExportError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(exportError)
+        }
+    }
+
+    private func visibleFindings(_ report: ScanReport) -> [ScanFinding] {
+        ScanResultExplorer.apply(
+            report.findings,
+            search: searchText,
+            reason: reasonFilter,
+            category: categoryFilter,
+            sort: sortOrder
+        )
+    }
+
+    @MainActor
+    private func exportSummary(_ report: ScanReport) {
+        let panel = NSSavePanel()
+        panel.title = "Esporta riepilogo anonimo"
+        panel.nameFieldStringValue = "FraPoMacCleaner-riepilogo.json"
+        panel.canCreateDirectories = true
+        panel.allowedContentTypes = [.json]
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            try ScanSummaryExporter.encode(report).write(to: url, options: .atomic)
+        } catch {
+            exportError = error.localizedDescription
+            showingExportError = true
+        }
     }
 
     private func summaryColumn(

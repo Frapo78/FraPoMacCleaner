@@ -243,7 +243,13 @@ struct ReadOnlyScanEngine: ScanEngine {
                     fileURL: item,
                     logicalSizeBytes: size,
                     modifiedAt: modifiedAt,
-                    explanation: reasons.joined(separator: " · ")
+                    explanation: reasons.joined(separator: " · "),
+                    reasons: Set(
+                        [
+                            isLarge ? ScanFindingReason.largeFile : nil,
+                            isOld ? ScanFindingReason.oldFile : nil
+                        ].compactMap { $0 }
+                    )
                 ))
                 if findings.count > maximumFindings {
                     findings.sort {

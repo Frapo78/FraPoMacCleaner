@@ -74,6 +74,12 @@ final class ReadOnlyScanEngineTests: XCTestCase {
         XCTAssertFalse(report.findings.contains { $0.fileURL == recent })
         XCTAssertEqual(try Data(contentsOf: large), original)
         XCTAssertTrue(report.findings.contains { $0.modifiedAt != nil })
+        XCTAssertTrue(report.findings.first(where: {
+            $0.fileURL.lastPathComponent == "large.data"
+        })?.reasons.contains(.largeFile) == true)
+        XCTAssertTrue(report.findings.first(where: {
+            $0.fileURL.lastPathComponent == "old.txt"
+        })?.reasons.contains(.oldFile) == true)
     }
 
     func testNeverTraversesSymbolicLinksAndPackages() async throws {
