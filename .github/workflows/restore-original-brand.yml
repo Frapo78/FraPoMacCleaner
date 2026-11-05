@@ -1,0 +1,51 @@
+name: Restore original high-resolution branding
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/restore-original-brand.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  restore:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Retrieve original PNGs and verify integrity
+        shell: bash
+        env:
+          LOGO_URL: "https://at.adobe.com/VqC1tFwbfeRDj0sV"
+          ICON_URL: "https://at.adobe.com/3bVHelYWJqq8I2MM"
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/brand"
+          curl --fail --location --silent --show-error --retry 2 "$LOGO_URL" -o "$RUNNER_TEMP/brand/original-logo.png"
+          curl --fail --location --silent --show-error --retry 2 "$ICON_URL" -o "$RUNNER_TEMP/brand/original-icon.png"
+          echo "5538179542dfaf2f4aa13bc50b9456e9d4fe9a0530ce25e703d7b0ac6337cb82  $RUNNER_TEMP/brand/original-logo.png" | shasum -a 256 -c -
+          echo "db8b77d6cf1dbfddb044c71e055c4ce68dcc126ed0d7bde25c8467f574602231  $RUNNER_TEMP/brand/original-icon.png" | shasum -a 256 -c -
+          test "$(sips -g pixelWidth "$RUNNER_TEMP/brand/original-logo.png" | awk '/pixelWidth:/{print $2}')" = "1460"
+          test "$(sips -g pixelHeight "$RUNNER_TEMP/brand/original-logo.png" | awk '/pixelHeight:/{print $2}')" = "285"
+          test "$(sips -g pixelWidth "$RUNNER_TEMP/brand/original-icon.png" | awk '/pixelWidth:/{print $2}')" = "1024"
+          test "$(sips -g pixelHeight "$RUNNER_TEMP/brand/original-icon.png" | awk '/pixelHeight:/{print $2}')" = "1024"
+      - name: Replace low-resolution generated assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          ASSETS="FraPoMacCleaner/Resources/Assets.xcassets"
+          cp "$RUNNER_TEMP/brand/original-logo.png" "$ASSETS/BrandLogo.imageset/brand-logo.png"
+          cp "$RUNNER_TEMP/brand/original-icon.png" "$ASSETS/AppIcon.appiconset/icon-1024.png"
+          for size in 16 32 64 128 256 512; do
+            sips -s format png -z "$size" "$size" "$ASSETS/AppIcon.appiconset/icon-1024.png" --out "$ASSETS/AppIcon.appiconset/icon-\${size}.png" >/dev/null
+          done
+          test "$(shasum -a 256 "$ASSETS/BrandLogo.imageset/brand-logo.png" | awk '{print $1}')" = "5538179542dfaf2f4aa13bc50b9456e9d4fe9a0530ce25e703d7b0ac6337cb82"
+          test "$(shasum -a 256 "$ASSETS/AppIcon.appiconset/icon-1024.png" | awk '{print $1}')" = "db8b77d6cf1dbfddb044c71e055c4ce68dcc126ed0d7bde25c8467f574602231"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$ASSETS"
+          git rm .github/workflows/restore-original-brand.yml
+          git commit -m "fix(branding): restore verified original-size logo and icon assets"
+          git push origin HEAD:main
