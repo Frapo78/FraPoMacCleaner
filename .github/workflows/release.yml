@@ -59,10 +59,15 @@ jobs:
           set -euo pipefail
           test "$(uname -m)" = "arm64"
           xcodebuild -project FraPoMacCleaner.xcodeproj \
-            -scheme FraPoMacCleaner -configuration Release \
+            -scheme FraPoMacCleaner -configuration Debug \
             -destination 'platform=macOS,arch=arm64' \
             -derivedDataPath "$RUNNER_TEMP/FraPoRelease" \
             CODE_SIGNING_ALLOWED=NO test
+          xcodebuild -project FraPoMacCleaner.xcodeproj \
+            -scheme FraPoMacCleaner -configuration Release \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath "$RUNNER_TEMP/FraPoRelease" \
+            CODE_SIGNING_ALLOWED=NO build
           APP="$RUNNER_TEMP/FraPoRelease/Build/Products/Release/FraPoMacCleaner.app"
           test -d "$APP"
           test "$(lipo -archs "$APP/Contents/MacOS/FraPoMacCleaner")" = "arm64"

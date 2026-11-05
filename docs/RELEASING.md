@@ -12,7 +12,7 @@ Usiamo **Semantic Versioning**: `vMAJOR.MINOR.PATCH`, con prerelease `v0.1.0-alp
 
 **Ogni cambiamento significativo di funzionalità o architettura che raggiunge il ramo principale e viene dichiarato pronto per il rilascio deve produrre una nuova versione e una GitHub Release.** In pratica: incrementare `MARKETING_VERSION`, aggiornare `CHANGELOG.md`, aggiornare il file `RELEASE_VERSION`. Il workflow `.github/workflows/release.yml` esegue build/test e pubblicazione in modo automatico. I semplici cambiamenti documentali non generano una release.
 
-La pubblicazione avviene **solo dopo esito positivo** della pipeline. I tag non sostituiscono la revisione dei rischi e il test funzionale.
+La pubblicazione avviene **solo dopo esito positivo** della pipeline: XCTest gira in configurazione **Debug** per assicurare la compilazione testabile, seguita da build applicazione in **Release** per il pacchetto ZIP. I tag non sostituiscono la revisione dei rischi e il test funzionale.
 
 ## Due livelli di distribuzione
 
