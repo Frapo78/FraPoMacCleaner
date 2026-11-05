@@ -2,6 +2,16 @@
 
 Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 
+## v0.1.0-alpha.11 (2026-11-05) — analisi immediata, senza selezione cartelle
+
+- Nelle sezioni **Manutenzione** e **Avvii automatici** i controlli partono con un solo clic: nessun selettore di cartella per `~/Library/Logs`, `~/Library/Developer/Xcode/DerivedData` o `~/Library/LaunchAgents`.
+- Pulsanti rinominati in **Controlla i log**, **Controlla i file temporanei** e **Controlla gli avvii automatici**; rimane il collegamento ufficiale alle impostazioni macOS.
+- **App Sandbox mantenuta.** Firma con entitlement documentato da Apple per eccezioni di sola lettura limitate esattamente alle tre cartelle, senza Full Disk Access, `sudo` o permessi di scrittura.
+- Trattamento esplicito di cartelle mancanti, directory non valide, accessi negati e cartelle iniziali non leggibili: nessun falso risultato vuoto.
+- Due test aggiuntivi verificano mappatura dei tre ambiti e errore su cartella predefinita assente. **32 XCTest superati** su macOS ARM64: [CI](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42113452818).
+- La firma Apple Development non è notarizzazione; le eccezioni Sandbox sono sperimentali e richiedono prova manuale, anche rispetto alle altre protezioni macOS.
+- Tutte le analisi restano read-only; nessuna pulizia o disattivazione automatica.
+
 ## v0.1.0-alpha.10 (2026-11-05) — diagnosi ordinaria e avvii utente
 
 - Nuove sezioni **Manutenzione** e **Avvii automatici** nella navigazione SwiftUI.

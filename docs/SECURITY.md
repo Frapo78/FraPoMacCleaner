@@ -80,6 +80,12 @@ La scansione prova a identificare i file tramite `lstat` senza seguire il colleg
 
 ## Diagnosi P0-A implementata (alpha.10)
 
-L'implementazione iniziale elenca solo metadati di log utente datati, file nelle directory di compilazione Xcode e nomi `.plist` di `~/Library/LaunchAgents`, dopo autorizzazione esplicita e match con la posizione attesa. Non apre contenuti, non usa `launchctl`, non disabilita agenti, non richiede Full Disk Access, non legge `/private/var/log` né directory di sistema.
+L'implementazione iniziale elenca solo metadati di log utente datati, file nelle directory di compilazione Xcode e nomi `.plist` di `~/Library/LaunchAgents`, dopo richiesta esplicita dell'utente (pulsante) e match con la posizione attesa. Non apre contenuti, non usa `launchctl`, non disabilita agenti, non richiede Full Disk Access, non legge `/private/var/log` né directory di sistema.
 
 Il file `.plist` resta protetto, indipendentemente dalla data o dimensione. Il modulo di scansione non possiede alcuna API di cancellazione, non prova se i log siano in uso e non distingue con certezza le build ancora utili: **queste informazioni non sono sufficienti per avviare una pulizia**. La futura fase P0-B richiederà prove dedicate e una policy di ammissibilità separata, con conferme e revalidazione dell'identità.
+
+## Eccezioni di sola lettura per l'avvio diretto (alpha.11)
+
+L'App Sandbox rimane attiva. Per evitare che una scelta cartella sia necessaria ad ogni ispezione P0-A, il bundle firmato dichiara l'entitlement Apple `com.apple.security.temporary-exception.files.home-relative-path.read-only` **solo per le tre posizioni esatte** previste nel modulo. È una decisione da riesaminare prima di distribuire nello Store; le eccezioni temporanee sono soggette a valutazione e non rimuovono protezioni TCC/POSIX. Non richiedere privilegi amministrativi o Full Disk Access.
+
+Nessun percorso arbitrario viene accettato da `RoutineInspectionEngine` e la sola apertura della sezione non avvia una scansione: occorre premere il pulsante. Un errore di accesso alla cartella iniziale **fallisce esplicitamente**: non viene presentato come elenco vuoto. Nessuna nuova azione scrive, elimina file o gestisce servizi. La successiva fase di pulizia non deve assumere che questa eccezione di sola lettura autorizzi operazioni di scrittura.

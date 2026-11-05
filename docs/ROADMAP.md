@@ -43,6 +43,7 @@
 - [ ] Anteprima di ogni categoria: **alpha.10** mostra ragioni, età e dimensioni logiche osservate; restano misure allocate per il modulo di manutenzione, ownership in UI, controllo uso attivo e risk scoring verificabile.
 
 - [x] **Alpha.10:** moduli separati e testati per diagnosi log utente datati, DerivedData e file LaunchAgents, tutti read-only, senza selezione o mutazione.
+- [x] **Alpha.11:** avvio con un clic senza selettore cartelle per le tre posizioni predefinite, autorizzazioni di sola lettura circoscritte e messaggi di errore espliciti; convalida runtime App Sandbox ancora aperta.
 
 ### P0-B — Pulizia controllata (primo incremento della Fase 2, solo dopo gate di sicurezza)
 

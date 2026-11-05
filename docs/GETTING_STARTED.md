@@ -111,8 +111,16 @@ Aprire **Manutenzione** per analizzare, solo su richiesta:
 - `~/Library/Logs` — file di log e diagnostica non modificati da almeno 30 giorni;
 - `~/Library/Developer/Xcode/DerivedData` — riepilogo dei file di build osservati per progetto.
 
-Aprire **Avvii automatici** per scegliere `~/Library/LaunchAgents` (solo nomi `.plist`) oppure aprire **Elementi login** nelle Impostazioni di sistema.
+Aprire **Avvii automatici** per controllare direttamente `~/Library/LaunchAgents` (solo nomi `.plist`), oppure **Gestisci gli avvii del Mac** per aprire le Impostazioni di sistema.
 
-In ciascun caso usare il selettore cartelle per concedere accesso in lettura. Per raggiungere `~/Library` nel dialogo, premere **⌘⇧G** e digitare il percorso indicato, usando `~` come home dell'utente. Se la directory manca, non crearla con privilegi elevati: quella categoria non ha dati disponibili. La selezione di una directory diversa viene rifiutata.
+**Dalla versione alpha.11 non serve scegliere un percorso:** premere **Controlla i log** oppure **Controlla i file temporanei** per avviare subito l'analisi della cartella predefinita. In **Avvii automatici**, premere **Controlla gli avvii automatici**. Se la cartella non esiste viene spiegato nell'interfaccia; se macOS nega la lettura l'analisi si interrompe con un messaggio. Non creare cartelle o modificare autorizzazioni con privilegi elevati.
 
 Tutte le voci risultano **protette**: nessuna cancellazione di log/cache, rimozione di file plist o terminazione di processi. Un file in LaunchAgents non dimostra che l'agente sia in esecuzione. Il totale Xcode è una somma logica parziale, non spazio liberabile. Testare prima con dati non sensibili; la verifica manuale sulle cartelle reali è ancora aperta.
+
+## Verifica avvio diretto (alpha.11)
+
+L'app firmata usa App Sandbox e le tre eccezioni documentate da Apple per la sola lettura di posizioni predefinite. Per una prova sulla build firmata: aprire **Manutenzione**, premere **Controlla i log**, verificare che **non appaia un selettore di cartella** e che il risultato o l'errore di accesso sia mostrato. Ripetere con **Controlla i file temporanei** e nella sezione **Avvii automatici** con il pulsante di controllo.
+
+Le eccezioni sono specifiche per l'account e non concedono accesso indiscriminato al disco. TCC, permessi UNIX e altre restrizioni possono comunque bloccare la lettura. I risultati sono puramente informativi. La presenza di log o file temporanei non autorizza alcuna rimozione.
+
+**Attenzione:** questa prova va eseguita sulla build firmata della nuova versione. Una build precedente non include i nuovi permessi; le prove automatizzate non sostituiscono la verifica effettiva su un Mac con Sandbox attiva.

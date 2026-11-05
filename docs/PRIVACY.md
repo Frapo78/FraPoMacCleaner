@@ -32,4 +32,4 @@ Durante la scansione viene mantenuto in memoria un insieme limitato di coppie de
 
 ## Diagnosi dei residui utente (alpha.10)
 
-L'app usa l'accesso scelto dall'utente limitato alla durata del job, senza bookmark persistente. Mantiene solo in memoria nomi di log, cartelle DerivedData e identificativi nominali di LaunchAgents per mostrare le voci nel Finder; non legge contenuti, non esporta inventari e non li trasmette. I percorsi delle tre aree sono descrizioni pubbliche dei casi d'uso, non privilegi di accesso.
+Dalla alpha.11 l'app legge direttamente le sole tre posizioni predefinite quando l'utente preme il relativo pulsante, utilizzando un entitlement Sandbox di sola lettura ristretto; nessun bookmark persistente. Mantiene solo in memoria nomi di log, cartelle DerivedData e identificativi nominali di LaunchAgents per mostrare le voci nel Finder; non legge contenuti, non esporta inventari e non li trasmette. I percorsi delle tre aree sono descrizioni pubbliche dei casi d'uso, non privilegi di accesso.

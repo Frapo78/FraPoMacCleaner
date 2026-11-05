@@ -6,7 +6,7 @@
 ## Decisione
 
 - Due sezioni distinte: Manutenzione (log/rapporti utente e build Xcode) e Avvii automatici (file utente `LaunchAgents` e link alle Impostazioni).
-- Accesso solo dopo file importer e controllo della corrispondenza esatta con tre cartelle della home dell'account.
+- In alpha.10 accesso tramite file importer e controllo della corrispondenza con tre cartelle della home; **il meccanismo di autorizzazione è stato aggiornato da ADR-0008 in alpha.11**.
 - Nessuna lettura di contenuti: per log soltanto suffissi approvati e anzianità di almeno 30 giorni; per Xcode solo totali per cartella di progetto; per startup solo nomi dei plist. Le informazioni sullo stato effettivo degli agenti rimangono sconosciute.
 - Escludere symlink, file hard link, device diversi, oggetti non dell'utente e nomi protetti; porre limiti su elementi visitati, risultati e profondità. L'accesso security-scoped dura la sola scansione.
 - Nessuna disabilitazione, cancellazione o mutazione: tutta l'area resta `protected`. Le stime non indicano spazio recuperabile.

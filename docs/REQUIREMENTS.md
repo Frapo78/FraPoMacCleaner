@@ -95,3 +95,11 @@ La funzione *Pulizia ordinaria sicura* è una priorità del prodotto, **non anco
 - Elenco informativo dei soli `.plist` direttamente sotto `~/Library/LaunchAgents` e pulsante di accesso alle Impostazioni di sistema via `SMAppService`. Non equivale all'inventario di tutti i login item o processi.
 - Il selettore cartelle deve autorizzare espressamente la **posizione esatta** prevista per la categoria; differenze, symlink, altri device e permessi negati bloccano o escludono l'ispezione.
 - Massimo 20.000 voci visitate e 200 risultati, nessuna lettura contenuto, nessuna azione che modifichi file, agenti o impostazioni.
+
+## Esperienza di manutenzione diretta (alpha.11)
+
+- I controlli per log, file temporanei Xcode e agenti utente devono **avviare immediatamente** la scansione dei rispettivi percorsi predefiniti; nessun file importer per questi casi.
+- Etichette brevi, accessibili a utenti non tecnici: «Controlla i log», «Controlla i file temporanei» e «Controlla gli avvii automatici».
+- Il comportamento non deve concedere accesso generale al disco: le tre sole directory hanno una eccezione di sola lettura documentata Apple, mantenendo App Sandbox e verificando POSIX/TCC.
+- Errori di cartella assente, non valida e inaccessibile vanno indicati chiaramente senza mostrare un successo vuoto.
+- L'apertura della sezione non attiva automaticamente la lettura; ogni analisi nasce da un clic dedicato. Nessuna funzione scrive o elimina file.
