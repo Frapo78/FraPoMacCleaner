@@ -80,3 +80,9 @@ La compilazione UI su macOS ARM64 è stata completata; la verifica manuale dell'
 [CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42113452818): **32 test, zero errori**. Due nuovi test verificano le tre mappature predefinite e la segnalazione della cartella mancante. La CI compila l'interfaccia senza file importer per la Manutenzione.
 
 **Test manuali ancora necessari:** lanciare il pacchetto **firmato Apple Development** su macOS con App Sandbox attiva, verificare che un clic apra direttamente ciascuna delle tre scansioni e che gli errori TCC/UNIX siano mostrati, senza chiedere un percorso. Controllare firma ed entitlement inclusi nell'app distribuita. La disponibilità di un entitlement non prova di per sé accessibilità su ogni Mac.
+
+## Indizi di revisione, mai permessi di cancellazione (alpha.12)
+
+[CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42118076668): **37 XCTest, 0 errori**. I cinque nuovi casi verificano rapporti diagnostici con età diversa, log normali sempre protetti, build Xcode vecchie e recenti, scansioni con limiti raggiunti, agenti di avvio protetti e data assente. Verificano anche che `canRemove` sia sempre falso e che `st_blocks` sia riportato solo come osservazione.
+
+La nuova vista e il filtro sono compilati in CI, ma resta la verifica visiva manuale su build firmata, nonché lo stato effettivo di file aperti/attività dei progetti e i cambiamenti fra scansione e uso dei risultati.

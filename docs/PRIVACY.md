@@ -33,3 +33,7 @@ Durante la scansione viene mantenuto in memoria un insieme limitato di coppie de
 ## Diagnosi dei residui utente (alpha.10)
 
 Dalla alpha.11 l'app legge direttamente le sole tre posizioni predefinite quando l'utente preme il relativo pulsante, utilizzando un entitlement Sandbox di sola lettura ristretto; nessun bookmark persistente. Mantiene solo in memoria nomi di log, cartelle DerivedData e identificativi nominali di LaunchAgents per mostrare le voci nel Finder; non legge contenuti, non esporta inventari e non li trasmette. I percorsi delle tre aree sono descrizioni pubbliche dei casi d'uso, non privilegi di accesso.
+
+## Metadati di revisione (alpha.12)
+
+La classificazione e i blocchi allocati sono prodotti in locale utilizzando metadati già necessari alla diagnosi. L'indicazione della sottocartella non identifica con certezza l'app di origine. Nessun nome di file, percorso, identità inode o dato di processi viene trasmesso o esportato automaticamente. I risultati sono mantenuti nella sessione e non costituiscono permessi di pulizia.

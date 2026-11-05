@@ -103,3 +103,11 @@ La funzione *Pulizia ordinaria sicura* è una priorità del prodotto, **non anco
 - Il comportamento non deve concedere accesso generale al disco: le tre sole directory hanno una eccezione di sola lettura documentata Apple, mantenendo App Sandbox e verificando POSIX/TCC.
 - Errori di cartella assente, non valida e inaccessibile vanno indicati chiaramente senza mostrare un successo vuoto.
 - L'apertura della sezione non attiva automaticamente la lettura; ogni analisi nasce da un clic dedicato. Nessuna funzione scrive o elimina file.
+
+## Classificazione di revisione della manutenzione (alpha.12)
+
+- Mostrare la provenienza per **sottocartella indicativa**, data e blocchi allocati osservati, senza tentare di identificarne il proprietario applicativo dai soli nomi.
+- Segnalare **da approfondire** solo vecchi rapporti diagnostici, log ruotati compressi e build Xcode le cui ultime modifiche osservate risalgono ad almeno 90 giorni.
+- Se manca la data, la scansione è parziale o si sono verificati errori, la classificazione torna `protected`.
+- Gli agenti di avvio e i log ordinari non ricevono mai l'indicazione «da approfondire» in questa prima policy.
+- Il filtro UI è informativo e non deve influire su diritti di accesso o su alcuna futura autorizzazione di cancellazione.

@@ -2,7 +2,7 @@
 
 **Pulizia, analisi dello spazio e manutenzione consapevole per macOS su Apple Silicon.**
 
-> **Stato: pre-alpha, scanner di metadati e ripartizione dello spazio in fase di validazione manuale.** Progetto Xcode nativo SwiftUI con dashboard disco, selezione cartella e scanner ricorsivo read-only. Il nuovo codice ha superato 32 test su macOS ARM64; rimane da validare manualmente la gestione dei permessi nell'app firmata. Non esistono operazioni di pulizia o cancellazione.
+> **Stato: pre-alpha, scanner di metadati e ripartizione dello spazio in fase di validazione manuale.** Progetto Xcode nativo SwiftUI con dashboard disco, selezione cartella e scanner ricorsivo read-only. Il nuovo codice ha superato 37 test su macOS ARM64; rimane da validare manualmente la gestione dei permessi nell'app firmata. Non esistono operazioni di pulizia o cancellazione.
 
 FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza**, sviluppato con codice e interfaccia originali.
 
@@ -41,7 +41,7 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 | Monitor | CPU, memoria, processi e attività disco | v0.3 |
 | Scansioni pianificate | Solo con consenso e impatto limitato | Futuro |
 
-**Stato attuale:** logo originale 1460×285 e icona 1024×1024 verificati. Il primo scanner esamina metadati di cartelle scelte dall'utente, segnala file grandi o datati, offre annullamento ed esclude symlink e aree sensibili. La CI ha superato 32 test. I risultati includono la ripartizione delle dimensioni logiche per tipo e sottocartella, avanzamento per elementi visitati, diagnostica raggruppata delle esclusioni, filtri di ricerca, soglie personalizzabili, misure per inode, esportazione locale anonima e un primo inventario read-only con avvio immediato di log utente, build Xcode e agenti di avvio; la pulizia rimane completamente assente.
+**Stato attuale:** logo originale 1460×285 e icona 1024×1024 verificati. Il primo scanner esamina metadati di cartelle scelte dall'utente, segnala file grandi o datati, offre annullamento ed esclude symlink e aree sensibili. La CI ha superato 37 test. I risultati includono la ripartizione delle dimensioni logiche per tipo e sottocartella, avanzamento per elementi visitati, diagnostica raggruppata delle esclusioni, filtri di ricerca, soglie personalizzabili, misure per inode, esportazione locale anonima e un inventario read-only di log utente, build Xcode e agenti di avvio, con avvio immediato, motivi di revisione e blocchi allocati osservati; la pulizia rimane completamente assente.
 
 ## Direzione tecnologica
 
@@ -74,13 +74,13 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 - [Aprire e compilare in Xcode](docs/GETTING_STARTED.md)
 - [Pipeline CI e release ZIP](docs/RELEASING.md)
 - [GitHub Actions](.github/workflows/ci.yml)
-- **[Prerelease attuale: v0.1.0-alpha.11](https://github.com/Frapo78/FraPoMacCleaner/releases/tag/v0.1.0-alpha.11)** (ZIP ARM64, senza firma/notarizzazione)
+- **[Prerelease attuale: v0.1.0-alpha.12](https://github.com/Frapo78/FraPoMacCleaner/releases/tag/v0.1.0-alpha.12)** (ZIP ARM64, senza firma/notarizzazione)
 - [Tutte le GitHub Releases](https://github.com/Frapo78/FraPoMacCleaner/releases)
 - [Identità visiva e icona macOS](docs/BRANDING.md)
 
 Ogni versione significativa dovrà aggiornare `RELEASE_VERSION`, `MARKETING_VERSION` e changelog: GitHub Actions compilerà e creerà automaticamente una **GitHub Release** con tag semantico. I build di sviluppo saranno disponibili come artefatti CI. Le release stabili richiederanno firma Developer ID e notarizzazione; le prerelease sono esplicitamente indicate come test non firmati.
 
-**Prossima milestone:** validare sul Mac l'accesso diretto alle tre cartelle consentite e la gestione dei dinieghi macOS; poi classificare i residui con verifiche su utilizzo attivo, revoca e race. La pulizia rimane disabilitata.
+**Prossima milestone:** verificare sul Mac la nuova schermata con il filtro «da approfondire», poi introdurre verifiche reali di utilizzo attivo, permessi/revoca e modifiche concorrenti dei file. L'analisi rimane informativa e non abilita pulizia.
 
 ## Licenza
 

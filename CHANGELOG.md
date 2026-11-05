@@ -2,6 +2,17 @@
 
 Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 
+## v0.1.0-alpha.12 (2026-11-05) — criteri di revisione e blocchi allocati
+
+- Nuovo livello diagnostico **«Da approfondire»** per rapporti di diagnostica o log ruotati da almeno 90 giorni e cartelle Xcode senza modifiche recenti nei file osservati; gli elementi restano **non eliminabili**.
+- **Log ordinari e agenti di avvio sempre protetti**. Date mancanti, errori di lettura, scansioni parziali e risultati troncati bloccano ogni classificazione positiva.
+- Risultati di Manutenzione con origine presunta (cartella, mai identità verificata dell'app), etichetta esplicita, motivo e **blocchi allocati osservati** per elemento e riepilogo.
+- Filtro «Mostra solo da approfondire» per log e build; nessun filtro che nasconda gli agenti nella sezione Avvii automatici.
+- Le somme di blocchi non quantificano spazio recuperabile: APFS può condividere blocchi, e i file possono essere ancora utilizzati.
+- **37 test XCTest superati** su macOS ARM64: classificazione log diagnostici, log ordinari, build vecchie/recenti, scansioni troncate, agenti protetti e date mancanti. [CI](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42118076668).
+- Confermata manualmente su Mac la funzione di avvio diretto dalle cartelle predefinite della precedente alpha.11.
+- Nessuna cancellazione, modifica di file o disattivazione di processi. La revisione è solo un suggerimento informativo, senza autorizzazione all'azione.
+
 ## v0.1.0-alpha.11 (2026-11-05) — analisi immediata, senza selezione cartelle
 
 - Nelle sezioni **Manutenzione** e **Avvii automatici** i controlli partono con un solo clic: nessun selettore di cartella per `~/Library/Logs`, `~/Library/Developer/Xcode/DerivedData` o `~/Library/LaunchAgents`.

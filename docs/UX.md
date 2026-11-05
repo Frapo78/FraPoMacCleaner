@@ -72,3 +72,9 @@ I riepiloghi mostrano separatamente somma per percorsi, somma logica per inode d
 Le nuove sezioni indicano subito la natura **read-only** della diagnosi. La prima contiene due azioni separate: log utente datati e build Xcode. La seconda elenca i soli agenti dell'utente rappresentati da file `.plist` e offre il pulsante per aprire le impostazioni di login macOS. Ogni azione richiede selezione e accesso espliciti alla cartella prevista; in assenza di corrispondenza viene mostrato un errore leggibile.
 
 La lista mostra al massimo 200 risultati, segnala analisi parziali e marca tutte le voci come protette. La presenza di un elemento LaunchAgents non equivale all'avvio attivo; la dimensione osservata dei residui non è automaticamente recuperabile.
+
+## Revisione guidata di log e build (alpha.12)
+
+La lista di manutenzione visualizza provenienza indicativa, motivo, stato **Protetto** oppure **Da approfondire**, byte logici e blocchi allocati osservati. Un filtro facoltativo mostra soltanto le voci da approfondire. Gli agenti di avvio restano tutti visibili e protetti.
+
+Gli indizi sono limitati a report diagnostici/log ruotati o vecchie cartelle di build, secondo l'ultima data osservata. L'interfaccia dichiara esplicitamente che non può determinare se il file sia in uso né stimare byte recuperabili; nessuna selezione per la pulizia è disponibile.

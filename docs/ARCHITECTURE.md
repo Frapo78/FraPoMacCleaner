@@ -172,3 +172,11 @@ Non esistono componenti di pulizia per queste aree; ogni voce rimane `protected`
 Il bundle resta sandboxed e firma un entitlement `com.apple.security.temporary-exception.files.home-relative-path.read-only` con tre directory: `/Library/Logs/`, `/Library/Developer/Xcode/DerivedData/`, `/Library/LaunchAgents/`, relative alla home dell'account. È una **eccezione temporanea documentata Apple** per il caso di test, non un'abilitazione generica alla lettura dell'intero disco. Può incidere sull'idoneità a distribuzione App Store: riesaminare la scelta prima di release stabili. La conferma runtime è da eseguire su Mac firmato.
 
 Non serve `startAccessingSecurityScopedResource()` per i normali URL costruiti dai percorsi fissi; il motore gestisce errori di autorizzazione e di directory inesistente. I percorsi restano invarianti e il nuovo comportamento **non modifica** la schermata generalista Scansione, che continua a usare cartelle selezionate.
+
+## Valutazione informativa dei residui (alpha.12)
+
+`RoutineReviewPolicy` separa la diagnosi dal futuro coordinatore di pulizia. I soli valori sono `protected` e `needsReview`, entrambi **privi di autorizzazione alla rimozione** (`RoutineEntry.canRemove == false`).
+
+La policy segnala solo rapporti diagnostici `.ips/.crash/.hang/.spin/.diag`, log ruotati compressi (`.log.N.gz`, N=0..3) o gruppi di build Xcode la cui **ultima data osservata** abbia almeno 90 giorni. I log `.log` ordinari, gli agenti `.plist`, i file senza data e tutti i risultati di scansioni parziali o con errori restano `protected`. Il motore non può attestare l'assenza di file in uso: «da approfondire» non significa inattivo, superfluo o recuperabile.
+
+Il campo `origin` rappresenta la sottocartella di primo livello (indicazione non verificata), senza leggere l'identità dell'app o i contenuti. `st_blocks * 512` fornisce i blocchi allocati osservati, con somma saturante; con APFS, cloni e snapshot possono condividere spazio. `observedAllocatedBytes` non è una stima di spazio liberabile. I campi restano in memoria e non sono trasmessi.

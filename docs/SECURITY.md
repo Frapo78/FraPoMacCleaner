@@ -89,3 +89,9 @@ Il file `.plist` resta protetto, indipendentemente dalla data o dimensione. Il m
 L'App Sandbox rimane attiva. Per evitare che una scelta cartella sia necessaria ad ogni ispezione P0-A, il bundle firmato dichiara l'entitlement Apple `com.apple.security.temporary-exception.files.home-relative-path.read-only` **solo per le tre posizioni esatte** previste nel modulo. È una decisione da riesaminare prima di distribuire nello Store; le eccezioni temporanee sono soggette a valutazione e non rimuovono protezioni TCC/POSIX. Non richiedere privilegi amministrativi o Full Disk Access.
 
 Nessun percorso arbitrario viene accettato da `RoutineInspectionEngine` e la sola apertura della sezione non avvia una scansione: occorre premere il pulsante. Un errore di accesso alla cartella iniziale **fallisce esplicitamente**: non viene presentato come elenco vuoto. Nessuna nuova azione scrive, elimina file o gestisce servizi. La successiva fase di pulizia non deve assumere che questa eccezione di sola lettura autorizzi operazioni di scrittura.
+
+## Consigli diagnostici non autorizzativi (alpha.12)
+
+Il livello `needsReview` è un **promemoria per l'utente**, non un rischio di pulizia e non concede azioni: `canRemove` rimane sempre `false`. La soglia di 90 giorni è un criterio di prioritizzazione visiva, non una prova di inattività. Log ordinari, agenti, voci con data incerta, risultati parziali o errori di enumerazione mantengono livello `protected`.
+
+Il rilevamento dei blocchi allocati (`st_blocks`) non dimostra che quei blocchi possano essere liberati. Prima di aprire qualunque funzione di Cestino rimangono necessari test sui processi che usano i file, identificazione robusta, policy per-app specifica, convalida dell'ambito, gestione delle race e consenso esplicito.

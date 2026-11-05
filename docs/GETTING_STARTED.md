@@ -124,3 +124,11 @@ L'app firmata usa App Sandbox e le tre eccezioni documentate da Apple per la sol
 Le eccezioni sono specifiche per l'account e non concedono accesso indiscriminato al disco. TCC, permessi UNIX e altre restrizioni possono comunque bloccare la lettura. I risultati sono puramente informativi. La presenza di log o file temporanei non autorizza alcuna rimozione.
 
 **Attenzione:** questa prova va eseguita sulla build firmata della nuova versione. Una build precedente non include i nuovi permessi; le prove automatizzate non sostituiscono la verifica effettiva su un Mac con Sandbox attiva.
+
+## Prova della nuova classificazione (alpha.12)
+
+In **Manutenzione**, premere **Controlla i log** o **Controlla i file temporanei**. Accanto ai file vengono mostrati **Protetto** o **Da approfondire**, l'origine presunta e i blocchi allocati osservati. Il filtro **Mostra solo da approfondire** aiuta a trovare vecchi rapporti diagnostici o build con ultimo aggiornamento osservato oltre 90 giorni.
+
+**Non eliminare file sulla base di queste segnalazioni.** «Da approfondire» non prova che i file siano inutilizzati. Il contatore è parziale se la scansione raggiunge limiti o registra errori. Nella sezione **Avvii automatici** tutti gli agenti rimangono protetti e non sono nascosti dal filtro.
+
+La scansione senza scelta percorso è già stata confermata sul Mac per alpha.11. La UI dell'alpha.12 richiede una nuova prova manuale.

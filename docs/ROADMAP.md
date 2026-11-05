@@ -40,10 +40,11 @@
 - [ ] Inventario mirato di log e rapporti dell'utente: **alpha.10** analizza in sola lettura, con allowlist limitata di estensioni e almeno 30 giorni di anzianità, la cartella `~/Library/Logs` autorizzata; restano da sviluppare classificazione per app e stima affidabile del rischio.
 - [ ] Rilevamento di cache e residui temporanei: **alpha.10** aggrega il contenuto visibile di `~/Library/Developer/Xcode/DerivedData` per progetto, senza dedurre inattività; restano da approvare altre categorie ed escludere le build in uso.
 - [ ] Vista Avvio in background: **alpha.10** elenca i soli `.plist` dell'utente in `~/Library/LaunchAgents` e apre le Impostazioni macOS tramite API Apple; manca l'inventario completo dei login item moderni e dei relativi stati.
-- [ ] Anteprima di ogni categoria: **alpha.10** mostra ragioni, età e dimensioni logiche osservate; restano misure allocate per il modulo di manutenzione, ownership in UI, controllo uso attivo e risk scoring verificabile.
+- [ ] Anteprima di ogni categoria: **alpha.12** mostra ragioni, età, dimensioni logiche, blocchi allocati e provenienza indicativa; restano ownership verificata in UI, stato d'uso reale e revisione delle regole per-app. La classificazione «Da approfondire» non è una policy di rimozione.
 
 - [x] **Alpha.10:** moduli separati e testati per diagnosi log utente datati, DerivedData e file LaunchAgents, tutti read-only, senza selezione o mutazione.
-- [x] **Alpha.11:** avvio con un clic senza selettore cartelle per le tre posizioni predefinite, autorizzazioni di sola lettura circoscritte e messaggi di errore espliciti; convalida runtime App Sandbox ancora aperta.
+- [x] **Alpha.11:** avvio con un clic senza selettore cartelle per le tre posizioni predefinite, autorizzazioni di sola lettura circoscritte e messaggi di errore espliciti; **convalida manuale completata sul Mac**.
+- [x] **Alpha.12:** valutazione read-only «Da approfondire» per alcune diagnostiche/log ruotati e build Xcode datate, con blocchi allocati e provenienza indicativa. Ogni voce resta non eliminabile, test CI completati.
 
 ### P0-B — Pulizia controllata (primo incremento della Fase 2, solo dopo gate di sicurezza)
 

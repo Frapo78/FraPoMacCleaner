@@ -89,11 +89,10 @@ struct RoutineMaintenanceView: View {
                     Text("Limite di analisi o visualizzazione raggiunto: elenco parziale.")
                         .foregroundStyle(.orange)
                 }
-                if !report.entries.isEmpty {
+                if !report.entries.isEmpty && report.area != .userLaunchAgents {
                     Toggle("Mostra solo da approfondire (\(report.reviewCount))",
                            isOn: $onlyToReview)
                         .font(.callout)
-                        .disabled(report.area == .userLaunchAgents)
                 }
                 if report.entries.isEmpty {
                     ContentUnavailableView("Nessuna voce rilevata", systemImage: "checkmark.shield",
@@ -156,7 +155,8 @@ struct RoutineMaintenanceView: View {
     }
 
     private func visibleEntries(_ report: RoutineReport) -> [RoutineEntry] {
-        onlyToReview
+        guard report.area != .userLaunchAgents else { return report.entries }
+        return onlyToReview
             ? report.entries.filter { $0.reviewLevel == .needsReview }
             : report.entries
     }
