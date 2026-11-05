@@ -115,7 +115,35 @@ final class ReadOnlyScanEngineTests: XCTestCase {
         } catch is CancellationError {}
     }
 
-    func testExclusionRules() {
+    func testLogicalBreakdownCountsFilesBelowCandidateThreshold() async throws {
+        let nested = folder.appendingPathComponent("Media", isDirectory: true)
+        try FileManager.default.createDirectory(at: nested, withIntermediateDirectories: true)
+
+        _ = try makeFile("clip.MOV", in: nested, bytes: 256)
+        _ = try makeFile("cover.HEIC", in: nested, bytes: 16)
+        _ = try makeFile("note.txt", bytes: 8)
+
+        let report = try await scanner().scan(in: ScanScope(folderURL: folder))
+        XCTAssertEqual(report.inspectedFileCount, 3)
+        XCTAssertEqual(report.candidateCount, 1)
+        XCTAssertEqual(report.observedLogicalBytes, 280)
+        XCTAssertEqual(report.fileCategories.map(\.label),
+                       ["Video", "Immagini", "Documenti"])
+        XCTAssertEqual(report.fileCategories.map(\.logicalSizeBytes),
+                       [256, 16, 8])
+        XCTAssertEqual(report.firstLevelFolders.map(\.label),
+                       ["Media", "File nella cartella principale"])
+        XCTAssertEqual(report.firstLevelFolders.map(\.logicalSizeBytes),
+                       [272, 8])
+    }
+
+    func testCategoryIsMetadataOnlyAndCaseInsensitive() {
+        XCTAssertEqual(ScanFileCategory.classify(URL(fileURLWithPath: "/tmp/example.MP4")), .video)
+        XCTAssertEqual(ScanFileCategory.classify(URL(fileURLWithPath: "/tmp/example.swift")), .sourceCode)
+        XCTAssertEqual(ScanFileCategory.classify(URL(fileURLWithPath: "/tmp/example.unknown")), .other)
+    }
+
+        func testExclusionRules() {
         XCTAssertTrue(ReadOnlyScanEngine.isExcluded(
             URL(fileURLWithPath: "/Users/sample/Library/Keychains")
         ))

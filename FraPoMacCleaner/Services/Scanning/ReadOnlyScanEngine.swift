@@ -69,6 +69,30 @@ struct ReadOnlyScanEngine: ScanEngine {
         var excluded = 0
         var errors = 0
         var findings: [ScanFinding] = []
+        var observedLogicalBytes: Int64 = 0
+        var categoryGroups: [String: ScanSizeGroup] = [:]
+        var folderGroups: [String: ScanSizeGroup] = [:]
+        let rootComponentCount = root.pathComponents.count
+
+        func add(_ size: Int64, to label: String, in groups: inout [String: ScanSizeGroup]) {
+            let previous = groups[label]
+            let existingBytes = previous?.logicalSizeBytes ?? 0
+            let totalBytes = existingBytes > Int64.max - size ? Int64.max : existingBytes + size
+            groups[label] = ScanSizeGroup(
+                label: label,
+                fileCount: (previous?.fileCount ?? 0) + 1,
+                logicalSizeBytes: totalBytes
+            )
+        }
+
+        func orderedGroups(_ groups: [String: ScanSizeGroup]) -> [ScanSizeGroup] {
+            groups.values.sorted {
+                if $0.logicalSizeBytes != $1.logicalSizeBytes {
+                    return $0.logicalSizeBytes > $1.logicalSizeBytes
+                }
+                return $0.label < $1.label
+            }
+        }
 
         func report(limit: Bool) -> ScanReport {
             ScanReport(
@@ -82,7 +106,10 @@ struct ReadOnlyScanEngine: ScanEngine {
                 candidateCount: candidates,
                 skippedItemCount: excluded,
                 errorCount: errors,
-                reachedLimit: limit
+                reachedLimit: limit,
+                observedLogicalBytes: observedLogicalBytes,
+                fileCategories: orderedGroups(categoryGroups),
+                firstLevelFolders: orderedGroups(folderGroups)
             )
         }
 
@@ -139,6 +166,19 @@ struct ReadOnlyScanEngine: ScanEngine {
                     continue
                 }
                 let size = Int64(bytes)
+
+                // Aggregate only successfully inspected regular-file metadata.
+                // A sparse file or APFS clone can have a large logical size but little unique disk usage.
+                observedLogicalBytes = observedLogicalBytes > Int64.max - size
+                    ? Int64.max : observedLogicalBytes + size
+                add(size, to: ScanFileCategory.classify(item).label, in: &categoryGroups)
+
+                let components = item.standardizedFileURL.pathComponents
+                let firstLevel = components.count > rootComponentCount + 1
+                    ? components[rootComponentCount]
+                    : "File nella cartella principale"
+                add(size, to: firstLevel, in: &folderGroups)
+
                 let isLarge = size >= minimumLargeFileBytes
                 let modifiedAt = properties.contentModificationDate
                 let isOld = modifiedAt.map {

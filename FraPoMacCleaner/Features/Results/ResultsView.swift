@@ -19,6 +19,29 @@ struct ResultsView: View {
                         Text("\(report.errorCount) elementi non accessibili o con metadati mancanti.")
                             .foregroundStyle(.orange)
                     }
+                    if report.inspectedFileCount > 0 {
+                        GroupBox("Dove si concentra lo spazio analizzato") {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack(alignment: .top, spacing: 16) {
+                                    summaryColumn(
+                                        "Per tipo di file",
+                                        groups: report.fileCategories,
+                                        total: report.observedLogicalBytes
+                                    )
+                                    summaryColumn(
+                                        "Per sottocartella",
+                                        groups: report.firstLevelFolders,
+                                        total: report.observedLogicalBytes
+                                    )
+                                }
+                                Text("Somma delle dimensioni logiche dei soli file esaminati: non è lo spazio fisico occupato né recuperabile. Hard link, cloni APFS ed elementi esclusi possono alterare il confronto con il disco.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(6)
+                        }
+                    }
                     if report.findings.isEmpty {
                         ContentUnavailableView(
                             "Nessun file segnalato",
@@ -72,5 +95,35 @@ struct ResultsView: View {
             }
         }
         .navigationTitle("Risultati")
+    }
+
+    private func summaryColumn(
+        _ title: String,
+        groups: [ScanSizeGroup],
+        total: Int64
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.headline)
+            ForEach(Array(groups.prefix(4))) { group in
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack {
+                        Text(group.label)
+                            .lineLimit(1)
+                        Spacer(minLength: 6)
+                        Text(ByteCountFormatter.string(
+                            fromByteCount: group.logicalSizeBytes,
+                            countStyle: .file
+                        ))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                    }
+                    .font(.caption)
+                    ProgressView(value: total > 0
+                        ? Double(group.logicalSizeBytes) / Double(total)
+                        : 0)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
