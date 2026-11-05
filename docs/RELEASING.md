@@ -50,6 +50,10 @@ Si può anche creare manualmente il tag o avviare `workflow_dispatch` indicando 
 
 Se la pipeline fallisce, **nessuna release valida è stata prodotta**. Non pubblicare manualmente un artefatto compilato male.
 
+## Prima prerelease verificata
+
+Il workflow [Release macOS ARM64 ZIP](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42025800237) ha completato compilazione, XCTest, ZIP e pubblicazione. Artefatto pubblicato: [v0.1.0-alpha.2](https://github.com/Frapo78/FraPoMacCleaner/releases/tag/v0.1.0-alpha.2). Il pacchetto è per test, non firmato né notarizzato e non comprende alcuna funzione di cancellazione.
+
 ## Limite di questa fase
 
 Il repository contiene ora solo lo scheletro dell'app; **non è una versione completa per uso quotidiano**. La prima release stabile sarà definita solo quando saranno completate e testate le funzionalità effettivamente previste per quel traguardo.

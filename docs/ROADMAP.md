@@ -50,9 +50,10 @@
 
 - [x] Definizione di CI per build/test ARM64 e artefatti ZIP di sviluppo.
 - [x] Workflow di GitHub Release su tag semantico.
-- [ ] Prima esecuzione CI verde e test verificati su macOS.
+- [x] Prima esecuzione CI verde e test verificati su macOS ARM64 (GitHub Actions).
 - [ ] Credenziali Apple Developer ID + notarizzazione configurate per versioni stabili.
-- [ ] Primo rilascio funzionante e testato, con ZIP scaricabile.
+- [x] Prima **prerelease compilata e testata** v0.1.0-alpha.2 con ZIP scaricabile.
+- [ ] Prima release **stabile**, completa delle funzioni previste per il rilascio e notarizzata.
 
 ## Fase 5 — prima release pubblica
 

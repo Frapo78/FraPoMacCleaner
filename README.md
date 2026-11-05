@@ -74,7 +74,8 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 - [Aprire e compilare in Xcode](docs/GETTING_STARTED.md)
 - [Pipeline CI e release ZIP](docs/RELEASING.md)
 - [GitHub Actions](.github/workflows/ci.yml)
-- [GitHub Releases](https://github.com/Frapo78/FraPoMacCleaner/releases)
+- **[Prima prerelease compilata: v0.1.0-alpha.2](https://github.com/Frapo78/FraPoMacCleaner/releases/tag/v0.1.0-alpha.2)** (ZIP ARM64, non firmata né notarizzata)
+- [Tutte le GitHub Releases](https://github.com/Frapo78/FraPoMacCleaner/releases)
 
 Ogni versione significativa dovrà aggiornare `RELEASE_VERSION`, `MARKETING_VERSION` e changelog: GitHub Actions compilerà e creerà automaticamente una **GitHub Release** con tag semantico. I build di sviluppo saranno disponibili come artefatti CI. Le release stabili richiederanno firma Developer ID e notarizzazione; le prerelease sono esplicitamente indicate come test non firmati.
 
