@@ -21,7 +21,7 @@ Documenti vincolanti:
 ## Regole di sviluppo
 
 - Non citare nomi, marchi, prodotti o società concorrenti in documentazione, sorgenti, commenti, metadati, asset e messaggi di commit. La descrizione pubblica del progetto deve essere autonoma.
-- Per modifiche maggiori: incrementare la versione, aggiornare il changelog, creare il tag Git semantico e verificare l'esito della GitHub Release. Consulta `docs/RELEASING.md`.
+- Per modifiche maggiori: incrementare la versione, aggiornare il changelog, aggiornare `RELEASE_VERSION` su `main` e verificare la GitHub Release generata automaticamente. Consulta `docs/RELEASING.md`.
 - Prima di modificare la UI aprire `docs/GETTING_STARTED.md` e verificare i test CI; non dichiarare una build valida senza evidenza.
 
 1. **Read-only by default.** Nessun codice distruttivo dentro scanner o view model.

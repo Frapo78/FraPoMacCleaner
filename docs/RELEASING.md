@@ -6,9 +6,11 @@
 
 ## Versioni e cambiamenti maggiori
 
+Il file radice **`RELEASE_VERSION`** è il marcatore di pubblicazione: quando viene modificato su `main`, GitHub Actions compila, esegue i test e crea automaticamente il tag e la release corrispondente. Non occorre creare manualmente il tag in questo flusso.
+
 Usiamo **Semantic Versioning**: `vMAJOR.MINOR.PATCH`, con prerelease `v0.1.0-alpha.1`, `v0.1.0-beta.1` o `v0.1.0-rc.1`.
 
-**Ogni cambiamento significativo di funzionalità o architettura che raggiunge il ramo principale e viene dichiarato pronto per il rilascio deve produrre una nuova versione e una GitHub Release.** In pratica: incrementare `MARKETING_VERSION`, aggiornare `CHANGELOG.md`, creare e pubblicare un tag semantico. Il workflow `.github/workflows/release.yml` esegue build/test e pubblicazione in modo automatico. I semplici cambiamenti documentali non generano una release.
+**Ogni cambiamento significativo di funzionalità o architettura che raggiunge il ramo principale e viene dichiarato pronto per il rilascio deve produrre una nuova versione e una GitHub Release.** In pratica: incrementare `MARKETING_VERSION`, aggiornare `CHANGELOG.md`, aggiornare il file `RELEASE_VERSION`. Il workflow `.github/workflows/release.yml` esegue build/test e pubblicazione in modo automatico. I semplici cambiamenti documentali non generano una release.
 
 La pubblicazione avviene **solo dopo esito positivo** della pipeline. I tag non sostituiscono la revisione dei rischi e il test funzionale.
 
@@ -40,9 +42,11 @@ Non includere file `.p12`, chiavi o credenziali nel repository. Lo script di rel
 1. Confermare milestone funzionale, test, analisi della sicurezza e numero di versione.
 2. Aggiornare `MARKETING_VERSION` nei build settings e `CHANGELOG.md`.
 3. Fare commit e verificare la CI del ramo principale.
-4. Creare il tag che corrisponde alla versione, es. `git tag v0.2.0`.
-5. Pubblicare con `git push origin v0.2.0`.
+4. Aggiornare `RELEASE_VERSION` con il tag scelto (es. `v0.2.0`) **nello stesso commit** della modifica di versione e del changelog.
+5. Pubblicare su `main`: il workflow crea tag, build ARM64 e GitHub Release, soltanto se tutti i controlli passano.
 6. Controllare workflow Release, pagina Releases, checksum SHA-256 e installazione su Mac pulito.
+
+Si può anche creare manualmente il tag o avviare `workflow_dispatch` indicando la versione presente in `RELEASE_VERSION`; il workflow blocca tag non corrispondenti al valore `MARKETING_VERSION` del progetto. Non ripubblicare tag già rilasciati.
 
 Se la pipeline fallisce, **nessuna release valida è stata prodotta**. Non pubblicare manualmente un artefatto compilato male.
 

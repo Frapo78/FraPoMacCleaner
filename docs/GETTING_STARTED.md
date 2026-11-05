@@ -31,7 +31,7 @@ xcodebuild -project FraPoMacCleaner.xcodeproj \
   CODE_SIGNING_ALLOWED=NO test
 ```
 
-Le prove di build e test reali vanno registrate con ambiente e risultato; **questi comandi non sono dichiarati già superati**.
+Le prove di build e test reali vanno registrate con ambiente e risultato; **La CI ARM64 è stata completata con successo il 5 novembre 2026**: [build/test workflow](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42024897794). La compilazione su un Mac locale va verificata separatamente.
 
 ## Funzionalità dello scheletro
 

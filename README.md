@@ -2,7 +2,7 @@
 
 **Pulizia, analisi dello spazio e manutenzione consapevole per macOS su Apple Silicon.**
 
-> **Stato: pre-alpha, scheletro applicativo.** È presente un progetto Xcode nativo SwiftUI con navigazione, lettura dello spazio disco e due suite di test. Scansione e pulizia dei file non sono ancora implementate; la compilazione su Xcode e la prima build CI devono essere verificate.
+> **Stato: pre-alpha, scheletro applicativo.** È presente un progetto Xcode nativo SwiftUI con navigazione, lettura dello spazio disco e due suite di test. Scansione e pulizia dei file non sono ancora implementate; la compilazione e i test sono stati verificati su runner macOS ARM64 tramite GitHub Actions; resta da verificarne l'esecuzione sul Mac dell'utente.
 
 FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza**, sviluppato con codice e interfaccia originali.
 
@@ -76,7 +76,7 @@ FraPoMacCleaner è un progetto **open source, nativo e orientato alla sicurezza*
 - [GitHub Actions](.github/workflows/ci.yml)
 - [GitHub Releases](https://github.com/Frapo78/FraPoMacCleaner/releases)
 
-Ogni modifica significativa del comportamento dovrà essere associata a una versione semantica e a una **GitHub Release** generata da un tag. I build di sviluppo saranno disponibili come artefatti CI. Le release stabili richiederanno firma Developer ID e notarizzazione; le prerelease sono esplicitamente indicate come test non firmati.
+Ogni versione significativa dovrà aggiornare `RELEASE_VERSION`, `MARKETING_VERSION` e changelog: GitHub Actions compilerà e creerà automaticamente una **GitHub Release** con tag semantico. I build di sviluppo saranno disponibili come artefatti CI. Le release stabili richiederanno firma Developer ID e notarizzazione; le prerelease sono esplicitamente indicate come test non firmati.
 
 **Prossima milestone:** scanner **read-only** in ambiti selezionati, con gestione autorizzazioni, cancel e reporting. Le funzioni di pulizia saranno introdotte soltanto dopo test di sicurezza.
 
