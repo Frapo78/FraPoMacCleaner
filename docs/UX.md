@@ -78,3 +78,9 @@ La lista mostra al massimo 200 risultati, segnala analisi parziali e marca tutte
 La lista di manutenzione visualizza provenienza indicativa, motivo, stato **Protetto** oppure **Da approfondire**, byte logici e blocchi allocati osservati. Un filtro facoltativo mostra soltanto le voci da approfondire. Gli agenti di avvio restano tutti visibili e protetti.
 
 Gli indizi sono limitati a report diagnostici/log ruotati o vecchie cartelle di build, secondo l'ultima data osservata. L'interfaccia dichiara esplicitamente che non può determinare se il file sia in uso né stimare byte recuperabili; nessuna selezione per la pulizia è disponibile.
+
+## Ricontrollare l'attività osservabile (alpha.13)
+
+Dopo una scansione della manutenzione, il pulsante **Ricontrolla le variazioni** offre un secondo rilevamento. La UI mostra i conteggi delle voci nuove, cambiate e non più presenti e lo stato dei metadati per ogni voce rimasta. Non è presente una percentuale di «pulizia sicura».
+
+Il testo esplicita che un file senza variazioni può essere ancora in uso. La funzione non legge contenuti né attiva alcuna selezione per il Cestino; categorie diverse o report incompleti non vengono confrontati.

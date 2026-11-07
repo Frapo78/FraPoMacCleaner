@@ -132,3 +132,11 @@ In **Manutenzione**, premere **Controlla i log** o **Controlla i file temporanei
 **Non eliminare file sulla base di queste segnalazioni.** «Da approfondire» non prova che i file siano inutilizzati. Il contatore è parziale se la scansione raggiunge limiti o registra errori. Nella sezione **Avvii automatici** tutti gli agenti rimangono protetti e non sono nascosti dal filtro.
 
 La scansione senza scelta percorso è già stata confermata sul Mac per alpha.11. La UI dell'alpha.12 richiede una nuova prova manuale.
+
+## Verificare le variazioni fra scansioni (alpha.13)
+
+In **Manutenzione**, premere **Controlla i log** o **Controlla i file temporanei** e poi **Ricontrolla le variazioni**. Se le due scansioni sono complete e senza errori, la schermata mostra i numeri di voci nuove, cambiate e non più presenti. Sulle voci rimaste viene visualizzata anche la presenza o assenza di cambiamenti nei metadati. Il controllo funziona anche per i nomi degli agenti di avvio; non ne rileva i processi attivi.
+
+La prova più chiara è su una cartella sintetica usata dai test, non modificando log e build reali: i test GitHub verificano le transizioni senza operazioni distruttive. In uso quotidiano, un risultato **«Nessuna variazione osservata» non certifica che il file sia inutilizzato**.
+
+La prima scansione di una nuova categoria azzera il confronto. In caso di errori o scansioni incomplete, il ricontrollo non riporta differenze potenzialmente ingannevoli. Nessuna cancellazione diventa disponibile.

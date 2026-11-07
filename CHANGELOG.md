@@ -2,6 +2,16 @@
 
 Le versioni seguono [Semantic Versioning](https://semver.org/lang/it/).
 
+## v0.1.0-alpha.13 (2026-11-07) — verifica read-only delle variazioni
+
+- Nuova azione **Ricontrolla le variazioni** nelle sezioni Manutenzione e Avvii: ripete l'inventario della stessa area e confronta esclusivamente i metadati osservati.
+- Segnala nuove voci, voci non più presenti e modifiche rispetto all'ispezione precedente; per DerivedData confronta anche le identità e i timestamp dei file e delle directory ispezionate all'interno di ogni progetto.
+- Confronti solo fra scansioni **complete e senza errori**; nessun confronto in caso di troncamento, cambiamento di categoria o dati insufficienti. Nessun inventario salvato su disco, nessun contenuto file letto.
+- Rafforzata la prudenza sulle build: se una cartella Xcode contiene elementi esclusi o non accessibili, non viene classificata come vecchia build da approfondire.
+- Metadati confrontati: percorso relativo, device, inode, tipo, owner, numero link, dimensione, tempi di modifica e cambio stato. L'inventario temporaneo resta solo nella memoria della sessione.
+- **42 test XCTest superati**, con 5 nuovi casi su aggiunta, scomparsa, modifica, nuove build e scansioni incomplete. [CI ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42367483834).
+- Un file invariato nei metadati può comunque essere aperto e in uso. Nessuna API di cancellazione, disattivazione servizi o stima dei byte recuperabili introdotta.
+
 ## v0.1.0-alpha.12 (2026-11-05) — criteri di revisione e blocchi allocati
 
 - Nuovo livello diagnostico **«Da approfondire»** per rapporti di diagnostica o log ruotati da almeno 90 giorni e cartelle Xcode senza modifiche recenti nei file osservati; gli elementi restano **non eliminabili**.

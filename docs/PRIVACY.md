@@ -37,3 +37,7 @@ Dalla alpha.11 l'app legge direttamente le sole tre posizioni predefinite quando
 ## Metadati di revisione (alpha.12)
 
 La classificazione e i blocchi allocati sono prodotti in locale utilizzando metadati già necessari alla diagnosi. L'indicazione della sottocartella non identifica con certezza l'app di origine. Nessun nome di file, percorso, identità inode o dato di processi viene trasmesso o esportato automaticamente. I risultati sono mantenuti nella sessione e non costituiscono permessi di pulizia.
+
+## Firme dei metadati della sessione (alpha.13)
+
+La funzione di confronto conserva in memoria firme con percorso relativo, identità inode/device e timestamp di file e cartelle osservati. Questi dati possono rivelare nomi di progetto, pertanto **non sono esportati nel JSON, non vengono scritti in file e non sono trasmessi**. Il report precedente viene scartato dopo il confronto e non è mantenuto fra riavvii dell'app. Nessun contenuto viene letto per calcolare le firme.

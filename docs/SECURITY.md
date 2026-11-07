@@ -95,3 +95,9 @@ Nessun percorso arbitrario viene accettato da `RoutineInspectionEngine` e la sol
 Il livello `needsReview` è un **promemoria per l'utente**, non un rischio di pulizia e non concede azioni: `canRemove` rimane sempre `false`. La soglia di 90 giorni è un criterio di prioritizzazione visiva, non una prova di inattività. Log ordinari, agenti, voci con data incerta, risultati parziali o errori di enumerazione mantengono livello `protected`.
 
 Il rilevamento dei blocchi allocati (`st_blocks`) non dimostra che quei blocchi possano essere liberati. Prima di aprire qualunque funzione di Cestino rimangono necessari test sui processi che usano i file, identificazione robusta, policy per-app specifica, convalida dell'ambito, gestione delle race e consenso esplicito.
+
+## Rilevamento variazioni non equivale a stato di utilizzo (alpha.13)
+
+Il confronto delle scansioni osserva solo metadati: due report completi di una stessa categoria possono rivelare un inode sostituito, un file aggiornato oppure la comparsa/scomparsa di file. La firma include timestamp ad alta risoluzione, ma **non è un hash del contenuto, un lock sui file o una prova che i processi non li stiano utilizzando**. Non tentare di interpretare `noChangeObserved` come `reviewable` per la futura pulizia.
+
+Le cartelle Xcode con figli saltati vengono lasciate `protected` anche quando i file osservati sono datati. Le firme in memoria possono contenere nomi relativi dell'utente: vietata loro serializzazione, telemetria o registrazione nei log. Nessun nuovo permesso, privilege escalation o API di mutazione è stato introdotto.

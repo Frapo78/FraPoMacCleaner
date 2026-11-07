@@ -104,6 +104,14 @@ La funzione *Pulizia ordinaria sicura* è una priorità del prodotto, **non anco
 - Errori di cartella assente, non valida e inaccessibile vanno indicati chiaramente senza mostrare un successo vuoto.
 - L'apertura della sezione non attiva automaticamente la lettura; ogni analisi nasce da un clic dedicato. Nessuna funzione scrive o elimina file.
 
+## Confronto dell'attività osservabile (alpha.13)
+
+- Un pulsante **Ricontrolla le variazioni** ripete l'ispezione della stessa area in sola lettura e confronta gli elementi visibili soltanto quando entrambe le scansioni sono complete e senza errori.
+- Confrontare path relativo, device/inode, tipo, owner, numero link, dimensione, modifica e variazione dello stato POSIX. Per le cartelle Xcode, confrontare l'insieme degli elementi osservati all'interno di ciascun progetto, senza leggere contenuti.
+- Segnalare «nuovo», «metadati cambiati», «non più presente» e «nessuna variazione osservata». L'ultimo stato non certifica che nessun processo tenga il file aperto.
+- Vietare la promozione delle build che contengono oggetti saltati o non verificabili a «da approfondire» e non consentire mutazioni in seguito a un confronto riuscito.
+- Conservare firme e nomi relativi soltanto in memoria, senza esportazione, raccolta di dati o file di inventario.
+
 ## Classificazione di revisione della manutenzione (alpha.12)
 
 - Mostrare la provenienza per **sottocartella indicativa**, data e blocchi allocati osservati, senza tentare di identificarne il proprietario applicativo dai soli nomi.

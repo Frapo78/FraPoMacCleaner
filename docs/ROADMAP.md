@@ -27,24 +27,26 @@
 - [ ] Risultati con rischio, motivazione, esclusioni ed errori (in alpha.8 motivi tipizzati, avviso di protezione e diagnostica; restano da progettare una classificazione differenziata e test di permessi).
 - [x] Test automatici su filesystem sintetico e prova manuale iniziale sul Mac (file grande e file datato).
 
-**Stato di v0.1.0-alpha.9:** 23 test XCTest superati, scanner di soli metadati attivo. Verificata anche su Mac la prima scansione di una cartella di fixture con due candidati (314,6 MB e file datato al 2020), entrambi elencati nella schermata Risultati. Restano **aperti** test manuali su soglie, hard link, App Sandbox/revoca e prestazioni 10k–100k elementi. La separazione di inode è implementata, ma stime affidabili di spazio recuperabile APFS/cloni/snapshot e classificazione del rischio differenziata richiedono sviluppo ulteriore; il gate della Fase 1 non è ancora chiuso.
+**Stato di v0.1.0-alpha.13:** 42 test XCTest superati; scanner di soli metadati attivo, diagnostica di manutenzione e confronto tra due scansioni implementati. Verificata anche su Mac la prima scansione di una cartella di fixture con due candidati (314,6 MB e file datato al 2020), entrambi elencati nella schermata Risultati. Restano **aperti** test manuali su soglie, hard link, App Sandbox/revoca e prestazioni 10k–100k elementi. La separazione di inode è implementata, ma stime affidabili di spazio recuperabile APFS/cloni/snapshot e classificazione del rischio differenziata richiedono sviluppo ulteriore; il gate della Fase 1 non è ancora chiuso.
 
 **Exit gate:** nessuna API di mutazione nel percorso di scansione; test dei casi avversi e prestazioni accettabili.
 
 ## Priorità P0 — Pulizia ordinaria sicura e avvii indesiderati
 
-**Nuova priorità di prodotto, da sviluppare prima di duplicati, monitor e manutenzione avanzata.** Obiettivo: recuperare spazio da residui *effettivamente verificati* dell'utente e identificare avvii in background non desiderati. Nessuna promessa generica di accelerazione; eliminare log non riduce automaticamente i processi attivi. **Stato: prima versione diagnostica implementata in alpha.10 e verificata in CI; pulizia controllata ancora non implementata.**
+**Nuova priorità di prodotto, da sviluppare prima di duplicati, monitor e manutenzione avanzata.** Obiettivo: recuperare spazio da residui *effettivamente verificati* dell'utente e identificare avvii in background non desiderati. Nessuna promessa generica di accelerazione; eliminare log non riduce automaticamente i processi attivi. **Stato: diagnostica read-only implementata fino ad alpha.13, confronto delle variazioni verificato in CI; pulizia controllata ancora non implementata.**
 
 ### P0-A — Diagnosi read-only (alpha.10: prima implementazione)
 
 - [ ] Inventario mirato di log e rapporti dell'utente: **alpha.10** analizza in sola lettura, con allowlist limitata di estensioni e almeno 30 giorni di anzianità, la cartella `~/Library/Logs` autorizzata; restano da sviluppare classificazione per app e stima affidabile del rischio.
-- [ ] Rilevamento di cache e residui temporanei: **alpha.10** aggrega il contenuto visibile di `~/Library/Developer/Xcode/DerivedData` per progetto, senza dedurre inattività; restano da approvare altre categorie ed escludere le build in uso.
+- [ ] Rilevamento di cache e residui temporanei: **alpha.13** aggrega DerivedData per progetto e mostra modifiche fra scansioni; non può ancora provare che una build o un processo siano inattivi. Restano regole per-app e verifica affidabile dei file aperti.
 - [ ] Vista Avvio in background: **alpha.10** elenca i soli `.plist` dell'utente in `~/Library/LaunchAgents` e apre le Impostazioni macOS tramite API Apple; manca l'inventario completo dei login item moderni e dei relativi stati.
 - [ ] Anteprima di ogni categoria: **alpha.12** mostra ragioni, età, dimensioni logiche, blocchi allocati e provenienza indicativa; restano ownership verificata in UI, stato d'uso reale e revisione delle regole per-app. La classificazione «Da approfondire» non è una policy di rimozione.
 
 - [x] **Alpha.10:** moduli separati e testati per diagnosi log utente datati, DerivedData e file LaunchAgents, tutti read-only, senza selezione o mutazione.
 - [x] **Alpha.11:** avvio con un clic senza selettore cartelle per le tre posizioni predefinite, autorizzazioni di sola lettura circoscritte e messaggi di errore espliciti; **convalida manuale completata sul Mac**.
 - [x] **Alpha.12:** valutazione read-only «Da approfondire» per alcune diagnostiche/log ruotati e build Xcode datate, con blocchi allocati e provenienza indicativa. Ogni voce resta non eliminabile, test CI completati.
+- [x] **Alpha.13:** confronto opt-in dei metadati su due scansioni complete; nuove voci, modifiche, scomparse e controllo di attività osservabile nelle cartelle Xcode. Le build con elementi esclusi non vengono segnalate come vecchie build da approfondire.
+- [ ] Stato di utilizzo reale: verifica di processi con file aperti, revoca dei permessi, cambiamenti concorrenti, race TOCTOU e revalidazione basata su file descriptor, con test su Mac.
 
 ### P0-B — Pulizia controllata (primo incremento della Fase 2, solo dopo gate di sicurezza)
 

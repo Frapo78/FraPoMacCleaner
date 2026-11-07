@@ -86,3 +86,9 @@ La compilazione UI su macOS ARM64 è stata completata; la verifica manuale dell'
 [CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42118076668): **37 XCTest, 0 errori**. I cinque nuovi casi verificano rapporti diagnostici con età diversa, log normali sempre protetti, build Xcode vecchie e recenti, scansioni con limiti raggiunti, agenti di avvio protetti e data assente. Verificano anche che `canRemove` sia sempre falso e che `st_blocks` sia riportato solo come osservazione.
 
 La nuova vista e il filtro sono compilati in CI, ma resta la verifica visiva manuale su build firmata, nonché lo stato effettivo di file aperti/attività dei progetti e i cambiamenti fra scansione e uso dei risultati.
+
+## Ricontrollo delle variazioni e protezione DerivedData (alpha.13)
+
+[CI macOS ARM64](https://github.com/Frapo78/FraPoMacCleaner/actions/runs/42367483834): **42 XCTest superati, zero errori**. Cinque test aggiuntivi verificano un log modificato fra due scansioni, il confronto di metadati invariati, l'aggiunta e la scomparsa di voci, il cambiamento dentro un progetto Xcode, la protezione dei gruppi con elementi esclusi e il blocco del confronto se una delle scansioni è parziale. I controlli usano solo fixture temporanee create dai test.
+
+Ancora da verificare su Mac reale: processi che mantengono file aperti senza modificarli, revoca dei permessi durante la scansione, race su file e directory, limiti temporali e responsività su grandi cartelle. Il confronto riuscito **non autorizza la pulizia**.

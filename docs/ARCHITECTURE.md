@@ -180,3 +180,11 @@ Non serve `startAccessingSecurityScopedResource()` per i normali URL costruiti d
 La policy segnala solo rapporti diagnostici `.ips/.crash/.hang/.spin/.diag`, log ruotati compressi (`.log.N.gz`, N=0..3) o gruppi di build Xcode la cui **ultima data osservata** abbia almeno 90 giorni. I log `.log` ordinari, gli agenti `.plist`, i file senza data e tutti i risultati di scansioni parziali o con errori restano `protected`. Il motore non può attestare l'assenza di file in uso: «da approfondire» non significa inattivo, superfluo o recuperabile.
 
 Il campo `origin` rappresenta la sottocartella di primo livello (indicazione non verificata), senza leggere l'identità dell'app o i contenuti. `st_blocks * 512` fornisce i blocchi allocati osservati, con somma saturante; con APFS, cloni e snapshot possono condividere spazio. `observedAllocatedBytes` non è una stima di spazio liberabile. I campi restano in memoria e non sono trasmessi.
+
+## Confronto tra ispezioni in memoria (alpha.13)
+
+`RoutineMetadataSignature` contiene metadati POSIX read-only (percorso relativo, device, inode, owner, tipo, link count, dimensione, mtime/ctime in nanosecondi) per gli elementi che il motore riesce a visitare. Ogni `RoutineEntry` contiene un insieme di firme: una firma per log o plist, più firme per ogni progetto DerivedData, incluse le directory attraversate. Il limite dell'enumeratore rimane **20.000 elementi visitati** e 200 voci mostrate.
+
+`RoutineChangeInspector.compare` è una trasformazione pura in memoria che richiede due report dello stesso ambito, senza errori e senza limiti raggiunti. Non riapre i file né legge contenuti. `RoutineInspectionModel` mantiene solo il report precedente per la durata del ricontrollo e non lo salva sul disco. Le differenze derivano dalle firme osservate; il fatto che nessuna firma sia cambiata **non prova assenza di file aperti o inutilizzo**. Ogni futura pulizia dovrà ricontrollare i file in modo transazionale e non può riutilizzare questa classificazione come autorizzazione.
+
+Per le build Xcode la presenza di qualunque figlio escluso o non verificabile rende il **gruppo protetto**, anche se i file visibili risultano vecchi. La protezione evita che un sottoinsieme parziale sembri un progetto completo e inattivo. Il controllo di utilizzo reale da parte dei processi rimane un requisito indipendente.
