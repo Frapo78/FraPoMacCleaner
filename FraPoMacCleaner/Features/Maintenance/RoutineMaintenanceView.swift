@@ -76,6 +76,23 @@ struct RoutineMaintenanceView: View {
                 Text("\(report.entries.count) voci mostrate · \(report.inspectedItemCount) elementi visitati · \(report.skippedItemCount) esclusi · \(report.errorCount) errori")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                HStack {
+                    Button("Ricontrolla le variazioni") {
+                        model.inspect(area: report.area)
+                    }
+                    .help("Confronta soltanto i metadati osservati in due analisi")
+                    Spacer()
+                    if let change = model.comparison {
+                        Text("Nuovi: \(change.addedCount) · Cambiati: \(change.changedCount) · Non più presenti: \(change.removedCount)")
+                            .font(.caption)
+                            .monospacedDigit()
+                    }
+                }
+                if model.comparison != nil {
+                    Text("Confronto dei soli elementi rilevati: nessuna variazione osservata non significa file inutilizzato o processo inattivo.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
                 if report.area != .userLaunchAgents {
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Dimensione logica osservata: \(ByteCountFormatter.string(fromByteCount: report.observedLogicalBytes, countStyle: .file))")
@@ -121,6 +138,12 @@ struct RoutineMaintenanceView: View {
                                     .lineLimit(1)
                             }
                             .font(.caption)
+                            if let status = model.comparison?.statusByID[item.id] {
+                                Label(status.label, systemImage: status.icon)
+                                    .font(.caption)
+                                    .foregroundStyle(status == .noChangeObserved
+                                        ? Color.secondary : Color.orange)
+                            }
                             Text(item.description).font(.caption).foregroundStyle(.secondary)
                             if item.reviewLevel == .needsReview {
                                 Text("Segnalazione basata solo sull'anzianità: l'uso effettivo è sconosciuto. Nessuna rimozione consentita.")

@@ -86,6 +86,96 @@ enum RoutineReviewPolicy {
     }
 }
 
+/// Snapshot only of metadata. It cannot establish whether a process has the file open.
+/// Retained in memory for the session, never saved or included in export.
+struct RoutineMetadataSignature: Hashable, Sendable {
+    let relativePath: String
+    let device: UInt64
+    let inode: UInt64
+    let kind: UInt32
+    let owner: UInt32
+    let linkCount: UInt64
+    let size: Int64
+    let modifiedSeconds: Int64
+    let modifiedNanoseconds: Int64
+    let statusChangedSeconds: Int64
+    let statusChangedNanoseconds: Int64
+
+    init(_ item: URL, rootComponentCount: Int, metadata: stat) {
+        relativePath = item.pathComponents.dropFirst(rootComponentCount).joined(separator: "/")
+        device = UInt64(bitPattern: Int64(metadata.st_dev))
+        inode = UInt64(metadata.st_ino)
+        kind = UInt32(metadata.st_mode & mode_t(S_IFMT))
+        owner = UInt32(metadata.st_uid)
+        linkCount = UInt64(metadata.st_nlink)
+        size = Int64(metadata.st_size)
+        modifiedSeconds = Int64(metadata.st_mtimespec.tv_sec)
+        modifiedNanoseconds = Int64(metadata.st_mtimespec.tv_nsec)
+        statusChangedSeconds = Int64(metadata.st_ctimespec.tv_sec)
+        statusChangedNanoseconds = Int64(metadata.st_ctimespec.tv_nsec)
+    }
+}
+
+enum RoutineChangeStatus: Sendable {
+    case added, changed, noChangeObserved
+
+    var label: String {
+        switch self {
+        case .added: "Nuovo rispetto al controllo precedente"
+        case .changed: "Metadati cambiati"
+        case .noChangeObserved: "Nessuna variazione osservata"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .added: "plus.circle"
+        case .changed: "arrow.triangle.2.circlepath"
+        case .noChangeObserved: "equal.circle"
+        }
+    }
+}
+
+struct RoutineChangeSummary: Sendable {
+    let statusByID: [String: RoutineChangeStatus]
+    let removedCount: Int
+
+    var addedCount: Int { statusByID.values.filter { $0 == .added }.count }
+    var changedCount: Int { statusByID.values.filter { $0 == .changed }.count }
+    var noChangeObservedCount: Int {
+        statusByID.values.filter { $0 == .noChangeObserved }.count
+    }
+}
+
+enum RoutineChangeInspector {
+    /// Comparison of two *complete* scans of the same category and visible scope.
+    /// It is not an open-file detector, and never authorizes removing anything.
+    static func compare(previous: RoutineReport, current: RoutineReport) -> RoutineChangeSummary? {
+        guard previous.area == current.area,
+              !previous.reachedLimit, !current.reachedLimit,
+              previous.errorCount == 0, current.errorCount == 0
+        else { return nil }
+
+        let oldEntries = Dictionary(uniqueKeysWithValues: previous.entries.map { ($0.id, $0) })
+        let currentIDs = Set(current.entries.map(\.id))
+        var differences: [String: RoutineChangeStatus] = [:]
+        for item in current.entries {
+            guard !item.memberSnapshots.isEmpty else { return nil }
+            guard let older = oldEntries[item.id] else {
+                differences[item.id] = .added
+                continue
+            }
+            guard !older.memberSnapshots.isEmpty else { return nil }
+            differences[item.id] = older.memberSnapshots == item.memberSnapshots
+                ? .noChangeObserved : .changed
+        }
+        return RoutineChangeSummary(
+            statusByID: differences,
+            removedCount: previous.entries.filter { !currentIDs.contains($0.id) }.count
+        )
+    }
+}
+
 struct RoutineEntry: Identifiable, Sendable {
     let url: URL
     let label: String
@@ -95,6 +185,7 @@ struct RoutineEntry: Identifiable, Sendable {
     let allocatedSizeBytes: Int64?
     let origin: String
     let reviewLevel: RoutineReviewLevel
+    let memberSnapshots: Set<RoutineMetadataSignature>
     /// No cleanup permission is ever granted by diagnostics.
     var canRemove: Bool { false }
     var id: String { url.path }
@@ -263,6 +354,16 @@ struct RoutineInspectionEngine: Sendable {
             String: (count: Int, bytes: Int64, allocated: Int64,
                      latest: Date?, unknownDates: Bool)
         ] = [:]
+        var projectSnapshots: [String: Set<RoutineMetadataSignature>] = [:]
+        var incompleteProjects = Set<String>()
+
+        func markProjectIncomplete(_ item: URL) {
+            guard area == .xcodeDerivedData,
+                  item.pathComponents.count > rootParts,
+                  let name = item.pathComponents.dropFirst(rootParts).first
+            else { return }
+            incompleteProjects.insert(name)
+        }
         let manager = FileManager.default
 
         scan: while let next = stack.popLast() {
@@ -273,6 +374,7 @@ struct RoutineInspectionEngine: Sendable {
                   (dirInfo.st_mode & mode_t(S_IFMT)) == mode_t(S_IFDIR),
                   FileIdentity(dirInfo).device == rootDevice
             else {
+                markProjectIncomplete(directory)
                 errors += 1
                 continue
             }
@@ -287,6 +389,7 @@ struct RoutineInspectionEngine: Sendable {
                 if directory == root {
                     throw RoutineInspectionError.unreadableDirectory
                 }
+                markProjectIncomplete(directory)
                 errors += 1
                 continue
             }
@@ -299,11 +402,13 @@ struct RoutineInspectionEngine: Sendable {
                 }
                 visited += 1
                 if Self.excluded(item) {
+                    markProjectIncomplete(item)
                     skipped += 1
                     continue
                 }
                 var metadata = stat()
                 guard lstat(item.path, &metadata) == 0 else {
+                    markProjectIncomplete(item)
                     errors += 1
                     continue
                 }
@@ -311,23 +416,37 @@ struct RoutineInspectionEngine: Sendable {
                 guard identity.device == rootDevice,
                       (metadata.st_mode & mode_t(S_IFMT)) != mode_t(S_IFLNK)
                 else {
+                    markProjectIncomplete(item)
                     skipped += 1
                     continue
                 }
                 if (metadata.st_mode & mode_t(S_IFMT)) == mode_t(S_IFDIR) {
+                    if area == .xcodeDerivedData,
+                       let project = item.pathComponents.dropFirst(rootParts).first {
+                        projectSnapshots[project, default: []].insert(
+                            RoutineMetadataSignature(
+                                item, rootComponentCount: rootParts, metadata: metadata
+                            )
+                        )
+                    }
                     if area != .userLaunchAgents && directory != item && stack.count < maximumVisited {
                         if item.pathComponents.count - rootParts <= depthLimit {
                             stack.append((item, item.pathComponents.count - rootParts))
                         } else {
+                            markProjectIncomplete(item)
                             skipped += 1
                         }
-                    } else { skipped += 1 }
+                    } else {
+                        markProjectIncomplete(item)
+                        skipped += 1
+                    }
                     continue
                 }
                 guard (metadata.st_mode & mode_t(S_IFMT)) == mode_t(S_IFREG),
                       metadata.st_uid == getuid(),
                       metadata.st_nlink == 1
                 else {
+                    markProjectIncomplete(item)
                     skipped += 1
                     continue
                 }
@@ -359,13 +478,27 @@ struct RoutineInspectionEngine: Sendable {
                         modifiedAt: modified,
                         allocatedSizeBytes: allocated,
                         origin: source,
-                        reviewLevel: .protected
+                        reviewLevel: .protected,
+                        memberSnapshots: [
+                            RoutineMetadataSignature(
+                                item, rootComponentCount: rootParts, metadata: metadata
+                            )
+                        ]
                     ))
                 case .xcodeDerivedData:
                     let parts = item.pathComponents
                     guard parts.count > rootParts + 1 else { skipped += 1; continue }
-                    if !counted.insert(identity).inserted { skipped += 1; continue }
+                    if !counted.insert(identity).inserted {
+                        markProjectIncomplete(item)
+                        skipped += 1
+                        continue
+                    }
                     let name = parts[rootParts]
+                    projectSnapshots[name, default: []].insert(
+                        RoutineMetadataSignature(
+                            item, rootComponentCount: rootParts, metadata: metadata
+                        )
+                    )
                     let existing = projectGroups[name]
                     projectGroups[name] = (
                         count: (existing?.count ?? 0) + 1,
@@ -388,7 +521,12 @@ struct RoutineInspectionEngine: Sendable {
                         modifiedAt: date,
                         allocatedSizeBytes: allocated,
                         origin: "Agente utente (stato di esecuzione sconosciuto)",
-                        reviewLevel: .protected
+                        reviewLevel: .protected,
+                        memberSnapshots: [
+                            RoutineMetadataSignature(
+                                item, rootComponentCount: rootParts, metadata: metadata
+                            )
+                        ]
                     ))
                 }
             }
@@ -415,7 +553,9 @@ struct RoutineInspectionEngine: Sendable {
                         now: referenceDate,
                         complete: complete,
                         datesVerified: !value.unknownDates
-                    )
+                            && !incompleteProjects.contains(name)
+                    ),
+                    memberSnapshots: projectSnapshots[name] ?? []
                 )
             }
         } else if area == .userLogs {
@@ -434,7 +574,8 @@ struct RoutineInspectionEngine: Sendable {
                         lastModified: item.modifiedAt,
                         now: referenceDate,
                         complete: complete
-                    )
+                    ),
+                    memberSnapshots: item.memberSnapshots
                 )
             }
         }
@@ -454,7 +595,7 @@ struct RoutineInspectionEngine: Sendable {
                     url: item.url, label: item.label, description: item.description,
                     logicalSizeBytes: item.logicalSizeBytes, modifiedAt: item.modifiedAt,
                     allocatedSizeBytes: item.allocatedSizeBytes, origin: item.origin,
-                    reviewLevel: .protected
+                    reviewLevel: .protected, memberSnapshots: item.memberSnapshots
                 )
             }
         }

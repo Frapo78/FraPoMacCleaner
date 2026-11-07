@@ -9,6 +9,7 @@ final class RoutineInspectionModel: ObservableObject {
 
     @Published private(set) var state: State = .idle
     @Published private(set) var report: RoutineReport?
+    @Published private(set) var comparison: RoutineChangeSummary?
     @Published private(set) var message: String?
 
     private let engine: RoutineInspectionEngine
@@ -25,6 +26,7 @@ final class RoutineInspectionModel: ObservableObject {
         guard let folder = engine.allowedRoots[area] else {
             cancel()
             report = nil
+            comparison = nil
             message = "Impossibile individuare la cartella personale del Mac."
             state = .failed
             return
@@ -33,8 +35,10 @@ final class RoutineInspectionModel: ObservableObject {
     }
 
     private func inspect(area: RoutineArea, folder: URL) {
+        let previous = report
         cancel()
         report = nil
+        comparison = nil
         message = nil
         state = .loading
         generation += 1
@@ -48,7 +52,7 @@ final class RoutineInspectionModel: ObservableObject {
                     area: area, selectedURL: folder,
                     isCancelled: { Task.isCancelled }
                 )
-                await self?.finish(report: result, ticket: ticket)
+                await self?.finish(report: result, previous: previous, ticket: ticket)
             } catch {
                 let cancelled = error is CancellationError
                     || (error as? RoutineInspectionError) == .cancelled
@@ -61,8 +65,13 @@ final class RoutineInspectionModel: ObservableObject {
         }
     }
 
-    private func finish(report: RoutineReport, ticket: Int) {
+    private func finish(
+        report: RoutineReport, previous: RoutineReport?, ticket: Int
+    ) {
         guard generation == ticket, state == .loading else { return }
+        if let previous {
+            comparison = RoutineChangeInspector.compare(previous: previous, current: report)
+        }
         self.report = report
         state = .complete
         running = nil

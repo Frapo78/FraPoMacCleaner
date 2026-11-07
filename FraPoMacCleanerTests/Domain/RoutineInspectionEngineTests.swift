@@ -204,6 +204,87 @@ final class RoutineInspectionEngineTests: XCTestCase {
         ), .protected)
     }
 
+    func testSecondScanReportsMetadataChangesWithoutOpeningFiles() throws {
+        let item = try fixture("old-report.ips", bytes: 32, daysAgo: 130)
+        let first = try engine(area: .userLogs).inspect(area: .userLogs, selectedURL: root)
+        let identical = try engine(area: .userLogs).inspect(area: .userLogs, selectedURL: root)
+        let baseline = try XCTUnwrap(RoutineChangeInspector.compare(
+            previous: first, current: identical
+        ))
+        XCTAssertEqual(baseline.noChangeObservedCount, 1)
+        XCTAssertEqual(baseline.changedCount, 0)
+
+        try FileManager.default.setAttributes([
+            .modificationDate: Date(timeIntervalSinceNow: -110 * 86_400)
+        ], ofItemAtPath: item.path)
+        let updated = try engine(area: .userLogs).inspect(area: .userLogs, selectedURL: root)
+        let changes = try XCTUnwrap(RoutineChangeInspector.compare(
+            previous: first, current: updated
+        ))
+        XCTAssertEqual(changes.changedCount, 1)
+        XCTAssertEqual(changes.noChangeObservedCount, 0)
+        XCTAssertEqual(updated.reviewCount, 1)
+        XCTAssertTrue(updated.entries.allSatisfy { !$0.canRemove })
+    }
+
+    func testSecondScanReportsNewAndMissingEntries() throws {
+        let original = try fixture("old-report.ips", daysAgo: 130)
+        let first = try engine(area: .userLogs).inspect(area: .userLogs, selectedURL: root)
+        try FileManager.default.removeItem(at: original)
+        try fixture("new-diagnostic.crash", daysAgo: 140)
+        let second = try engine(area: .userLogs).inspect(area: .userLogs, selectedURL: root)
+        let delta = try XCTUnwrap(RoutineChangeInspector.compare(
+            previous: first, current: second
+        ))
+        XCTAssertEqual(delta.addedCount, 1)
+        XCTAssertEqual(delta.removedCount, 1)
+    }
+
+    func testXcodeGroupChangeDetectsNewFileWithoutDeletingAnything() throws {
+        let project = root.appendingPathComponent("OldProject", isDirectory: true)
+        try FileManager.default.createDirectory(at: project, withIntermediateDirectories: true)
+        try fixture("original.o", in: project, daysAgo: 150)
+        let first = try engine(area: .xcodeDerivedData).inspect(
+            area: .xcodeDerivedData, selectedURL: root
+        )
+        XCTAssertEqual(first.reviewCount, 1)
+        try fixture("recent.o", in: project, daysAgo: 1)
+        let second = try engine(area: .xcodeDerivedData).inspect(
+            area: .xcodeDerivedData, selectedURL: root
+        )
+        let comparison = try XCTUnwrap(RoutineChangeInspector.compare(
+            previous: first, current: second
+        ))
+        XCTAssertEqual(comparison.changedCount, 1)
+        XCTAssertEqual(second.reviewCount, 0)
+        XCTAssertFalse(second.entries[0].canRemove)
+    }
+
+    func testXcodeSkippedFilesPreventOldBuildHint() throws {
+        let project = root.appendingPathComponent("OldProject", isDirectory: true)
+        try FileManager.default.createDirectory(at: project, withIntermediateDirectories: true)
+        try fixture("old.o", in: project, daysAgo: 140)
+        try fixture("protected.sqlite", in: project, daysAgo: 140)
+        let report = try engine(area: .xcodeDerivedData).inspect(
+            area: .xcodeDerivedData, selectedURL: root
+        )
+        XCTAssertEqual(report.entries.count, 1)
+        XCTAssertEqual(report.reviewCount, 0)
+        XCTAssertFalse(report.entries[0].canRemove)
+    }
+
+    func testIncompleteScanCannotBeCompared() throws {
+        for index in 0..<8 { try fixture("old-\(index).ips", daysAgo: 130) }
+        let incomplete = try engine(area: .userLogs, maximumVisited: 2).inspect(
+            area: .userLogs, selectedURL: root
+        )
+        let full = try engine(area: .userLogs).inspect(
+            area: .userLogs, selectedURL: root
+        )
+        XCTAssertNil(RoutineChangeInspector.compare(previous: incomplete, current: full))
+        XCTAssertNil(RoutineChangeInspector.compare(previous: full, current: incomplete))
+    }
+
     func testUserReportsNeverContainDeletionAuthority() throws {
         try fixture("old.log")
         let report = try engine(area: .userLogs).inspect(
